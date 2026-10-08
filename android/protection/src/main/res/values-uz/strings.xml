@@ -2,4 +2,9 @@
 <resources>
     <string name="device_admin_label">MaxCare Kids himoyasi</string>
     <string name="device_admin_description">MaxCare Kids ilovasini ota-onaning ruxsatisiz o‘chirib bo‘lmaydi.</string>
+
+    <string name="protection_channel_name">Himoya holati</string>
+    <string name="protection_channel_description">MaxCare Kids himoyasi yoqilganini ko‘rsatadi.</string>
+    <string name="protection_notification_title">Himoya yoqilgan</string>
+    <string name="protection_notification_text">MaxCare Kids ushbu telefonni himoya qilmoqda</string>
 </resources>

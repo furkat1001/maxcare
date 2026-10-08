@@ -1,8 +1,10 @@
 package uz.maxcare.kids.protection
 
+import android.Manifest
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
+import android.os.Build
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -17,6 +19,12 @@ internal interface DevicePolicyGateway {
     fun addUserRestriction(restriction: String)
     fun clearUserRestriction(restriction: String)
     fun clearDeviceOwner()
+
+    /**
+     * Выдать себе разрешение на уведомления и запретить его отзыв (только Device Owner).
+     * До Android 13 разрешения нет — ничего не делает.
+     */
+    fun lockNotificationPermissionGranted()
 }
 
 internal class AndroidDevicePolicyGateway @Inject constructor(
@@ -45,5 +53,15 @@ internal class AndroidDevicePolicyGateway @Inject constructor(
     @Suppress("DEPRECATION")
     override fun clearDeviceOwner() {
         dpm.clearDeviceOwnerApp(context.packageName)
+    }
+
+    override fun lockNotificationPermissionGranted() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        dpm.setPermissionGrantState(
+            admin,
+            context.packageName,
+            Manifest.permission.POST_NOTIFICATIONS,
+            DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED
+        )
     }
 }

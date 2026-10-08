@@ -2,4 +2,9 @@
 <resources>
     <string name="device_admin_label">MaxCare Kids protection</string>
     <string name="device_admin_description">Prevents removing MaxCare Kids without the parent\'s permission.</string>
+
+    <string name="protection_channel_name">Protection status</string>
+    <string name="protection_channel_description">Shows that MaxCare Kids protection is on.</string>
+    <string name="protection_notification_title">Protection is on</string>
+    <string name="protection_notification_text">MaxCare Kids is protecting this phone</string>
 </resources>
