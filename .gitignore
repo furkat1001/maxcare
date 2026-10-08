@@ -1,0 +1,32 @@
+# Секреты и ключи подписи — никогда не коммитить
+*.jks
+*.keystore
+keystore.properties
+.env
+.env.*
+google-services.json
+GoogleService-Info.plist
+
+# Gradle / Android
+.gradle/
+.kotlin/
+build/
+local.properties
+captures/
+*.apk
+*.aab
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Xcode
+xcuserdata/
+DerivedData/
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies

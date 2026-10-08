@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Временный логотип (щит с буквой M). Заменить на фирменный. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@color/maxcare_brand"
+        android:pathData="M12,1L3,5v6c0,5.55 3.84,10.74 9,12 5.16,-1.26 9,-6.45 9,-12V5L12,1z" />
+    <path
+        android:fillColor="@color/maxcare_on_brand"
+        android:pathData="M7,16V8h1.6l3.4,4.2 3.4,-4.2H17v8h-1.8v-5.2l-3.2,3.9 -3.2,-3.9V16z" />
+</vector>
