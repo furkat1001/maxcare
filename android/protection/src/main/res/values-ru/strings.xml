@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="device_admin_label">Защита MaxCare Kids</string>
+    <string name="device_admin_description">Не даёт удалить MaxCare Kids без разрешения родителя.</string>
+</resources>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Политики Device Owner (запрет удаления, ограничения пользователя) не требуют объявления здесь. -->
+<device-admin>
+    <uses-policies />
+</device-admin>
