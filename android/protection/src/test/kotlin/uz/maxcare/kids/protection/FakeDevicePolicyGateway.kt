@@ -37,6 +37,13 @@ internal class FakeDevicePolicyGateway(
         adminActive = false
     }
 
+    // Как и настоящий DevicePolicyManager: владельца устройства так не снять.
+    override fun removeActiveAdmin() {
+        policyCalls++
+        if (deviceOwner) throw SecurityException("Device owner cannot be removed as an admin")
+        adminActive = false
+    }
+
     override fun lockNotificationPermissionGranted() {
         requireOwner()
         notificationPermissionLocked = true

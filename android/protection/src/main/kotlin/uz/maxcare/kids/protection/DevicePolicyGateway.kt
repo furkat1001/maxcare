@@ -20,6 +20,9 @@ internal interface DevicePolicyGateway {
     fun clearUserRestriction(restriction: String)
     fun clearDeviceOwner()
 
+    /** Отключить обычного администратора устройства (не Device Owner). */
+    fun removeActiveAdmin()
+
     /**
      * Выдать себе разрешение на уведомления и запретить его отзыв (только Device Owner).
      * До Android 13 разрешения нет — ничего не делает.
@@ -49,10 +52,15 @@ internal class AndroidDevicePolicyGateway @Inject constructor(
         dpm.clearUserRestriction(admin, restriction)
     }
 
-    // Единственный способ снять Device Owner без сброса телефона. Вызывается только из debug-сборки.
+    // Единственный способ снять Device Owner без сброса телефона.
+    // Вызывается только после пароля родителя или из debug-команды.
     @Suppress("DEPRECATION")
     override fun clearDeviceOwner() {
         dpm.clearDeviceOwnerApp(context.packageName)
+    }
+
+    override fun removeActiveAdmin() {
+        dpm.removeActiveAdmin(admin)
     }
 
     override fun lockNotificationPermissionGranted() {

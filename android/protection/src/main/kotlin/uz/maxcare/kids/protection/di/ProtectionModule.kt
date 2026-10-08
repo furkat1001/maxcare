@@ -4,11 +4,15 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import uz.maxcare.kids.core.protection.DeviceAdminActivation
 import uz.maxcare.kids.core.protection.DeviceProtection
 import uz.maxcare.kids.core.protection.ParentPassword
+import uz.maxcare.kids.core.protection.ProtectionShutdown
+import uz.maxcare.kids.protection.AndroidDeviceAdminActivation
 import uz.maxcare.kids.protection.AndroidDevicePolicyGateway
 import uz.maxcare.kids.protection.DevicePolicyGateway
 import uz.maxcare.kids.protection.DevicePolicyProtection
+import uz.maxcare.kids.protection.PasswordProtectedShutdown
 import uz.maxcare.kids.protection.password.AndroidDeviceClock
 import uz.maxcare.kids.protection.password.DeviceClock
 import uz.maxcare.kids.protection.password.StoredParentPassword
@@ -29,6 +33,14 @@ internal abstract class ProtectionModule {
 
     @Binds
     abstract fun bindDeviceClock(impl: AndroidDeviceClock): DeviceClock
+
+    @Binds
+    abstract fun bindProtectionShutdown(impl: PasswordProtectedShutdown): ProtectionShutdown
+
+    @Binds
+    abstract fun bindDeviceAdminActivation(
+        impl: AndroidDeviceAdminActivation
+    ): DeviceAdminActivation
 
     @Binds
     abstract fun bindProtectionServiceStarter(

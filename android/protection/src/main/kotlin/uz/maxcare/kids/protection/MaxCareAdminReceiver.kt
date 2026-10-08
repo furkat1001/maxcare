@@ -38,6 +38,12 @@ class MaxCareAdminReceiver : DeviceAdminReceiver() {
         }
     }
 
+    // Показывается в системном диалоге, когда администратора пытаются отключить из Настроек.
+    // Запретить отключение в обычном режиме нельзя — только предупредить; перехват экрана
+    // Настроек появится вместе со службой доступности (спринт 3).
+    override fun onDisableRequested(context: Context, intent: Intent): CharSequence =
+        context.getString(R.string.device_admin_disable_warning)
+
     // Вызывается до фактического отключения, поэтому режим здесь не пересчитываем, а сразу
     // убираем уведомление. Событие «администратор отключён» для отчёта — вместе с очередью событий.
     override fun onDisabled(context: Context, intent: Intent) {

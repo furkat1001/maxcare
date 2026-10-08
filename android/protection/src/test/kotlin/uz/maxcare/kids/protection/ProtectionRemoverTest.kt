@@ -7,20 +7,17 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class DeviceOwnerReleaseTest {
+class ProtectionRemoverTest {
     private val service = FakeProtectionServiceStarter()
 
     @Test
-    fun `release lifts policies, device owner and the notification`() = runTest {
+    fun `device owner is fully removed`() = runTest {
         val gateway = FakeDevicePolicyGateway(deviceOwner = true)
-        DevicePolicyProtection(
-            gateway,
-            service,
-            StandardTestDispatcher(testScheduler)
-        ).applyPolicies()
+        DevicePolicyProtection(gateway, service, StandardTestDispatcher(testScheduler))
+            .applyPolicies()
         assertTrue(service.running)
 
-        assertTrue(DeviceOwnerRelease(gateway, service).release())
+        assertTrue(ProtectionRemover(gateway, service).removeAll())
 
         assertFalse(gateway.uninstallBlocked)
         assertTrue(gateway.restrictions.isEmpty())
@@ -30,10 +27,21 @@ class DeviceOwnerReleaseTest {
     }
 
     @Test
-    fun `release without device owner does nothing`() {
+    fun `device admin is removed`() {
         val gateway = FakeDevicePolicyGateway(adminActive = true)
+        service.start()
 
-        assertFalse(DeviceOwnerRelease(gateway, service).release())
+        assertTrue(ProtectionRemover(gateway, service).removeAll())
+
+        assertFalse(gateway.isAdminActive())
+        assertFalse(service.running)
+    }
+
+    @Test
+    fun `nothing to remove without protection`() {
+        val gateway = FakeDevicePolicyGateway()
+
+        assertFalse(ProtectionRemover(gateway, service).removeAll())
         assertEquals(0, gateway.policyCalls)
     }
 }

@@ -7,18 +7,19 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 /**
- * Снять Device Owner на тестовом телефоне (только debug-сборка):
+ * Снять защиту на тестовом телефоне без пароля (только debug-сборка):
  * ```
  * adb shell am broadcast -n uz.maxcare.kids/uz.maxcare.kids.protection.DebugReleaseReceiver
  * ```
  * Ресивер закрыт разрешением DUMP: оно есть у adb shell, но не у приложений на телефоне.
+ * В release-сборке защиту снимает только родитель паролем ([PasswordProtectedShutdown]).
  */
 @AndroidEntryPoint
 class DebugReleaseReceiver : BroadcastReceiver() {
     @Inject
-    internal lateinit var deviceOwnerRelease: DeviceOwnerRelease
+    internal lateinit var protectionRemover: ProtectionRemover
 
     override fun onReceive(context: Context, intent: Intent) {
-        resultData = if (deviceOwnerRelease.release()) "released" else "not a device owner"
+        resultData = if (protectionRemover.removeAll()) "released" else "protection not active"
     }
 }
