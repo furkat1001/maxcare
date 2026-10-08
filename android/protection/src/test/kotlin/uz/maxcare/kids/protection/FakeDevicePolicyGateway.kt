@@ -7,6 +7,8 @@ internal class FakeDevicePolicyGateway(
     var uninstallBlocked = false
         private set
     val restrictions = mutableSetOf<String>()
+    var notificationPermissionLocked = false
+        private set
     var policyCalls = 0
         private set
 
@@ -33,6 +35,11 @@ internal class FakeDevicePolicyGateway(
         requireOwner()
         deviceOwner = false
         adminActive = false
+    }
+
+    override fun lockNotificationPermissionGranted() {
+        requireOwner()
+        notificationPermissionLocked = true
     }
 
     // Как и настоящий DevicePolicyManager, без прав владельца бросает SecurityException.

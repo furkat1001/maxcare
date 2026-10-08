@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import uz.maxcare.kids.core.di.ApplicationScope
 import uz.maxcare.kids.core.protection.DeviceProtection
+import uz.maxcare.kids.protection.service.ProtectionServiceStarter
 
 /**
  * Администратор устройства MaxCare Kids. Имя класса используется в
@@ -23,6 +24,9 @@ class MaxCareAdminReceiver : DeviceAdminReceiver() {
     @ApplicationScope
     lateinit var appScope: CoroutineScope
 
+    @Inject
+    internal lateinit var serviceStarter: ProtectionServiceStarter
+
     override fun onEnabled(context: Context, intent: Intent) {
         val pendingResult = goAsync()
         appScope.launch {
@@ -32,5 +36,11 @@ class MaxCareAdminReceiver : DeviceAdminReceiver() {
                 pendingResult.finish()
             }
         }
+    }
+
+    // Вызывается до фактического отключения, поэтому режим здесь не пересчитываем, а сразу
+    // убираем уведомление. Событие «администратор отключён» для отчёта — вместе с очередью событий.
+    override fun onDisabled(context: Context, intent: Intent) {
+        serviceStarter.stop()
     }
 }

@@ -12,6 +12,8 @@ import uz.maxcare.kids.protection.DevicePolicyProtection
 import uz.maxcare.kids.protection.password.AndroidDeviceClock
 import uz.maxcare.kids.protection.password.DeviceClock
 import uz.maxcare.kids.protection.password.StoredParentPassword
+import uz.maxcare.kids.protection.service.AndroidProtectionServiceStarter
+import uz.maxcare.kids.protection.service.ProtectionServiceStarter
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -27,4 +29,9 @@ internal abstract class ProtectionModule {
 
     @Binds
     abstract fun bindDeviceClock(impl: AndroidDeviceClock): DeviceClock
+
+    @Binds
+    abstract fun bindProtectionServiceStarter(
+        impl: AndroidProtectionServiceStarter
+    ): ProtectionServiceStarter
 }

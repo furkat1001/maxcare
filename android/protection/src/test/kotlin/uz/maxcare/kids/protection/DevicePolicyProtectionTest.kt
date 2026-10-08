@@ -13,28 +13,31 @@ import uz.maxcare.kids.core.protection.ProtectionMode
 class DevicePolicyProtectionTest {
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
+    private val service = FakeProtectionServiceStarter()
 
     private fun protection(gateway: FakeDevicePolicyGateway) =
-        DevicePolicyProtection(gateway, dispatcher)
+        DevicePolicyProtection(gateway, service, dispatcher)
 
     @Test
-    fun `without admin no policies are applied`() = testScope.runTest {
+    fun `without admin no policies are applied and no notification is shown`() = testScope.runTest {
         val gateway = FakeDevicePolicyGateway()
         val protection = protection(gateway)
 
         assertEquals(ProtectionMode.NONE, protection.applyPolicies())
         assertEquals(ProtectionMode.NONE, protection.mode.value)
         assertEquals(0, gateway.policyCalls)
+        assertFalse(service.running)
     }
 
     @Test
-    fun `device admin does not try device owner policies`() = testScope.runTest {
+    fun `device admin shows the notification without device owner policies`() = testScope.runTest {
         val gateway = FakeDevicePolicyGateway(adminActive = true)
         val protection = protection(gateway)
 
         assertEquals(ProtectionMode.DEVICE_ADMIN, protection.applyPolicies())
         assertEquals(ProtectionMode.DEVICE_ADMIN, protection.mode.value)
         assertEquals(0, gateway.policyCalls)
+        assertTrue(service.running)
     }
 
     @Test
@@ -52,6 +55,17 @@ class DevicePolicyProtectionTest {
     }
 
     @Test
+    fun `device owner locks notification permission and shows the notification`() =
+        testScope.runTest {
+            val gateway = FakeDevicePolicyGateway(deviceOwner = true)
+
+            protection(gateway).applyPolicies()
+
+            assertTrue(gateway.notificationPermissionLocked)
+            assertTrue(service.running)
+        }
+
+    @Test
     fun `applying twice keeps the same state`() = testScope.runTest {
         val gateway = FakeDevicePolicyGateway(deviceOwner = true)
         val protection = protection(gateway)
@@ -63,10 +77,11 @@ class DevicePolicyProtectionTest {
         assertEquals(restrictionsAfterFirst, gateway.restrictions)
         assertTrue(gateway.uninstallBlocked)
         assertEquals(ProtectionMode.DEVICE_OWNER, protection.mode.value)
+        assertTrue(service.running)
     }
 
     @Test
-    fun `mode follows device owner being removed`() = testScope.runTest {
+    fun `notification goes away when protection is removed`() = testScope.runTest {
         val gateway = FakeDevicePolicyGateway(deviceOwner = true)
         val protection = protection(gateway)
         protection.applyPolicies()
@@ -75,5 +90,6 @@ class DevicePolicyProtectionTest {
 
         assertEquals(ProtectionMode.NONE, protection.applyPolicies())
         assertFalse(gateway.isDeviceOwner())
+        assertFalse(service.running)
     }
 }

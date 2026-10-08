@@ -2,4 +2,9 @@
 <resources>
     <string name="device_admin_label">Защита MaxCare Kids</string>
     <string name="device_admin_description">Не даёт удалить MaxCare Kids без разрешения родителя.</string>
+
+    <string name="protection_channel_name">Статус защиты</string>
+    <string name="protection_channel_description">Показывает, что защита MaxCare Kids включена.</string>
+    <string name="protection_notification_title">Защита включена</string>
+    <string name="protection_notification_text">MaxCare Kids защищает этот телефон</string>
 </resources>

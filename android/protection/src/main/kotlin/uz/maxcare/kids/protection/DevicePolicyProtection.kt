@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import uz.maxcare.kids.core.di.IoDispatcher
 import uz.maxcare.kids.core.protection.DeviceProtection
 import uz.maxcare.kids.core.protection.ProtectionMode
+import uz.maxcare.kids.protection.service.ProtectionServiceStarter
 
 /** Ограничения пользователя, которые ставятся в режиме Device Owner. */
 internal val DEVICE_OWNER_RESTRICTIONS = listOf(
@@ -22,6 +23,7 @@ internal val DEVICE_OWNER_RESTRICTIONS = listOf(
 @Singleton
 internal class DevicePolicyProtection @Inject constructor(
     private val gateway: DevicePolicyGateway,
+    private val serviceStarter: ProtectionServiceStarter,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : DeviceProtection {
     private val _mode = MutableStateFlow(ProtectionMode.NONE)
@@ -37,7 +39,11 @@ internal class DevicePolicyProtection @Inject constructor(
         if (current == ProtectionMode.DEVICE_OWNER) {
             gateway.setOwnUninstallBlocked(true)
             DEVICE_OWNER_RESTRICTIONS.forEach(gateway::addUserRestriction)
+            // До запуска службы: иначе на Android 13+ уведомление может не показаться.
+            gateway.lockNotificationPermissionGranted()
         }
+        // Пока защита работает, постоянное уведомление обязательно (политика Google Play о мониторинге).
+        if (current == ProtectionMode.NONE) serviceStarter.stop() else serviceStarter.start()
         _mode.value = current
         current
     }
