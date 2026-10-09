@@ -8,6 +8,8 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import uz.maxcare.kids.core.events.EventSync
+import uz.maxcare.kids.core.events.SyncResult
 import uz.maxcare.kids.core.network.ApiResult
 import uz.maxcare.kids.core.network.MaxCareApi
 import uz.maxcare.kids.core.network.OutgoingEvent
@@ -21,7 +23,8 @@ import uz.maxcare.kids.core.storage.readString
 class ApiDevicePairingTest {
     private val store = InMemorySecureStore()
     private val api = FakeApi()
-    private val pairing = ApiDevicePairing(api, store) { "Test phone" }
+    private val sync = CountingSync()
+    private val pairing = ApiDevicePairing(api, store, { "Test phone" }, sync)
 
     @Test
     fun `successful pairing stores id, token and secret`() = runTest {
@@ -32,6 +35,8 @@ class ApiDevicePairingTest {
         assertEquals("token-1", store.readString(SecureKeys.DEVICE_TOKEN))
         assertArrayEquals(byteArrayOf(1, 2, 3), store.read(SecureKeys.RECOVERY_SECRET))
         assertEquals("12345678" to "Test phone", api.lastRequest)
+        // Сразу после привязки — отметка «на связи» (замечание с проверки на Samsung).
+        assertEquals(1, sync.calls)
     }
 
     @Test
@@ -72,6 +77,7 @@ class ApiDevicePairingTest {
             assertEquals(expected, pairing.pair("12345678"))
             assertFalse(pairing.isPaired())
         }
+        assertEquals(0, sync.calls)
     }
 
     @Test
@@ -80,6 +86,15 @@ class ApiDevicePairingTest {
         store.broken += SecureKeys.DEVICE_TOKEN
 
         assertFalse(pairing.isPaired())
+    }
+
+    private class CountingSync : EventSync {
+        var calls = 0
+
+        override suspend fun sync(): SyncResult {
+            calls++
+            return SyncResult.DELIVERED
+        }
     }
 
     private class FakeApi : MaxCareApi {

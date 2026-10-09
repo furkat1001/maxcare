@@ -10,11 +10,11 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import uz.maxcare.kids.core.events.EventSync
 import uz.maxcare.kids.core.events.EventType
+import uz.maxcare.kids.core.events.SyncResult
 import uz.maxcare.kids.core.network.ApiResult
 import uz.maxcare.kids.core.network.MaxCareApi
 import uz.maxcare.kids.core.network.OutgoingEvent
@@ -77,7 +77,7 @@ class EventUploaderTest {
 
     @Test
     fun `empty queue still sends a heartbeat`() = runTest {
-        assertTrue(uploader.sync())
+        assertEquals(SyncResult.DELIVERED, uploader.sync())
 
         assertEquals(listOf(0), api.batches.map { it.size })
         assertEquals("device-token", api.lastToken)
@@ -87,7 +87,7 @@ class EventUploaderTest {
     fun `delivered events leave the queue`() = runTest {
         fill(3)
 
-        assertTrue(uploader.sync())
+        assertEquals(SyncResult.DELIVERED, uploader.sync())
 
         assertEquals(listOf("id-0", "id-1", "id-2"), api.batches.single().map { it.id })
         assertTrue(queue.peek(10).isEmpty())
@@ -97,7 +97,7 @@ class EventUploaderTest {
     fun `large queue goes in batches of 100`() = runTest {
         fill(250)
 
-        assertTrue(uploader.sync())
+        assertEquals(SyncResult.DELIVERED, uploader.sync())
 
         assertEquals(listOf(100, 100, 50), api.batches.map { it.size })
         assertTrue(queue.peek(10).isEmpty())
@@ -108,17 +108,17 @@ class EventUploaderTest {
         fill(2)
         api.result = ApiResult.NoConnection
 
-        assertFalse(uploader.sync())
+        assertEquals(SyncResult.RETRY_LATER, uploader.sync())
 
         assertEquals(2, queue.peek(10).size)
     }
 
     @Test
-    fun `revoked token stops this attempt without looping`() = runTest {
+    fun `revoked token means not paired, so no retries`() = runTest {
         fill(2)
         api.result = ApiResult.HttpError(401, "unauthorized")
 
-        assertFalse(uploader.sync())
+        assertEquals(SyncResult.NOT_PAIRED, uploader.sync())
 
         assertEquals(1, api.batches.size)
         assertEquals(2, queue.peek(10).size)
@@ -128,9 +128,16 @@ class EventUploaderTest {
     fun `unpaired phone sends nothing`() = runTest {
         store.values.remove(SecureKeys.DEVICE_TOKEN)
 
-        assertFalse(uploader.sync())
+        assertEquals(SyncResult.NOT_PAIRED, uploader.sync())
 
         assertTrue(api.batches.isEmpty())
+    }
+
+    @Test
+    fun `server error asks for a retry`() = runTest {
+        api.result = ApiResult.HttpError(500, "internal_error")
+
+        assertEquals(SyncResult.RETRY_LATER, uploader.sync())
     }
 }
 
@@ -139,11 +146,13 @@ class QueueingEventRecorderTest {
     private val store = InMemoryStore()
     private val queue = SecureEventQueue(store)
     private val sync = CountingSync()
+    private var scheduled = 0
     private val clock = Clock.fixed(Instant.parse("2026-10-09T10:15:30Z"), ZoneOffset.UTC)
 
     private fun TestScope.recorder(): QueueingEventRecorder = QueueingEventRecorder(
         queue,
         sync,
+        { scheduled++ },
         clock,
         CoroutineScope(UnconfinedTestDispatcher(testScheduler))
     )
@@ -169,6 +178,25 @@ class QueueingEventRecorderTest {
         recorder().record(EventType.DEVICE_BOOTED)
 
         assertEquals(0, sync.calls)
+    }
+
+    @Test
+    fun `failed sending is handed over to WorkManager`() = runTest {
+        sync.result = SyncResult.RETRY_LATER
+
+        recorder().record(EventType.ADMIN_DISABLED)
+
+        assertEquals(1, scheduled)
+    }
+
+    @Test
+    fun `delivered or unpaired needs no retry`() = runTest {
+        val recorder = recorder()
+        recorder.record(EventType.DEVICE_BOOTED)
+        sync.result = SyncResult.NOT_PAIRED
+        recorder.record(EventType.DEVICE_BOOTED)
+
+        assertEquals(0, scheduled)
     }
 }
 
@@ -208,9 +236,10 @@ private class FakeApi : MaxCareApi {
 
 private class CountingSync : EventSync {
     var calls = 0
+    var result = SyncResult.DELIVERED
 
-    override suspend fun sync(): Boolean {
+    override suspend fun sync(): SyncResult {
         calls++
-        return true
+        return result
     }
 }

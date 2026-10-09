@@ -34,6 +34,16 @@ interface EventRecorder {
  * Вызывается периодически из постоянной службы и после загрузки телефона.
  */
 interface EventSync {
-    /** @return true, если сервер принял всё, что было в очереди. */
-    suspend fun sync(): Boolean
+    suspend fun sync(): SyncResult
+}
+
+enum class SyncResult {
+    /** Сервер принял всё, что было в очереди. */
+    DELIVERED,
+
+    /** Нет сети или ошибка сервера — события остались в очереди, стоит повторить позже. */
+    RETRY_LATER,
+
+    /** Телефон не привязан или токен отозван (401) — повторять бессмысленно. */
+    NOT_PAIRED
 }

@@ -2,6 +2,7 @@ package uz.maxcare.kids.setup.pairing
 
 import android.os.Build
 import javax.inject.Inject
+import uz.maxcare.kids.core.events.EventSync
 import uz.maxcare.kids.core.network.ApiResult
 import uz.maxcare.kids.core.network.MaxCareApi
 import uz.maxcare.kids.core.pairing.DevicePairing
@@ -28,7 +29,8 @@ internal class BuildDeviceNameSource @Inject constructor() : DeviceNameSource {
 internal class ApiDevicePairing @Inject constructor(
     private val api: MaxCareApi,
     private val store: SecureStore,
-    private val deviceNames: DeviceNameSource
+    private val deviceNames: DeviceNameSource,
+    private val eventSync: EventSync
 ) : DevicePairing {
 
     override suspend fun isPaired(): Boolean = try {
@@ -53,6 +55,9 @@ internal class ApiDevicePairing @Inject constructor(
                     store.writeString(SecureKeys.DEVICE_ID, result.value.deviceId)
                     store.write(SecureKeys.RECOVERY_SECRET, result.value.recoverySecret)
                     store.writeString(SecureKeys.DEVICE_TOKEN, result.value.deviceToken)
+                    // Сразу отметиться «на связи» и отправить накопленное: служба могла запуститься
+                    // до привязки, и её следующая отправка — только через 15 минут.
+                    eventSync.sync()
                     PairingResult.Paired
                 }
 

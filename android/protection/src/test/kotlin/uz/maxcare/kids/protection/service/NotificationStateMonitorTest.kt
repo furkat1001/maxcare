@@ -15,14 +15,27 @@ class NotificationStateMonitorTest {
     private val monitor = NotificationStateMonitor(store, events) { visible }
 
     @Test
-    fun `visible notifications record nothing`() = runTest {
+    fun `hidden notifications at the very first check are not an event`() = runTest {
+        // Так было на Samsung: служба запустилась до шага «Разрешить уведомления».
+        visible = false
+
+        monitor.check()
+        visible = true
         monitor.check()
 
         assertTrue(events.recorded.isEmpty())
     }
 
     @Test
+    fun `visible notifications record nothing`() = runTest {
+        repeat(3) { monitor.check() }
+
+        assertTrue(events.recorded.isEmpty())
+    }
+
+    @Test
     fun `turning notifications off is recorded once`() = runTest {
+        monitor.check()
         visible = false
 
         repeat(3) { monitor.check() }
@@ -32,6 +45,7 @@ class NotificationStateMonitorTest {
 
     @Test
     fun `turning them off again after re-enabling is recorded again`() = runTest {
+        monitor.check()
         visible = false
         monitor.check()
         visible = true
@@ -47,8 +61,7 @@ class NotificationStateMonitorTest {
 
     @Test
     fun `broken storage does not crash the check`() = runTest {
-        visible = false
-        store.broken += "notifications_off_reported"
+        store.broken += "notifications_last_state"
 
         monitor.check()
     }

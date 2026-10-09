@@ -10,16 +10,19 @@ import uz.maxcare.kids.core.di.ApplicationScope
 import uz.maxcare.kids.core.events.EventRecorder
 import uz.maxcare.kids.core.events.EventSync
 import uz.maxcare.kids.core.events.EventType
+import uz.maxcare.kids.core.events.SyncResult
 import uz.maxcare.kids.core.storage.SecureStoreException
 
 /**
  * Записывает событие в очередь и сразу пытается отправить — не дожидаясь периодической отправки:
- * например, событие «защита отключена» должно успеть уйти до того, как служба остановится.
+ * событие «защита отключена» должно уйти, даже если служба сейчас остановится. Если сети нет,
+ * отправку берёт на себя WorkManager.
  */
 @Singleton
 internal class QueueingEventRecorder @Inject constructor(
     private val queue: SecureEventQueue,
     private val sync: EventSync,
+    private val scheduler: EventSyncScheduler,
     private val clock: Clock,
     @ApplicationScope private val appScope: CoroutineScope
 ) : EventRecorder {
@@ -36,6 +39,8 @@ internal class QueueingEventRecorder @Inject constructor(
             // Запись события не должна ломать то, что его вызвало (приёмник, проверку пароля).
             return
         }
-        appScope.launch { sync.sync() }
+        appScope.launch {
+            if (sync.sync() == SyncResult.RETRY_LATER) scheduler.scheduleWhenOnline()
+        }
     }
 }

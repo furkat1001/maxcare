@@ -29,8 +29,10 @@ internal class AndroidNotificationVisibility @Inject constructor(
 }
 
 /**
- * Записывает [EventType.NOTIFICATIONS_OFF] один раз при выключении уведомлений, а не при каждой
- * проверке: иначе раз в 15 минут в журнал родителя падало бы одно и то же событие.
+ * Записывает [EventType.NOTIFICATIONS_OFF] только при переходе «были видны → выключены».
+ * Первая проверка лишь запоминает состояние: служба может запуститься ещё до шага мастера
+ * «Разрешить уведомления», и выключенные уведомления в этот момент — не действие ребёнка.
+ * Повторные проверки того же состояния ничего не пишут: иначе событие падало бы раз в 15 минут.
  */
 @Singleton
 internal class NotificationStateMonitor @Inject constructor(
@@ -40,23 +42,18 @@ internal class NotificationStateMonitor @Inject constructor(
 ) {
     suspend fun check() {
         try {
-            val visible = notifications.isVisible()
-            val reported = store.readString(REPORTED_KEY) == FLAG_SET
-            when {
-                !visible && !reported -> {
-                    events.record(EventType.NOTIFICATIONS_OFF)
-                    store.writeString(REPORTED_KEY, FLAG_SET)
-                }
-
-                visible && reported -> store.remove(REPORTED_KEY)
-            }
+            val now = if (notifications.isVisible()) VISIBLE else HIDDEN
+            val before = store.readString(STATE_KEY)
+            if (before == VISIBLE && now == HIDDEN) events.record(EventType.NOTIFICATIONS_OFF)
+            if (before != now) store.writeString(STATE_KEY, now)
         } catch (ignored: SecureStoreException) {
             // Проверим снова через 15 минут; служба из-за этого падать не должна.
         }
     }
 
     private companion object {
-        const val REPORTED_KEY = "notifications_off_reported"
-        const val FLAG_SET = "1"
+        const val STATE_KEY = "notifications_last_state"
+        const val VISIBLE = "visible"
+        const val HIDDEN = "hidden"
     }
 }
