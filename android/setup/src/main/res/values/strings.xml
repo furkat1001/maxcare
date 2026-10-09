@@ -6,7 +6,7 @@
 
     <!-- Заметное раскрытие (политика Google Play). Обновлять вместе с каждой новой функцией сбора данных. -->
     <string name="disclosure_title">Before you start</string>
-    <string name="disclosure_body">MaxCare Kids is parental control. A parent installs it, and the child always sees that it is working.\n\nWhat the app does now:\n• it cannot be removed without the parent password;\n• it shows a permanent notification that protection is on;\n• it connects this phone to the parent’s account. The phone name and model are sent to the MaxCare server.\n\nThe app does not hide, does not read messages and does not send photos or screen contents.\n\nContinue only if you are the parent or guardian of this child.</string>
+    <string name="disclosure_body">MaxCare Kids is parental control. A parent installs it, and the child always sees that it is working.\n\nWhat the app does now:\n• protection can be turned off in the app only with the parent password;\n• it shows a permanent notification that protection is on;\n• it connects this phone to the parent’s account. The phone name and model are sent to the MaxCare server.\n\nThe app does not hide, does not read messages and does not send photos or screen contents.\n\nContinue only if you are the parent or guardian of this child.</string>
     <string name="disclosure_accept">I am the parent, continue</string>
 
     <string name="pairing_title">Connect to the parent</string>
@@ -20,8 +20,8 @@
     <string name="password_confirm_label">Repeat the password</string>
     <string name="password_submit">Save password</string>
 
-    <string name="admin_title">Protection from removal</string>
-    <string name="admin_body">Android will ask you to turn on the MaxCare Kids device admin. While it is on, the app cannot be removed without the parent.</string>
+    <string name="admin_title">Device admin</string>
+    <string name="admin_body">Android will ask you to turn on the MaxCare Kids device admin. It is needed for protection. On some phones the app can still be removed together with the device admin.</string>
     <string name="admin_submit">Turn on</string>
 
     <string name="notifications_title">Notification</string>
@@ -34,7 +34,7 @@
 
     <string name="home_title">Protection is on</string>
     <string name="home_mode_owner">Full protection: the app cannot be removed, and safe mode and factory reset are blocked.</string>
-    <string name="home_mode_admin">Basic protection: while the device admin is on, the app cannot be removed.</string>
+    <string name="home_mode_admin">Basic protection. On some phones the app can still be removed together with the device admin.</string>
     <string name="home_disable">Turn off protection</string>
 
     <string name="disable_title">Turning off protection</string>

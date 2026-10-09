@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="device_admin_label">Защита MaxCare Kids</string>
-    <string name="device_admin_description">Не даёт удалить MaxCare Kids без разрешения родителя.</string>
+    <string name="device_admin_description">Защита MaxCare Kids. Отключать должен только родитель.</string>
 
-    <string name="device_admin_activation_explanation">Пока это включено, MaxCare Kids нельзя удалить. Выключать должен только родитель — в приложении MaxCare Kids с паролем родителя.</string>
+    <string name="device_admin_activation_explanation">Это нужно MaxCare Kids для защиты. Выключать должен только родитель — в приложении MaxCare Kids с паролем родителя.</string>
     <string name="device_admin_disable_warning">Без этого MaxCare Kids не сможет защищать телефон. Отключать защиту должен родитель — в приложении MaxCare Kids с паролем родителя.</string>
 
     <string name="protection_channel_name">Статус защиты</string>

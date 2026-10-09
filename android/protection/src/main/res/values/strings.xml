@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="device_admin_label">MaxCare Kids protection</string>
-    <string name="device_admin_description">Prevents removing MaxCare Kids without the parent\'s permission.</string>
+    <string name="device_admin_description">Protects MaxCare Kids. Only a parent should turn this off.</string>
 
-    <string name="device_admin_activation_explanation">While this is on, MaxCare Kids cannot be removed. Only a parent should turn it off, in the MaxCare Kids app with the parent password.</string>
+    <string name="device_admin_activation_explanation">MaxCare Kids needs this for protection. Only a parent should turn it off, in the MaxCare Kids app with the parent password.</string>
     <string name="device_admin_disable_warning">Without this, MaxCare Kids cannot protect this phone. Protection should be turned off by a parent in the MaxCare Kids app, with the parent password.</string>
 
     <string name="protection_channel_name">Protection status</string>

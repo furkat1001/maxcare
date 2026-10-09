@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="device_admin_label">MaxCare Kids ҳимояси</string>
-    <string name="device_admin_description">MaxCare Kids иловасини ота-онанинг рухсатисиз ўчириб бўлмайди.</string>
+    <string name="device_admin_description">MaxCare Kids ҳимояси. Уни фақат ота-она ўчириши керак.</string>
 
-    <string name="device_admin_activation_explanation">Бу ёқилган экан, MaxCare Kids иловасини ўчириб бўлмайди. Уни фақат ота-она MaxCare Kids иловасида ота-она пароли билан ўчириши керак.</string>
+    <string name="device_admin_activation_explanation">Бу MaxCare Kids ҳимояси учун керак. Уни фақат ота-она MaxCare Kids иловасида ота-она пароли билан ўчириши керак.</string>
     <string name="device_admin_disable_warning">Бусиз MaxCare Kids телефонни ҳимоя қила олмайди. Ҳимояни ота-она MaxCare Kids иловасида ота-она пароли билан ўчириши керак.</string>
 
     <string name="protection_channel_name">Ҳимоя ҳолати</string>

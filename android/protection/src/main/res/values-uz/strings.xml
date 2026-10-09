@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="device_admin_label">MaxCare Kids himoyasi</string>
-    <string name="device_admin_description">MaxCare Kids ilovasini ota-onaning ruxsatisiz o‘chirib bo‘lmaydi.</string>
+    <string name="device_admin_description">MaxCare Kids himoyasi. Uni faqat ota-ona o‘chirishi kerak.</string>
 
-    <string name="device_admin_activation_explanation">Bu yoqilgan ekan, MaxCare Kids ilovasini o‘chirib bo‘lmaydi. Uni faqat ota-ona MaxCare Kids ilovasida ota-ona paroli bilan o‘chirishi kerak.</string>
+    <string name="device_admin_activation_explanation">Bu MaxCare Kids himoyasi uchun kerak. Uni faqat ota-ona MaxCare Kids ilovasida ota-ona paroli bilan o‘chirishi kerak.</string>
     <string name="device_admin_disable_warning">Busiz MaxCare Kids telefonni himoya qila olmaydi. Himoyani ota-ona MaxCare Kids ilovasida ota-ona paroli bilan o‘chirishi kerak.</string>
 
     <string name="protection_channel_name">Himoya holati</string>

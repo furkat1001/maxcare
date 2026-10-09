@@ -5,7 +5,7 @@
     <string name="back">Orqaga</string>
 
     <string name="disclosure_title">Boshlashdan oldin</string>
-    <string name="disclosure_body">MaxCare Kids — ota-ona nazorati. Uni ota-ona o‘rnatadi, bola esa ilova ishlayotganini doim ko‘rib turadi.\n\nIlova hozir nima qiladi:\n• ota-ona parolisiz o‘zini o‘chirishga yo‘l qo‘ymaydi;\n• himoya yoqilgani haqida doimiy bildirishnoma ko‘rsatadi;\n• telefonni ota-onaning hisobiga bog‘laydi. MaxCare serveriga telefon nomi va modeli yuboriladi.\n\nIlova yashirinmaydi, yozishmalarni o‘qimaydi, rasmlar va ekran tarkibini yubormaydi.\n\nFaqat bolaning ota-onasi yoki vasiysi bo‘lsangiz, davom eting.</string>
+    <string name="disclosure_body">MaxCare Kids — ota-ona nazorati. Uni ota-ona o‘rnatadi, bola esa ilova ishlayotganini doim ko‘rib turadi.\n\nIlova hozir nima qiladi:\n• ilovada himoyani faqat ota-ona paroli bilan o‘chirish mumkin;\n• himoya yoqilgani haqida doimiy bildirishnoma ko‘rsatadi;\n• telefonni ota-onaning hisobiga bog‘laydi. MaxCare serveriga telefon nomi va modeli yuboriladi.\n\nIlova yashirinmaydi, yozishmalarni o‘qimaydi, rasmlar va ekran tarkibini yubormaydi.\n\nFaqat bolaning ota-onasi yoki vasiysi bo‘lsangiz, davom eting.</string>
     <string name="disclosure_accept">Men ota-onaman, davom etish</string>
 
     <string name="pairing_title">Ota-ona bilan bog‘lanish</string>
@@ -19,8 +19,8 @@
     <string name="password_confirm_label">Parolni takrorlang</string>
     <string name="password_submit">Parolni saqlash</string>
 
-    <string name="admin_title">O‘chirishdan himoya</string>
-    <string name="admin_body">Android MaxCare Kids qurilma administratorini yoqishni so‘raydi. U yoqilgan ekan, ilovani ota-onasiz o‘chirib bo‘lmaydi.</string>
+    <string name="admin_title">Qurilma administratori</string>
+    <string name="admin_body">Android MaxCare Kids qurilma administratorini yoqishni so‘raydi — u himoya uchun kerak. Ba’zi telefonlarda ilovani administrator bilan birga hali ham o‘chirish mumkin.</string>
     <string name="admin_submit">Yoqish</string>
 
     <string name="notifications_title">Bildirishnoma</string>
@@ -33,7 +33,7 @@
 
     <string name="home_title">Himoya yoqilgan</string>
     <string name="home_mode_owner">To‘liq himoya: ilovani o‘chirib bo‘lmaydi, xavfsiz rejim va telefonni tiklash bloklangan.</string>
-    <string name="home_mode_admin">Asosiy himoya: qurilma administratori yoqilgan ekan, ilovani o‘chirib bo‘lmaydi.</string>
+    <string name="home_mode_admin">Asosiy himoya. Ba’zi telefonlarda ilovani qurilma administratori bilan birga hali ham o‘chirish mumkin.</string>
     <string name="home_disable">Himoyani o‘chirish</string>
 
     <string name="disable_title">Himoyani o‘chirish</string>
