@@ -1,0 +1,21 @@
+# Только для локальной разработки: PostgreSQL и Redis для `./gradlew run`.
+# Пароль ниже — локальный, не для рабочего окружения.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: maxcare
+      POSTGRES_USER: maxcare
+      POSTGRES_PASSWORD: maxcare-dev
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+
+volumes:
+  postgres-data:
