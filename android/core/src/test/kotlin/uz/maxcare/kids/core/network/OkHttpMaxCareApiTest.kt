@@ -108,6 +108,34 @@ class OkHttpMaxCareApiTest {
         assertEquals(ApiResult.InsecureConnection, api(client).pairDevice("12345678", "Test phone"))
     }
 
+    @Test
+    fun `events are sent with the device token`() = runTest {
+        server.enqueue(MockResponse.Builder().code(200).body("""{"accepted":1}""").build())
+
+        val result = api().uploadEvents(
+            "device-token",
+            listOf(OutgoingEvent("e-1", "device_booted", "2026-10-09T10:00:00Z"))
+        )
+
+        assertEquals(ApiResult.Ok(Unit), result)
+        val request = server.takeRequest()
+        assertEquals("/v1/device/events", request.url.encodedPath)
+        assertEquals("Bearer device-token", request.headers["Authorization"])
+        assertEquals(
+            """{"events":[{"id":"e-1","type":"device_booted","occurredAt":"2026-10-09T10:00:00Z"}]}""",
+            request.body?.utf8()
+        )
+    }
+
+    @Test
+    fun `pairing is sent without a token`() = runTest {
+        server.enqueue(pairedResponse())
+
+        api().pairDevice("12345678", "Test phone")
+
+        assertEquals(null, server.takeRequest().headers["Authorization"])
+    }
+
     private fun pairedResponse() = MockResponse.Builder()
         .code(201)
         .body("""{"deviceId":"device-1","deviceToken":"token-1","recoverySecret":"AQID"}""")

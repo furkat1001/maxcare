@@ -1,6 +1,8 @@
 package uz.maxcare.kids.protection
 
 import javax.inject.Inject
+import javax.inject.Singleton
+import uz.maxcare.kids.protection.password.DeviceClock
 import uz.maxcare.kids.protection.service.ProtectionServiceStarter
 
 /**
@@ -9,12 +11,19 @@ import uz.maxcare.kids.protection.service.ProtectionServiceStarter
  *
  * Делает binder-вызовы — вызывать не на главном потоке (кроме debug-команды).
  */
+@Singleton
 internal class ProtectionRemover @Inject constructor(
     private val gateway: DevicePolicyGateway,
-    private val serviceStarter: ProtectionServiceStarter
+    private val serviceStarter: ProtectionServiceStarter,
+    private val clock: DeviceClock
 ) {
+    @Volatile
+    private var lastRemovalAt: Long? = null
+
     /** @return false, если защита не была включена и снимать нечего. */
     fun removeAll(): Boolean {
+        // До снятия: система пришлёт onDisabled позже, асинхронно.
+        lastRemovalAt = clock.elapsedRealtime()
         when {
             gateway.isDeviceOwner() -> {
                 // Пока права владельца есть — снимаем политики, затем сам режим.
@@ -29,5 +38,18 @@ internal class ProtectionRemover @Inject constructor(
         }
         serviceStarter.stop()
         return true
+    }
+
+    /**
+     * Защиту только что снимало само приложение. Отличает отключение администратора паролем
+     * родителя от отключения в Настройках: система сообщает об обоих одинаково (onDisabled).
+     */
+    fun removedRecently(): Boolean {
+        val last = lastRemovalAt ?: return false
+        return clock.elapsedRealtime() - last < RECENT_REMOVAL_MILLIS
+    }
+
+    private companion object {
+        const val RECENT_REMOVAL_MILLIS = 60_000L
     }
 }

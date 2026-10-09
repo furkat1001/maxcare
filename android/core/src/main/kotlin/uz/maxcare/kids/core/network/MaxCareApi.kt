@@ -4,7 +4,16 @@ package uz.maxcare.kids.core.network
 interface MaxCareApi {
     /** Обменять одноразовый код от родителя на токен устройства и секрет восстановления. */
     suspend fun pairDevice(code: String, deviceName: String): ApiResult<PairedDevice>
+
+    /**
+     * Отправить события (до 100) с токеном устройства. Пустой список — отметка «на связи».
+     * Повторная отправка тех же событий безопасна: сервер узнаёт их по [OutgoingEvent.id].
+     */
+    suspend fun uploadEvents(deviceToken: String, events: List<OutgoingEvent>): ApiResult<Unit>
 }
+
+/** @param occurredAt время по часам телефона в формате ISO-8601. */
+class OutgoingEvent(val id: String, val type: String, val occurredAt: String)
 
 class PairedDevice(val deviceId: String, val deviceToken: String, val recoverySecret: ByteArray)
 

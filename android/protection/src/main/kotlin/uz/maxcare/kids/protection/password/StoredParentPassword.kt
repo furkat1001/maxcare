@@ -8,6 +8,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import uz.maxcare.kids.core.di.DefaultDispatcher
+import uz.maxcare.kids.core.events.EventRecorder
+import uz.maxcare.kids.core.events.EventType
 import uz.maxcare.kids.core.protection.ChangePasswordResult
 import uz.maxcare.kids.core.protection.ParentPassword
 import uz.maxcare.kids.core.protection.PasswordCheck
@@ -26,7 +28,8 @@ internal class StoredParentPassword @Inject constructor(
     private val store: SecureStore,
     private val hasher: PasswordHasher,
     clock: DeviceClock,
-    @DefaultDispatcher private val hashingDispatcher: CoroutineDispatcher
+    @DefaultDispatcher private val hashingDispatcher: CoroutineDispatcher,
+    private val events: EventRecorder
 ) : ParentPassword {
     private val mutex = Mutex()
     private val lockout = LockoutTracker(store, clock, LOCKOUT_KEY)
@@ -94,6 +97,7 @@ internal class StoredParentPassword @Inject constructor(
             false -> {
                 val failure = lockout.registerFailure()
                 if (failure.lock > Duration.ZERO) {
+                    events.record(EventType.PASSWORD_LOCKOUT)
                     PasswordCheck.LockedOut(failure.lock)
                 } else {
                     PasswordCheck.Wrong(failure.attemptsBeforeLockout)

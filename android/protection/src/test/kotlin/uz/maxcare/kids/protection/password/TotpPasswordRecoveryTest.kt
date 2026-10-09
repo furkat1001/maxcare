@@ -11,25 +11,29 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import uz.maxcare.kids.core.events.EventType
 import uz.maxcare.kids.core.protection.PasswordCheck
 import uz.maxcare.kids.core.protection.RecoveryResult
 import uz.maxcare.kids.core.storage.SecureKeys
+import uz.maxcare.kids.protection.FakeEventRecorder
 
 class TotpPasswordRecoveryTest {
     private val store = FakeSecureStore()
     private val deviceClock = FakeDeviceClock()
     private val wallClock = MutableClock(Instant.parse("2026-10-09T10:02:00Z"))
     private val secret = ByteArray(32) { it.toByte() }
+    private val events = FakeEventRecorder()
 
     private fun TestScope.password() = StoredParentPassword(
         store = store,
         hasher = PasswordHasher(iterations = 1_000),
         clock = deviceClock,
-        hashingDispatcher = StandardTestDispatcher(testScheduler)
+        hashingDispatcher = StandardTestDispatcher(testScheduler),
+        events = events
     )
 
     private fun recovery(password: StoredParentPassword) =
-        TotpPasswordRecovery(store, password, deviceClock, wallClock)
+        TotpPasswordRecovery(store, password, deviceClock, wallClock, events)
 
     private suspend fun TestScope.pairedWithPassword(): StoredParentPassword {
         store.values[SecureKeys.RECOVERY_SECRET] = secret
@@ -155,6 +159,20 @@ class TotpPasswordRecoveryTest {
         recovery(pairedWithPassword()).reset(currentCode(), array)
 
         assertTrue(array.all { it == '\u0000' })
+    }
+
+    @Test
+    fun `password recovery is recorded`() = runTest {
+        recovery(pairedWithPassword()).reset(currentCode(), newPassword())
+
+        assertEquals(listOf(EventType.PASSWORD_RECOVERED), events.recorded)
+    }
+
+    @Test
+    fun `wrong recovery code records nothing`() = runTest {
+        recovery(pairedWithPassword()).reset("00000000", newPassword())
+
+        assertTrue(events.recorded.isEmpty())
     }
 
     private class MutableClock(var now: Instant) : Clock() {

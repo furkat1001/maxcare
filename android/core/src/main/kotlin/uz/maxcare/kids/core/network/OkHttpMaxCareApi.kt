@@ -35,14 +35,25 @@ internal class OkHttpMaxCareApi(
             )
         }
 
+    override suspend fun uploadEvents(
+        deviceToken: String,
+        events: List<OutgoingEvent>
+    ): ApiResult<Unit> = post(
+        "v1/device/events",
+        EventBatchRequest(events.map { EventDto(it.id, it.type, it.occurredAt) }),
+        bearerToken = deviceToken
+    ) { _: EventBatchResponse -> }
+
     private suspend inline fun <reified Req, reified Res, T> post(
         path: String,
         request: Req,
+        bearerToken: String? = null,
         crossinline map: (Res) -> T
     ): ApiResult<T> = withContext(ioDispatcher) {
         val httpRequest = Request.Builder()
             .url(baseUrl.resolve(path) ?: error("Bad API path: $path"))
             .post(json.encodeToString(request).toRequestBody(JSON_TYPE))
+            .apply { bearerToken?.let { header("Authorization", "Bearer $it") } }
             .build()
         try {
             client.newCall(httpRequest).execute().use { response ->
@@ -79,6 +90,15 @@ internal class OkHttpMaxCareApi(
 
     @Serializable
     private data class ErrorResponse(val error: String)
+
+    @Serializable
+    private data class EventDto(val id: String, val type: String, val occurredAt: String)
+
+    @Serializable
+    private data class EventBatchRequest(val events: List<EventDto>)
+
+    @Serializable
+    private data class EventBatchResponse(val accepted: Int)
 
     private companion object {
         const val PLATFORM = "android"

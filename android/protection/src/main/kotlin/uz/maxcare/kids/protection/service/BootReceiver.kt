@@ -8,6 +8,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import uz.maxcare.kids.core.di.ApplicationScope
+import uz.maxcare.kids.core.events.EventRecorder
+import uz.maxcare.kids.core.events.EventType
 import uz.maxcare.kids.core.protection.DeviceProtection
 
 /**
@@ -23,12 +25,20 @@ class BootReceiver : BroadcastReceiver() {
     @ApplicationScope
     lateinit var appScope: CoroutineScope
 
+    @Inject
+    lateinit var events: EventRecorder
+
     override fun onReceive(context: Context, intent: Intent) {
         // Ресивер открыт для системных событий; чужие интенты с другими действиями игнорируем.
         if (intent.action !in HANDLED_ACTIONS) return
         val pendingResult = goAsync()
         appScope.launch {
             try {
+                if (intent.action ==
+                    Intent.ACTION_BOOT_COMPLETED
+                ) {
+                    events.record(EventType.DEVICE_BOOTED)
+                }
                 deviceProtection.applyPolicies()
             } finally {
                 pendingResult.finish()

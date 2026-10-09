@@ -10,19 +10,23 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import uz.maxcare.kids.core.events.EventType
 import uz.maxcare.kids.core.protection.ChangePasswordResult
 import uz.maxcare.kids.core.protection.PasswordCheck
 import uz.maxcare.kids.core.protection.SetPasswordResult
+import uz.maxcare.kids.protection.FakeEventRecorder
 
 class StoredParentPasswordTest {
     private val store = FakeSecureStore()
     private val clock = FakeDeviceClock()
+    private val events = FakeEventRecorder()
 
     private fun TestScope.subject() = StoredParentPassword(
         store = store,
         hasher = PasswordHasher(iterations = 1_000),
         clock = clock,
-        hashingDispatcher = StandardTestDispatcher(testScheduler)
+        hashingDispatcher = StandardTestDispatcher(testScheduler),
+        events = events
     )
 
     private fun pw(text: String = PASSWORD) = text.toCharArray()
@@ -216,6 +220,18 @@ class StoredParentPasswordTest {
         listOf(initial, check, current, new).forEach { array ->
             assertTrue(array.all { it == '\u0000' })
         }
+    }
+
+    @Test
+    fun `lockout is recorded, single wrong attempts are not`() = runTest {
+        val password = subject()
+        password.setInitial(pw())
+
+        password.failTimes(4)
+        assertTrue(events.recorded.isEmpty())
+
+        password.failTimes(1)
+        assertEquals(listOf(EventType.PASSWORD_LOCKOUT), events.recorded)
     }
 
     private companion object {

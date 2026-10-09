@@ -10,6 +10,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import uz.maxcare.kids.core.network.ApiResult
 import uz.maxcare.kids.core.network.MaxCareApi
+import uz.maxcare.kids.core.network.OutgoingEvent
 import uz.maxcare.kids.core.network.PairedDevice
 import uz.maxcare.kids.core.pairing.PairingResult
 import uz.maxcare.kids.core.storage.SecureKeys
@@ -90,6 +91,9 @@ class ApiDevicePairingTest {
             lastRequest = code to deviceName
             return result
         }
+
+        override suspend fun uploadEvents(deviceToken: String, events: List<OutgoingEvent>) =
+            error("Not used")
     }
 
     private class InMemorySecureStore : SecureStore {

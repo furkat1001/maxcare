@@ -8,17 +8,21 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import uz.maxcare.kids.core.events.EventType
 import uz.maxcare.kids.core.protection.DisableProtectionResult
 import uz.maxcare.kids.core.protection.PasswordCheck
+import uz.maxcare.kids.protection.password.FakeDeviceClock
 
 class PasswordProtectedShutdownTest {
     private val service = FakeProtectionServiceStarter()
     private val password = FakeParentPassword()
+    private val events = FakeEventRecorder()
 
     private fun TestScope.shutdown(gateway: FakeDevicePolicyGateway) = PasswordProtectedShutdown(
         parentPassword = password,
         gateway = gateway,
-        remover = ProtectionRemover(gateway, service),
+        remover = ProtectionRemover(gateway, service, FakeDeviceClock()),
+        events = events,
         ioDispatcher = StandardTestDispatcher(testScheduler)
     )
 
@@ -90,6 +94,22 @@ class PasswordProtectedShutdownTest {
 
         assertEquals(0, password.verifyCalls)
         assertTrue(array.all { it == '\u0000' })
+    }
+
+    @Test
+    fun `parent disabling protection is recorded`() = runTest {
+        shutdown(deviceOwner()).disable(pw())
+
+        assertEquals(listOf(EventType.PROTECTION_DISABLED), events.recorded)
+    }
+
+    @Test
+    fun `rejected password records nothing here`() = runTest {
+        password.result = PasswordCheck.Wrong(attemptsBeforeLockout = 4)
+
+        shutdown(deviceOwner()).disable(pw())
+
+        assertTrue(events.recorded.isEmpty())
     }
 
     private fun pw() = "secret-password".toCharArray()

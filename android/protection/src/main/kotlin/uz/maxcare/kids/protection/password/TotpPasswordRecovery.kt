@@ -7,6 +7,8 @@ import javax.inject.Singleton
 import kotlin.time.Duration
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import uz.maxcare.kids.core.events.EventRecorder
+import uz.maxcare.kids.core.events.EventType
 import uz.maxcare.kids.core.protection.ParentPassword
 import uz.maxcare.kids.core.protection.PasswordRecovery
 import uz.maxcare.kids.core.protection.RecoveryResult
@@ -25,7 +27,8 @@ internal class TotpPasswordRecovery @Inject constructor(
     private val store: SecureStore,
     private val parentPassword: StoredParentPassword,
     deviceClock: DeviceClock,
-    private val wallClock: Clock
+    private val wallClock: Clock,
+    private val events: EventRecorder
 ) : PasswordRecovery {
     private val mutex = Mutex()
     private val lockout = LockoutTracker(store, deviceClock, LOCKOUT_KEY)
@@ -66,6 +69,7 @@ internal class TotpPasswordRecovery @Inject constructor(
                     // Сначала гасим интервал: даже при сбое ниже этот код повторно не сработает.
                     store.writeString(LAST_USED_KEY, counter.toString())
                     parentPassword.replaceAfterRecovery(newPassword.copyOf())
+                    events.record(EventType.PASSWORD_RECOVERED)
                     lockout.reset()
                     RecoveryResult.Reset
                 } else {

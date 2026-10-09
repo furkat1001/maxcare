@@ -8,6 +8,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import uz.maxcare.kids.core.di.ApplicationScope
+import uz.maxcare.kids.core.events.EventRecorder
+import uz.maxcare.kids.core.events.EventType
 import uz.maxcare.kids.core.protection.DeviceProtection
 import uz.maxcare.kids.protection.service.ProtectionServiceStarter
 
@@ -27,6 +29,12 @@ class MaxCareAdminReceiver : DeviceAdminReceiver() {
     @Inject
     internal lateinit var serviceStarter: ProtectionServiceStarter
 
+    @Inject
+    internal lateinit var remover: ProtectionRemover
+
+    @Inject
+    lateinit var events: EventRecorder
+
     override fun onEnabled(context: Context, intent: Intent) {
         val pendingResult = goAsync()
         appScope.launch {
@@ -39,14 +47,23 @@ class MaxCareAdminReceiver : DeviceAdminReceiver() {
     }
 
     // Показывается в системном диалоге, когда администратора пытаются отключить из Настроек.
-    // Запретить отключение в обычном режиме нельзя — только предупредить; перехват экрана
-    // Настроек появится вместе со службой доступности (спринт 3).
+    // Запретить отключение в обычном режиме нельзя — только предупредить, а Samsung One UI 8
+    // не показывает и это (docs/device-tests.md). Поэтому факт отключения фиксируется в onDisabled.
     override fun onDisableRequested(context: Context, intent: Intent): CharSequence =
         context.getString(R.string.device_admin_disable_warning)
 
     // Вызывается до фактического отключения, поэтому режим здесь не пересчитываем, а сразу
-    // убираем уведомление. Событие «администратор отключён» для отчёта — вместе с очередью событий.
+    // убираем уведомление. Если защиту снял родитель паролем, это не попытка обхода — не пишем.
     override fun onDisabled(context: Context, intent: Intent) {
         serviceStarter.stop()
+        if (remover.removedRecently()) return
+        val pendingResult = goAsync()
+        appScope.launch {
+            try {
+                events.record(EventType.ADMIN_DISABLED)
+            } finally {
+                pendingResult.finish()
+            }
+        }
     }
 }

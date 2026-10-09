@@ -6,7 +6,7 @@
 
     <!-- Заметное раскрытие (политика Google Play). Обновлять вместе с каждой новой функцией сбора данных. -->
     <string name="disclosure_title">Before you start</string>
-    <string name="disclosure_body">MaxCare Kids is parental control. A parent installs it, and the child always sees that it is working.\n\nWhat the app does now:\n• protection can be turned off in the app only with the parent password;\n• it shows a permanent notification that protection is on;\n• it connects this phone to the parent’s account. The phone name and model are sent to the MaxCare server.\n\nThe app does not hide, does not read messages and does not send photos or screen contents.\n\nContinue only if you are the parent or guardian of this child.</string>
+    <string name="disclosure_body">MaxCare Kids is parental control. A parent installs it, and the child always sees that it is working.\n\nWhat the app does now:\n• protection can be turned off in the app only with the parent password;\n• it shows a permanent notification that protection is on;\n• it connects this phone to the parent’s account. The phone name and model are sent to the MaxCare server;\n• it sends protection events to the MaxCare server: device admin turned off, parent password locked or reset, notifications turned off, phone turned on and off — only what happened and when.\n\nThe app does not hide, does not read messages and does not send photos or screen contents.\n\nContinue only if you are the parent or guardian of this child.</string>
     <string name="disclosure_accept">I am the parent, continue</string>
 
     <string name="pairing_title">Connect to the parent</string>
