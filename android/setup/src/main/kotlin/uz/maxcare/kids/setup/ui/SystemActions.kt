@@ -1,0 +1,9 @@
+package uz.maxcare.kids.setup.ui
+
+/** Колбэки, которые требуют Activity: системные экраны и разрешения. */
+internal class SystemActions(
+    val activateDeviceAdmin: () -> Unit,
+    val requestNotifications: () -> Unit,
+    val openNotificationSettings: () -> Unit,
+    val openAppSettings: () -> Unit
+)

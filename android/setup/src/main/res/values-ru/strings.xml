@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setup_step_counter">Шаг %1$d из %2$d</string>
+    <string name="open_settings">Открыть настройки</string>
+    <string name="back">Назад</string>
+
+    <string name="disclosure_title">Перед началом</string>
+    <string name="disclosure_body">MaxCare Kids — родительский контроль. Его устанавливает родитель, а ребёнок всегда видит, что приложение работает.\n\nЧто приложение делает сейчас:\n• не даёт удалить себя без пароля родителя;\n• показывает постоянное уведомление о том, что защита включена;\n• связывает телефон с аккаунтом родителя. На сервер MaxCare передаются название и модель телефона.\n\nПриложение не скрывается, не читает переписку и не отправляет фото и содержимое экрана.\n\nПродолжайте, только если вы родитель или опекун ребёнка.</string>
+    <string name="disclosure_accept">Я родитель, продолжить</string>
+
+    <string name="pairing_title">Связь с родителем</string>
+    <string name="pairing_body">В приложении MaxCare на телефоне родителя выберите «Добавить ребёнка» и введите здесь код из 8 цифр. Код действует 10 минут.</string>
+    <string name="pairing_code_label">Код</string>
+    <string name="pairing_submit">Связать</string>
+
+    <string name="password_title">Пароль родителя</string>
+    <string name="password_body">Он нужен только родителю: чтобы отключить защиту или изменить настройки на этом телефоне. Не меньше 6 символов. Не показывайте его ребёнку.</string>
+    <string name="password_label">Пароль</string>
+    <string name="password_confirm_label">Повторите пароль</string>
+    <string name="password_submit">Сохранить пароль</string>
+
+    <string name="admin_title">Защита от удаления</string>
+    <string name="admin_body">Android попросит включить администратора устройства MaxCare Kids. Пока он включён, приложение нельзя удалить без родителя.</string>
+    <string name="admin_submit">Включить</string>
+
+    <string name="notifications_title">Уведомление</string>
+    <string name="notifications_body">MaxCare Kids всегда показывает уведомление о том, что защита включена, — так ребёнок знает о ней. Разрешите уведомления, чтобы продолжить.</string>
+    <string name="notifications_allow">Разрешить</string>
+
+    <string name="background_title">Работа в фоне</string>
+    <string name="background_body">На этом телефоне система может останавливать MaxCare Kids в фоне. В настройках приложения разрешите автозапуск и отключите ограничения батареи для MaxCare Kids.</string>
+    <string name="background_done">Готово</string>
+
+    <string name="home_title">Защита включена</string>
+    <string name="home_mode_owner">Полная защита: приложение нельзя удалить, безопасный режим и сброс телефона заблокированы.</string>
+    <string name="home_mode_admin">Базовая защита: пока включён администратор устройства, приложение нельзя удалить.</string>
+    <string name="home_disable">Отключить защиту</string>
+
+    <string name="disable_title">Отключение защиты</string>
+    <string name="disable_body">Введите пароль родителя. После этого MaxCare Kids можно будет удалить, как обычное приложение.</string>
+    <string name="disable_submit">Отключить</string>
+    <string name="forgot_password">Забыли пароль?</string>
+
+    <string name="recovery_title">Новый пароль</string>
+    <string name="recovery_body">В приложении MaxCare откройте телефон ребёнка и получите код восстановления. Код действует до 10 минут. Интернет на этом телефоне не нужен.</string>
+    <string name="recovery_code_label">Код восстановления</string>
+    <string name="recovery_new_password">Новый пароль</string>
+    <string name="recovery_submit">Сохранить новый пароль</string>
+
+    <string name="disabled_title">Защита отключена</string>
+    <string name="disabled_body">MaxCare Kids больше не защищает этот телефон. Теперь приложение можно удалить в Настройках.</string>
+
+    <string name="error_code_format">Введите 8 цифр кода.</string>
+    <string name="error_code_invalid">Код неверный, истёк или уже использован. Получите новый код.</string>
+    <string name="error_too_many_attempts">Слишком много попыток. Повторите через несколько минут.</string>
+    <string name="error_no_connection">Нет подключения к интернету. Проверьте связь и повторите.</string>
+    <string name="error_insecure_connection">Соединение небезопасно, поэтому оно прервано. Попробуйте другую сеть.</string>
+    <string name="error_server">Ошибка на сервере. Повторите позже.</string>
+    <string name="error_password_short">Пароль должен быть не короче 6 символов.</string>
+    <string name="error_passwords_differ">Пароли не совпадают.</string>
+    <string name="error_wrong_password">Неверный пароль. Осталось попыток до паузы: %1$d</string>
+    <string name="error_locked_out">Слишком много неверных попыток. Повторите через %1$d мин.</string>
+    <string name="error_storage">Данные защиты на этом телефоне повреждены. Используйте код восстановления из приложения родителя.</string>
+    <string name="error_admin_not_activated">Администратор не включён. Нажмите «Включить» и подтвердите.</string>
+    <string name="error_notifications_denied">Уведомления выключены. Включите их в настройках.</string>
+    <string name="error_recovery_code_invalid">Неверный код. Осталось попыток до паузы: %1$d</string>
+    <string name="error_not_paired">Телефон не связан с родителем, поэтому код восстановления проверить нельзя.</string>
+    <string name="message_password_reset">Новый пароль сохранён.</string>
+</resources>

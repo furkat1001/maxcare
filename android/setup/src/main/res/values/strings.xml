@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setup_step_counter">Step %1$d of %2$d</string>
+    <string name="open_settings">Open settings</string>
+    <string name="back">Back</string>
+
+    <!-- Заметное раскрытие (политика Google Play). Обновлять вместе с каждой новой функцией сбора данных. -->
+    <string name="disclosure_title">Before you start</string>
+    <string name="disclosure_body">MaxCare Kids is parental control. A parent installs it, and the child always sees that it is working.\n\nWhat the app does now:\n• it cannot be removed without the parent password;\n• it shows a permanent notification that protection is on;\n• it connects this phone to the parent’s account. The phone name and model are sent to the MaxCare server.\n\nThe app does not hide, does not read messages and does not send photos or screen contents.\n\nContinue only if you are the parent or guardian of this child.</string>
+    <string name="disclosure_accept">I am the parent, continue</string>
+
+    <string name="pairing_title">Connect to the parent</string>
+    <string name="pairing_body">In the MaxCare app on the parent’s phone, choose “Add child” and enter the 8-digit code here. The code is valid for 10 minutes.</string>
+    <string name="pairing_code_label">Code</string>
+    <string name="pairing_submit">Connect</string>
+
+    <string name="password_title">Parent password</string>
+    <string name="password_body">Only a parent needs it: to turn off protection or change settings on this phone. At least 6 characters. Do not show it to the child.</string>
+    <string name="password_label">Password</string>
+    <string name="password_confirm_label">Repeat the password</string>
+    <string name="password_submit">Save password</string>
+
+    <string name="admin_title">Protection from removal</string>
+    <string name="admin_body">Android will ask you to turn on the MaxCare Kids device admin. While it is on, the app cannot be removed without the parent.</string>
+    <string name="admin_submit">Turn on</string>
+
+    <string name="notifications_title">Notification</string>
+    <string name="notifications_body">MaxCare Kids always shows a notification that protection is on, so the child knows about it. Allow notifications to continue.</string>
+    <string name="notifications_allow">Allow</string>
+
+    <string name="background_title">Working in the background</string>
+    <string name="background_body">On this phone the system may stop MaxCare Kids in the background. In the app settings, allow autostart and turn off battery restrictions for MaxCare Kids.</string>
+    <string name="background_done">Done</string>
+
+    <string name="home_title">Protection is on</string>
+    <string name="home_mode_owner">Full protection: the app cannot be removed, and safe mode and factory reset are blocked.</string>
+    <string name="home_mode_admin">Basic protection: while the device admin is on, the app cannot be removed.</string>
+    <string name="home_disable">Turn off protection</string>
+
+    <string name="disable_title">Turning off protection</string>
+    <string name="disable_body">Enter the parent password. After that, MaxCare Kids can be removed like any other app.</string>
+    <string name="disable_submit">Turn off</string>
+    <string name="forgot_password">Forgot the password?</string>
+
+    <string name="recovery_title">New password</string>
+    <string name="recovery_body">In the MaxCare app, open the child’s phone and get a recovery code. The code is valid for up to 10 minutes. This phone does not need internet.</string>
+    <string name="recovery_code_label">Recovery code</string>
+    <string name="recovery_new_password">New password</string>
+    <string name="recovery_submit">Save new password</string>
+
+    <string name="disabled_title">Protection is off</string>
+    <string name="disabled_body">MaxCare Kids no longer protects this phone. You can now remove the app in Settings.</string>
+
+    <string name="error_code_format">Enter the 8 digits of the code.</string>
+    <string name="error_code_invalid">The code is wrong, expired or already used. Get a new code.</string>
+    <string name="error_too_many_attempts">Too many attempts. Try again in a few minutes.</string>
+    <string name="error_no_connection">No internet connection. Check the connection and try again.</string>
+    <string name="error_insecure_connection">The connection is not secure, so it was stopped. Try another network.</string>
+    <string name="error_server">Server error. Try again later.</string>
+    <string name="error_password_short">The password must be at least 6 characters.</string>
+    <string name="error_passwords_differ">The passwords do not match.</string>
+    <string name="error_wrong_password">Wrong password. Attempts left before a pause: %1$d</string>
+    <string name="error_locked_out">Too many wrong attempts. Try again in %1$d min.</string>
+    <string name="error_storage">Protection data on this phone is damaged. Use a recovery code from the parent app.</string>
+    <string name="error_admin_not_activated">The device admin is not on. Tap “Turn on” and confirm.</string>
+    <string name="error_notifications_denied">Notifications are off. Turn them on in the settings.</string>
+    <string name="error_recovery_code_invalid">Wrong code. Attempts left before a pause: %1$d</string>
+    <string name="error_not_paired">This phone is not connected to a parent, so a recovery code cannot be checked.</string>
+    <string name="message_password_reset">New password saved.</string>
+</resources>

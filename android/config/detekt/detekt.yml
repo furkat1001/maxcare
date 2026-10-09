@@ -1,0 +1,11 @@
+# Поверх стандартных правил detekt (buildUponDefaultConfig).
+
+naming:
+  FunctionNaming:
+    # Compose-функции по соглашению называются с заглавной буквы: HomeScreen().
+    ignoreAnnotated: ['Composable']
+
+complexity:
+  CyclomaticComplexMethod:
+    # `when` по sealed-типу с одной строкой на ветку — не сложность, а перечисление.
+    ignoreSimpleWhenEntries: true

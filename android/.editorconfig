@@ -9,3 +9,5 @@ trim_trailing_whitespace = true
 [*.{kt,kts}]
 indent_size = 4
 ktlint_code_style = android_studio
+# Compose-функции по соглашению называются с заглавной буквы: HomeScreen().
+ktlint_function_naming_ignore_when_annotated_with = Composable

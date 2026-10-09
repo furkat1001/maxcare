@@ -12,6 +12,7 @@ internal fun Project.configureKotlinQuality() {
 
     extensions.configure<DetektExtension> {
         buildUponDefaultConfig.set(true)
+        config.setFrom(rootProject.file("config/detekt/detekt.yml"))
         parallel.set(true)
     }
     extensions.configure<KtlintExtension> {

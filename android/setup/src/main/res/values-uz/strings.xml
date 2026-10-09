@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setup_step_counter">%1$d-qadam, jami %2$d</string>
+    <string name="open_settings">Sozlamalarni ochish</string>
+    <string name="back">Orqaga</string>
+
+    <string name="disclosure_title">Boshlashdan oldin</string>
+    <string name="disclosure_body">MaxCare Kids — ota-ona nazorati. Uni ota-ona o‘rnatadi, bola esa ilova ishlayotganini doim ko‘rib turadi.\n\nIlova hozir nima qiladi:\n• ota-ona parolisiz o‘zini o‘chirishga yo‘l qo‘ymaydi;\n• himoya yoqilgani haqida doimiy bildirishnoma ko‘rsatadi;\n• telefonni ota-onaning hisobiga bog‘laydi. MaxCare serveriga telefon nomi va modeli yuboriladi.\n\nIlova yashirinmaydi, yozishmalarni o‘qimaydi, rasmlar va ekran tarkibini yubormaydi.\n\nFaqat bolaning ota-onasi yoki vasiysi bo‘lsangiz, davom eting.</string>
+    <string name="disclosure_accept">Men ota-onaman, davom etish</string>
+
+    <string name="pairing_title">Ota-ona bilan bog‘lanish</string>
+    <string name="pairing_body">Ota-onaning telefonidagi MaxCare ilovasida «Bola qo‘shish»ni tanlang va 8 xonali kodni shu yerga kiriting. Kod 10 daqiqa amal qiladi.</string>
+    <string name="pairing_code_label">Kod</string>
+    <string name="pairing_submit">Bog‘lash</string>
+
+    <string name="password_title">Ota-ona paroli</string>
+    <string name="password_body">U faqat ota-onaga kerak: shu telefonda himoyani o‘chirish yoki sozlamalarni o‘zgartirish uchun. Kamida 6 ta belgi. Uni bolaga ko‘rsatmang.</string>
+    <string name="password_label">Parol</string>
+    <string name="password_confirm_label">Parolni takrorlang</string>
+    <string name="password_submit">Parolni saqlash</string>
+
+    <string name="admin_title">O‘chirishdan himoya</string>
+    <string name="admin_body">Android MaxCare Kids qurilma administratorini yoqishni so‘raydi. U yoqilgan ekan, ilovani ota-onasiz o‘chirib bo‘lmaydi.</string>
+    <string name="admin_submit">Yoqish</string>
+
+    <string name="notifications_title">Bildirishnoma</string>
+    <string name="notifications_body">MaxCare Kids himoya yoqilgani haqida doim bildirishnoma ko‘rsatadi — shunda bola bu haqda biladi. Davom etish uchun bildirishnomalarga ruxsat bering.</string>
+    <string name="notifications_allow">Ruxsat berish</string>
+
+    <string name="background_title">Fonda ishlash</string>
+    <string name="background_body">Bu telefonda tizim MaxCare Kids ilovasini fonda to‘xtatib qo‘yishi mumkin. Ilova sozlamalarida avtoishga tushirishga ruxsat bering va MaxCare Kids uchun batareya cheklovlarini o‘chiring.</string>
+    <string name="background_done">Tayyor</string>
+
+    <string name="home_title">Himoya yoqilgan</string>
+    <string name="home_mode_owner">To‘liq himoya: ilovani o‘chirib bo‘lmaydi, xavfsiz rejim va telefonni tiklash bloklangan.</string>
+    <string name="home_mode_admin">Asosiy himoya: qurilma administratori yoqilgan ekan, ilovani o‘chirib bo‘lmaydi.</string>
+    <string name="home_disable">Himoyani o‘chirish</string>
+
+    <string name="disable_title">Himoyani o‘chirish</string>
+    <string name="disable_body">Ota-ona parolini kiriting. Shundan so‘ng MaxCare Kids ilovasini oddiy ilova kabi o‘chirish mumkin bo‘ladi.</string>
+    <string name="disable_submit">O‘chirish</string>
+    <string name="forgot_password">Parolni unutdingizmi?</string>
+
+    <string name="recovery_title">Yangi parol</string>
+    <string name="recovery_body">MaxCare ilovasida bolaning telefonini oching va tiklash kodini oling. Kod 10 daqiqagacha amal qiladi. Bu telefonda internet kerak emas.</string>
+    <string name="recovery_code_label">Tiklash kodi</string>
+    <string name="recovery_new_password">Yangi parol</string>
+    <string name="recovery_submit">Yangi parolni saqlash</string>
+
+    <string name="disabled_title">Himoya o‘chirildi</string>
+    <string name="disabled_body">MaxCare Kids endi bu telefonni himoya qilmaydi. Endi ilovani Sozlamalarda o‘chirish mumkin.</string>
+
+    <string name="error_code_format">Kodning 8 ta raqamini kiriting.</string>
+    <string name="error_code_invalid">Kod noto‘g‘ri, muddati o‘tgan yoki allaqachon ishlatilgan. Yangi kod oling.</string>
+    <string name="error_too_many_attempts">Urinishlar juda ko‘p. Bir necha daqiqadan so‘ng qaytadan urinib ko‘ring.</string>
+    <string name="error_no_connection">Internetga ulanish yo‘q. Aloqani tekshirib, qaytadan urinib ko‘ring.</string>
+    <string name="error_insecure_connection">Ulanish xavfsiz emas, shuning uchun u to‘xtatildi. Boshqa tarmoqni sinab ko‘ring.</string>
+    <string name="error_server">Serverda xatolik. Keyinroq qaytadan urinib ko‘ring.</string>
+    <string name="error_password_short">Parol kamida 6 ta belgidan iborat bo‘lishi kerak.</string>
+    <string name="error_passwords_differ">Parollar mos kelmadi.</string>
+    <string name="error_wrong_password">Parol noto‘g‘ri. Tanaffusgacha qolgan urinishlar: %1$d</string>
+    <string name="error_locked_out">Noto‘g‘ri urinishlar juda ko‘p. %1$d daqiqadan so‘ng qaytadan urinib ko‘ring.</string>
+    <string name="error_storage">Bu telefondagi himoya ma’lumotlari shikastlangan. Ota-ona ilovasidagi tiklash kodidan foydalaning.</string>
+    <string name="error_admin_not_activated">Administrator yoqilmadi. «Yoqish» tugmasini bosing va tasdiqlang.</string>
+    <string name="error_notifications_denied">Bildirishnomalar o‘chirilgan. Ularni sozlamalarda yoqing.</string>
+    <string name="error_recovery_code_invalid">Kod noto‘g‘ri. Tanaffusgacha qolgan urinishlar: %1$d</string>
+    <string name="error_not_paired">Telefon ota-onaga bog‘lanmagan, shuning uchun tiklash kodini tekshirib bo‘lmaydi.</string>
+    <string name="message_password_reset">Yangi parol saqlandi.</string>
+</resources>

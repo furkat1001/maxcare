@@ -8,6 +8,8 @@ import uz.maxcare.kids.core.pairing.DevicePairing
 import uz.maxcare.kids.setup.pairing.ApiDevicePairing
 import uz.maxcare.kids.setup.pairing.BuildDeviceNameSource
 import uz.maxcare.kids.setup.pairing.DeviceNameSource
+import uz.maxcare.kids.setup.ui.AndroidSetupEnvironment
+import uz.maxcare.kids.setup.ui.SetupEnvironment
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -17,4 +19,7 @@ internal abstract class SetupModule {
 
     @Binds
     abstract fun bindDeviceNameSource(impl: BuildDeviceNameSource): DeviceNameSource
+
+    @Binds
+    abstract fun bindSetupEnvironment(impl: AndroidSetupEnvironment): SetupEnvironment
 }

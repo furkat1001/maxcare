@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setup_step_counter">%1$d-қадам, жами %2$d</string>
+    <string name="open_settings">Созламаларни очиш</string>
+    <string name="back">Орқага</string>
+
+    <string name="disclosure_title">Бошлашдан олдин</string>
+    <string name="disclosure_body">MaxCare Kids — ота-она назорати. Уни ота-она ўрнатади, бола эса илова ишлаётганини доим кўриб туради.\n\nИлова ҳозир нима қилади:\n• ота-она паролисиз ўзини ўчиришга йўл қўймайди;\n• ҳимоя ёқилгани ҳақида доимий билдиришнома кўрсатади;\n• телефонни ота-онанинг ҳисобига боғлайди. MaxCare серверига телефон номи ва модели юборилади.\n\nИлова яширинмайди, ёзишмаларни ўқимайди, расмлар ва экран таркибини юбормайди.\n\nФақат боланинг ота-онаси ёки васийси бўлсангиз, давом этинг.</string>
+    <string name="disclosure_accept">Мен ота-онаман, давом этиш</string>
+
+    <string name="pairing_title">Ота-она билан боғланиш</string>
+    <string name="pairing_body">Ота-онанинг телефонидаги MaxCare иловасида «Бола қўшиш»ни танланг ва 8 хонали кодни шу ерга киритинг. Код 10 дақиқа амал қилади.</string>
+    <string name="pairing_code_label">Код</string>
+    <string name="pairing_submit">Боғлаш</string>
+
+    <string name="password_title">Ота-она пароли</string>
+    <string name="password_body">У фақат ота-онага керак: шу телефонда ҳимояни ўчириш ёки созламаларни ўзгартириш учун. Камида 6 та белги. Уни болага кўрсатманг.</string>
+    <string name="password_label">Парол</string>
+    <string name="password_confirm_label">Паролни такрорланг</string>
+    <string name="password_submit">Паролни сақлаш</string>
+
+    <string name="admin_title">Ўчиришдан ҳимоя</string>
+    <string name="admin_body">Android MaxCare Kids қурилма администраторини ёқишни сўрайди. У ёқилган экан, иловани ота-онасиз ўчириб бўлмайди.</string>
+    <string name="admin_submit">Ёқиш</string>
+
+    <string name="notifications_title">Билдиришнома</string>
+    <string name="notifications_body">MaxCare Kids ҳимоя ёқилгани ҳақида доим билдиришнома кўрсатади — шунда бола бу ҳақда билади. Давом этиш учун билдиришномаларга рухсат беринг.</string>
+    <string name="notifications_allow">Рухсат бериш</string>
+
+    <string name="background_title">Фонда ишлаш</string>
+    <string name="background_body">Бу телефонда тизим MaxCare Kids иловасини фонда тўхтатиб қўйиши мумкин. Илова созламаларида автоишга туширишга рухсат беринг ва MaxCare Kids учун батарея чекловларини ўчиринг.</string>
+    <string name="background_done">Тайёр</string>
+
+    <string name="home_title">Ҳимоя ёқилган</string>
+    <string name="home_mode_owner">Тўлиқ ҳимоя: иловани ўчириб бўлмайди, хавфсиз режим ва телефонни тиклаш блокланган.</string>
+    <string name="home_mode_admin">Асосий ҳимоя: қурилма администратори ёқилган экан, иловани ўчириб бўлмайди.</string>
+    <string name="home_disable">Ҳимояни ўчириш</string>
+
+    <string name="disable_title">Ҳимояни ўчириш</string>
+    <string name="disable_body">Ота-она паролини киритинг. Шундан сўнг MaxCare Kids иловасини оддий илова каби ўчириш мумкин бўлади.</string>
+    <string name="disable_submit">Ўчириш</string>
+    <string name="forgot_password">Паролни унутдингизми?</string>
+
+    <string name="recovery_title">Янги парол</string>
+    <string name="recovery_body">MaxCare иловасида боланинг телефонини очинг ва тиклаш кодини олинг. Код 10 дақиқагача амал қилади. Бу телефонда интернет керак эмас.</string>
+    <string name="recovery_code_label">Тиклаш коди</string>
+    <string name="recovery_new_password">Янги парол</string>
+    <string name="recovery_submit">Янги паролни сақлаш</string>
+
+    <string name="disabled_title">Ҳимоя ўчирилди</string>
+    <string name="disabled_body">MaxCare Kids энди бу телефонни ҳимоя қилмайди. Энди иловани Созламаларда ўчириш мумкин.</string>
+
+    <string name="error_code_format">Коднинг 8 та рақамини киритинг.</string>
+    <string name="error_code_invalid">Код нотўғри, муддати ўтган ёки аллақачон ишлатилган. Янги код олинг.</string>
+    <string name="error_too_many_attempts">Уринишлар жуда кўп. Бир неча дақиқадан сўнг қайтадан уриниб кўринг.</string>
+    <string name="error_no_connection">Интернетга уланиш йўқ. Алоқани текшириб, қайтадан уриниб кўринг.</string>
+    <string name="error_insecure_connection">Уланиш хавфсиз эмас, шунинг учун у тўхтатилди. Бошқа тармоқни синаб кўринг.</string>
+    <string name="error_server">Серверда хатолик. Кейинроқ қайтадан уриниб кўринг.</string>
+    <string name="error_password_short">Парол камида 6 та белгидан иборат бўлиши керак.</string>
+    <string name="error_passwords_differ">Пароллар мос келмади.</string>
+    <string name="error_wrong_password">Парол нотўғри. Танаффусгача қолган уринишлар: %1$d</string>
+    <string name="error_locked_out">Нотўғри уринишлар жуда кўп. %1$d дақиқадан сўнг қайтадан уриниб кўринг.</string>
+    <string name="error_storage">Бу телефондаги ҳимоя маълумотлари шикастланган. Ота-она иловасидаги тиклаш кодидан фойдаланинг.</string>
+    <string name="error_admin_not_activated">Администратор ёқилмади. «Ёқиш» тугмасини босинг ва тасдиқланг.</string>
+    <string name="error_notifications_denied">Билдиришномалар ўчирилган. Уларни созламаларда ёқинг.</string>
+    <string name="error_recovery_code_invalid">Код нотўғри. Танаффусгача қолган уринишлар: %1$d</string>
+    <string name="error_not_paired">Телефон ота-онага боғланмаган, шунинг учун тиклаш кодини текшириб бўлмайди.</string>
+    <string name="message_password_reset">Янги парол сақланди.</string>
+</resources>

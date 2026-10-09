@@ -1,0 +1,365 @@
+package uz.maxcare.kids.setup.ui
+
+import android.content.Intent
+import java.io.IOException
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Before
+import org.junit.Test
+import uz.maxcare.kids.core.pairing.DevicePairing
+import uz.maxcare.kids.core.pairing.PairingResult
+import uz.maxcare.kids.core.protection.ChangePasswordResult
+import uz.maxcare.kids.core.protection.DeviceAdminActivation
+import uz.maxcare.kids.core.protection.DeviceProtection
+import uz.maxcare.kids.core.protection.DisableProtectionResult
+import uz.maxcare.kids.core.protection.ParentPassword
+import uz.maxcare.kids.core.protection.PasswordCheck
+import uz.maxcare.kids.core.protection.PasswordRecovery
+import uz.maxcare.kids.core.protection.ProtectionMode
+import uz.maxcare.kids.core.protection.ProtectionShutdown
+import uz.maxcare.kids.core.protection.RecoveryResult
+import uz.maxcare.kids.core.protection.SetPasswordResult
+import uz.maxcare.kids.core.storage.SecureStore
+import uz.maxcare.kids.core.storage.SecureStoreException
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class KidsViewModelTest {
+    private val pairing = FakePairing()
+    private val password = FakePassword()
+    private val protection = FakeProtection()
+    private val shutdown = FakeShutdown()
+    private val recovery = FakeRecovery()
+    private val store = FakeStore()
+    private val environment = FakeEnvironment()
+
+    @Before
+    fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
+
+    @After
+    fun tearDown() = Dispatchers.resetMain()
+
+    private fun viewModel() = KidsViewModel(
+        pairing,
+        password,
+        protection,
+        shutdown,
+        recovery,
+        NoAdminActivation,
+        store,
+        environment
+    ).also { it.refresh() }
+
+    private val KidsViewModel.screen get() = state.value.screen
+    private val KidsViewModel.message get() = state.value.message
+
+    private fun setUpFully(mode: ProtectionMode = ProtectionMode.DEVICE_ADMIN): KidsViewModel {
+        store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
+        pairing.paired = true
+        password.set = true
+        protection.activeMode = mode
+        return viewModel()
+    }
+
+    @Test
+    fun `fresh install starts with the disclosure`() {
+        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 5), viewModel().screen)
+    }
+
+    @Test
+    fun `background hint adds a step on aggressive firmware`() {
+        environment.backgroundHint = true
+
+        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 6), viewModel().screen)
+    }
+
+    @Test
+    fun `steps follow each other`() {
+        val vm = viewModel()
+
+        vm.acceptDisclosure()
+        assertEquals(KidsScreen.Setup(SetupStep.PAIRING, 2, 5), vm.screen)
+
+        vm.submitPairingCode("12345678")
+        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 5), vm.screen)
+
+        vm.submitNewPassword("secret-1", "secret-1")
+        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 5), vm.screen)
+
+        protection.activeMode = ProtectionMode.DEVICE_ADMIN
+        environment.notifications = false
+        vm.onDeviceAdminResult()
+        assertEquals(KidsScreen.Setup(SetupStep.NOTIFICATIONS, 5, 5), vm.screen)
+
+        environment.notifications = true
+        vm.onNotificationPermissionResult()
+        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_ADMIN), vm.screen)
+    }
+
+    @Test
+    fun `setup resumes where it stopped`() {
+        store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
+        pairing.paired = true
+
+        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 5), viewModel().screen)
+    }
+
+    @Test
+    fun `device owner skips the device admin step`() {
+        store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
+        pairing.paired = true
+        password.set = true
+        protection.activeMode = ProtectionMode.DEVICE_OWNER
+
+        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_OWNER), viewModel().screen)
+    }
+
+    @Test
+    fun `pairing errors keep the step and explain`() {
+        store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
+        val vm = viewModel()
+        mapOf(
+            PairingResult.InvalidFormat to UiMessage.InvalidCodeFormat,
+            PairingResult.InvalidCode to UiMessage.InvalidCode,
+            PairingResult.TooManyAttempts to UiMessage.TooManyAttempts,
+            PairingResult.NoConnection to UiMessage.NoConnection,
+            PairingResult.InsecureConnection to UiMessage.InsecureConnection,
+            PairingResult.ServerError to UiMessage.ServerError
+        ).forEach { (result, message) ->
+            pairing.result = result
+            vm.submitPairingCode("12345678")
+            assertEquals(SetupStep.PAIRING, (vm.screen as KidsScreen.Setup).step)
+            assertEquals(message, vm.message)
+        }
+    }
+
+    @Test
+    fun `different passwords are not saved`() {
+        store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
+        pairing.paired = true
+        val vm = viewModel()
+
+        vm.submitNewPassword("secret-1", "secret-2")
+
+        assertEquals(UiMessage.PasswordsDiffer, vm.message)
+        assertFalse(password.set)
+    }
+
+    @Test
+    fun `short password is explained`() {
+        store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
+        pairing.paired = true
+        password.setResult = SetPasswordResult.TooShort
+        val vm = viewModel()
+
+        vm.submitNewPassword("123", "123")
+
+        assertEquals(UiMessage.PasswordTooShort, vm.message)
+    }
+
+    @Test
+    fun `declined device admin is explained`() {
+        store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
+        pairing.paired = true
+        password.set = true
+        val vm = viewModel()
+
+        vm.onDeviceAdminResult()
+
+        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 5), vm.screen)
+        assertEquals(UiMessage.AdminNotActivated, vm.message)
+    }
+
+    @Test
+    fun `denied notifications are explained`() {
+        environment.notifications = false
+        val vm = setUpFully()
+
+        vm.onNotificationPermissionResult()
+
+        assertEquals(UiMessage.NotificationsDenied, vm.message)
+    }
+
+    @Test
+    fun `wrong password when disabling shows attempts left`() {
+        val vm = setUpFully()
+        vm.openDisableProtection()
+        shutdown.result = DisableProtectionResult.Rejected(PasswordCheck.Wrong(3))
+
+        vm.submitDisable("wrong")
+
+        assertEquals(KidsScreen.DisableProtection, vm.screen)
+        assertEquals(UiMessage.WrongPassword(3), vm.message)
+    }
+
+    @Test
+    fun `lockout minutes are rounded up`() {
+        val vm = setUpFully()
+        vm.openDisableProtection()
+        shutdown.result = DisableProtectionResult.Rejected(PasswordCheck.LockedOut(30.seconds))
+
+        vm.submitDisable("wrong")
+
+        assertEquals(UiMessage.LockedOut(1), vm.message)
+    }
+
+    @Test
+    fun `disabled protection stays on its screen`() {
+        val vm = setUpFully()
+        vm.openDisableProtection()
+
+        vm.submitDisable("secret-1")
+        vm.refresh()
+
+        assertEquals(KidsScreen.Disabled, vm.screen)
+    }
+
+    @Test
+    fun `refresh does not interrupt password entry`() {
+        val vm = setUpFully()
+        vm.openPasswordRecovery()
+
+        vm.refresh()
+
+        assertEquals(KidsScreen.RecoverPassword, vm.screen)
+    }
+
+    @Test
+    fun `successful recovery returns home with a confirmation`() {
+        val vm = setUpFully()
+        vm.openPasswordRecovery()
+
+        vm.submitRecovery("12345678", "new-secret", "new-secret")
+
+        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_ADMIN), vm.screen)
+        assertEquals(UiMessage.PasswordReset, vm.message)
+    }
+
+    @Test
+    fun `wrong recovery code shows attempts left`() {
+        val vm = setUpFully()
+        vm.openPasswordRecovery()
+        recovery.result = RecoveryResult.InvalidCode(2)
+
+        vm.submitRecovery("12345678", "new-secret", "new-secret")
+
+        assertEquals(UiMessage.WrongRecoveryCode(2), vm.message)
+    }
+
+    @Test
+    fun `damaged storage is reported instead of crashing`() {
+        store.failWrites = true
+        val vm = viewModel()
+
+        vm.acceptDisclosure()
+
+        assertEquals(UiMessage.StorageDamaged, vm.message)
+        assertFalse(vm.state.value.busy)
+    }
+
+    @Test
+    fun `back returns home and clears the message`() {
+        val vm = setUpFully()
+        vm.openDisableProtection()
+        shutdown.result = DisableProtectionResult.Rejected(PasswordCheck.Wrong(3))
+        vm.submitDisable("wrong")
+
+        vm.back()
+
+        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_ADMIN), vm.screen)
+        assertNull(vm.message)
+    }
+
+    private class FakePairing : DevicePairing {
+        var paired = false
+        var result: PairingResult = PairingResult.Paired
+
+        override suspend fun isPaired() = paired
+
+        override suspend fun pair(code: String): PairingResult {
+            if (result == PairingResult.Paired) paired = true
+            return result
+        }
+    }
+
+    private class FakePassword : ParentPassword {
+        var set = false
+        var setResult: SetPasswordResult = SetPasswordResult.Saved
+
+        override suspend fun isSet() = set
+
+        override suspend fun setInitial(password: CharArray): SetPasswordResult {
+            if (setResult == SetPasswordResult.Saved) set = true
+            return setResult
+        }
+
+        override suspend fun verify(password: CharArray) = PasswordCheck.Correct
+
+        override suspend fun change(current: CharArray, new: CharArray) =
+            ChangePasswordResult.Changed
+
+        override suspend fun lockoutRemaining() = Duration.ZERO
+    }
+
+    private class FakeProtection : DeviceProtection {
+        var activeMode = ProtectionMode.NONE
+        private val _mode = MutableStateFlow(ProtectionMode.NONE)
+        override val mode: StateFlow<ProtectionMode> = _mode
+
+        override suspend fun applyPolicies(): ProtectionMode {
+            _mode.value = activeMode
+            return activeMode
+        }
+    }
+
+    private class FakeShutdown : ProtectionShutdown {
+        var result: DisableProtectionResult = DisableProtectionResult.Disabled
+
+        override suspend fun disable(password: CharArray) = result
+    }
+
+    private class FakeRecovery : PasswordRecovery {
+        var result: RecoveryResult = RecoveryResult.Reset
+
+        override suspend fun reset(code: String, newPassword: CharArray) = result
+    }
+
+    private object NoAdminActivation : DeviceAdminActivation {
+        override fun activationIntent(): Intent = error("Not used in unit tests")
+    }
+
+    private class FakeStore : SecureStore {
+        val values = mutableMapOf<String, ByteArray>()
+        var failWrites = false
+
+        override suspend fun read(key: String) = values[key]
+
+        override suspend fun write(key: String, value: ByteArray) {
+            if (failWrites) throw SecureStoreException("broken", IOException())
+            values[key] = value
+        }
+
+        override suspend fun remove(key: String) {
+            values.remove(key)
+        }
+    }
+
+    private class FakeEnvironment : SetupEnvironment {
+        var notifications = true
+        var backgroundHint = false
+
+        override fun notificationsAllowed() = notifications
+
+        override fun needsBackgroundHint() = backgroundHint
+    }
+}

@@ -31,7 +31,4 @@ dependencies {
     implementation(project(":location"))
     implementation(project(":reports"))
     implementation(project(":setup"))
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.activity)
 }
