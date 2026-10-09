@@ -29,7 +29,7 @@ internal class StoredParentPassword @Inject constructor(
     @DefaultDispatcher private val hashingDispatcher: CoroutineDispatcher
 ) : ParentPassword {
     private val mutex = Mutex()
-    private val lockout = LockoutTracker(store, clock)
+    private val lockout = LockoutTracker(store, clock, LOCKOUT_KEY)
 
     override suspend fun isSet(): Boolean = try {
         store.read(HASH_KEY) != null
@@ -118,6 +118,17 @@ internal class StoredParentPassword @Inject constructor(
         }
     }
 
+    /**
+     * Новый пароль без текущего — только после проверенного кода восстановления
+     * ([TotpPasswordRecovery]). Сбрасывает и блокировку ввода пароля. Массив затирается.
+     */
+    suspend fun replaceAfterRecovery(password: CharArray) = password.wipeAfter {
+        mutex.withLock {
+            saveHash(password)
+            lockout.reset()
+        }
+    }
+
     private suspend fun saveHash(password: CharArray) {
         val record = withContext(hashingDispatcher) { hasher.hash(password) }
         store.writeString(HASH_KEY, record)
@@ -131,5 +142,6 @@ internal class StoredParentPassword @Inject constructor(
 
     private companion object {
         const val HASH_KEY = "parent_password_hash"
+        const val LOCKOUT_KEY = "parent_password_lockout"
     }
 }

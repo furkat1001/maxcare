@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Сеть — только TLS с привязкой сертификата (CLAUDE.md).
+
+    Привязка к корневым сертификатам Let's Encrypt, а не к ключу сервера: ключ сервера меняется
+    при каждом продлении сертификата (раз в 60–90 дней), а корни живут до 2035–2045 года.
+    Это защищает от сертификата на наш домен, выпущенного любым другим центром сертификации.
+
+    Отпечатки — SHA-256 открытого ключа (SPKI), посчитаны из https://letsencrypt.org/certs/:
+      ISRG Root X1, ISRG Root X2 — текущее поколение;
+      Root YR, Root YE           — новое поколение (YR сейчас в цепочке dexx.uz).
+
+    После даты expiration привязка отключается и остаётся обычная проверка TLS: старая версия
+    приложения не потеряет связь с сервером. До этой даты выпустить обновление с новой датой.
+    Если сервер перейдёт на другой центр сертификации — сначала добавить его корни сюда.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="false">api.maxcare.dexx.uz</domain>
+        <pin-set expiration="2027-10-01">
+            <pin digest="SHA-256">C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=</pin>
+            <pin digest="SHA-256">diGVwiVYbubAI3RW4hB9xU8e/CH2GnkuvVFZE8zmgzI=</pin>
+            <pin digest="SHA-256">fk6IOKit1ild5647BH06ujSIq5XbCgqlbYl6ANhhi88=</pin>
+            <pin digest="SHA-256">sCkq5UWXjg+7mKu9lMhhYF5bGLsy7VI/UNW3tccdR7w=</pin>
+        </pin-set>
+    </domain-config>
+</network-security-config>

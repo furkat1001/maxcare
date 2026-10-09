@@ -2,11 +2,14 @@ package uz.maxcare.kids.protection.di
 
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import java.time.Clock
 import uz.maxcare.kids.core.protection.DeviceAdminActivation
 import uz.maxcare.kids.core.protection.DeviceProtection
 import uz.maxcare.kids.core.protection.ParentPassword
+import uz.maxcare.kids.core.protection.PasswordRecovery
 import uz.maxcare.kids.core.protection.ProtectionShutdown
 import uz.maxcare.kids.protection.AndroidDeviceAdminActivation
 import uz.maxcare.kids.protection.AndroidDevicePolicyGateway
@@ -16,6 +19,7 @@ import uz.maxcare.kids.protection.PasswordProtectedShutdown
 import uz.maxcare.kids.protection.password.AndroidDeviceClock
 import uz.maxcare.kids.protection.password.DeviceClock
 import uz.maxcare.kids.protection.password.StoredParentPassword
+import uz.maxcare.kids.protection.password.TotpPasswordRecovery
 import uz.maxcare.kids.protection.service.AndroidProtectionServiceStarter
 import uz.maxcare.kids.protection.service.ProtectionServiceStarter
 
@@ -46,4 +50,13 @@ internal abstract class ProtectionModule {
     abstract fun bindProtectionServiceStarter(
         impl: AndroidProtectionServiceStarter
     ): ProtectionServiceStarter
+
+    @Binds
+    abstract fun bindPasswordRecovery(impl: TotpPasswordRecovery): PasswordRecovery
+
+    companion object {
+        /** Настенные часы — только для кодов восстановления (они привязаны к времени сервера). */
+        @Provides
+        fun provideWallClock(): Clock = Clock.systemUTC()
+    }
 }

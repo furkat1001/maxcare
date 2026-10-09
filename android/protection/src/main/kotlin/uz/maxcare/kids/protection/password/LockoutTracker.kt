@@ -15,8 +15,13 @@ import uz.maxcare.kids.core.storage.writeString
  * незавершённая блокировка начинается заново на полный срок — перезагрузка не сокращает ожидание.
  *
  * Не потокобезопасен: вызывающий код сериализует обращения.
+ * [key] — имя записи в хранилище: у пароля и у кода восстановления свои счётчики.
  */
-internal class LockoutTracker(private val store: SecureStore, private val clock: DeviceClock) {
+internal class LockoutTracker(
+    private val store: SecureStore,
+    private val clock: DeviceClock,
+    private val key: String
+) {
     suspend fun remaining(): Duration {
         val state = load()
         val lock = LockoutPolicy.lockDuration(state.failures)
@@ -48,7 +53,7 @@ internal class LockoutTracker(private val store: SecureStore, private val clock:
     data class Failure(val lock: Duration, val attemptsBeforeLockout: Int)
 
     private suspend fun load(): LockoutState = try {
-        store.readString(KEY)?.let { LockoutState.parse(it) ?: strictest() } ?: LockoutState.NONE
+        store.readString(key)?.let { LockoutState.parse(it) ?: strictest() } ?: LockoutState.NONE
     } catch (ignored: SecureStoreException) {
         strictest()
     }
@@ -70,15 +75,11 @@ internal class LockoutTracker(private val store: SecureStore, private val clock:
 
     private suspend fun save(state: LockoutState) {
         if (state == LockoutState.NONE) {
-            store.remove(KEY)
+            store.remove(key)
         } else {
-            store.writeString(KEY, state.serialize())
+            store.writeString(key, state.serialize())
         }
     }
 
     private fun lockEnd(lock: Duration) = clock.elapsedRealtime() + lock.inWholeMilliseconds
-
-    private companion object {
-        const val KEY = "parent_password_lockout"
-    }
 }

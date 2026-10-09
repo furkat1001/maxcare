@@ -22,6 +22,7 @@ android/
   blocker/        экраны-заглушки, размытие
   location/       геолокация, геозоны
   reports/        сбор событий, очередь отправки на сервер
+  setup/          мастер первой настройки, привязка телефона к родителю
 ios/              App + расширения (ContentFilter, URLFilter, DeviceActivityMonitor, ShieldConfiguration)
 parent-app/       Flutter
 backend/          Kotlin + Ktor, PostgreSQL, Redis
