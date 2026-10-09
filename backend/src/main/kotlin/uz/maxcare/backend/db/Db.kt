@@ -59,7 +59,17 @@ fun <T> Connection.queryOne(sql: String, vararg params: Any?, map: (ResultSet) -
         statement.bind(params).executeQuery().use { rows -> if (rows.next()) map(rows) else null }
     }
 
+fun <T> Connection.queryList(sql: String, vararg params: Any?, map: (ResultSet) -> T): List<T> =
+    prepareStatement(sql).use { statement ->
+        statement.bind(params).executeQuery().use { rows ->
+            buildList { while (rows.next()) add(map(rows)) }
+        }
+    }
+
 fun ResultSet.uuid(column: String): UUID = getObject(column, UUID::class.java)
+
+fun ResultSet.instantOrNull(column: String): Instant? =
+    getObject(column, java.time.OffsetDateTime::class.java)?.toInstant()
 
 private fun PreparedStatement.bind(params: Array<out Any?>): PreparedStatement {
     params.forEachIndexed { index, value ->

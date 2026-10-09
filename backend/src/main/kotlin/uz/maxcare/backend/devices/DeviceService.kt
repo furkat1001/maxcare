@@ -27,6 +27,9 @@ sealed interface PairResult {
 
 data class RecoveryCode(val code: String, val validUntil: Instant)
 
+/** Телефон ребёнка, обратившийся с токеном устройства. */
+data class DevicePrincipal(val deviceId: UUID)
+
 enum class Platform(val value: String) {
     ANDROID("android"),
     IOS("ios");
@@ -104,6 +107,13 @@ class DeviceService(
             )
             PairResult.Paired(deviceId, token, secret)
         }
+
+    /** Телефон по токену устройства; null — токен неизвестен (например, после повторной привязки). */
+    suspend fun authenticate(token: String): DevicePrincipal? = db.tx { c ->
+        c.queryOne("select id from devices where token_hash = ?", Tokens.hash(token)) {
+            DevicePrincipal(it.uuid("id"))
+        }
+    }
 
     /** @return null, если устройства нет или оно принадлежит другой семье. */
     suspend fun recoveryCode(familyId: UUID, deviceId: UUID): RecoveryCode? {

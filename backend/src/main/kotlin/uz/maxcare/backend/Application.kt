@@ -19,6 +19,9 @@ import uz.maxcare.backend.db.Db
 import uz.maxcare.backend.devices.DeviceService
 import uz.maxcare.backend.devices.PARENT_AUTH
 import uz.maxcare.backend.devices.deviceRoutes
+import uz.maxcare.backend.events.DEVICE_AUTH
+import uz.maxcare.backend.events.EventService
+import uz.maxcare.backend.events.eventRoutes
 import uz.maxcare.backend.http.installErrorHandling
 import uz.maxcare.backend.parents.ParentService
 import uz.maxcare.backend.parents.parentRoutes
@@ -36,6 +39,7 @@ fun main() {
     val services = Services(
         parents = ParentService(db, Argon2Hasher(), clock),
         devices = DeviceService(db, SecretBox(config.secretKey), clock),
+        events = EventService(db, clock),
         rateLimiter = RedisRateLimiter(redis)
     )
 
@@ -58,10 +62,14 @@ fun Application.maxcareModule(services: Services) {
         bearer(PARENT_AUTH) {
             authenticate { credential -> services.parents.authenticate(credential.token) }
         }
+        bearer(DEVICE_AUTH) {
+            authenticate { credential -> services.devices.authenticate(credential.token) }
+        }
     }
     routing {
         get("/health") { call.respondText("ok") }
         parentRoutes(services.parents, services.rateLimiter)
         deviceRoutes(services.devices, services.rateLimiter)
+        eventRoutes(services.events, services.rateLimiter)
     }
 }
