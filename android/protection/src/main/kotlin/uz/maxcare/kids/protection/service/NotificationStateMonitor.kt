@@ -5,6 +5,8 @@ import androidx.core.app.NotificationManagerCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import uz.maxcare.kids.core.events.EventRecorder
 import uz.maxcare.kids.core.events.EventType
 import uz.maxcare.kids.core.storage.SecureStore
@@ -40,7 +42,11 @@ internal class NotificationStateMonitor @Inject constructor(
     private val events: EventRecorder,
     private val notifications: NotificationVisibility
 ) {
-    suspend fun check() {
+    // Проверки идут из службы и из applyPolicies почти одновременно: без мьютекса обе читали
+    // «видимы» до записи «скрыты» и записывали событие дважды (найдено на Samsung).
+    private val mutex = Mutex()
+
+    suspend fun check() = mutex.withLock {
         try {
             val now = if (notifications.isVisible()) VISIBLE else HIDDEN
             val before = store.readString(STATE_KEY)

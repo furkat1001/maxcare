@@ -8,15 +8,23 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import uz.maxcare.kids.core.events.EventType
 import uz.maxcare.kids.core.protection.ProtectionMode
+import uz.maxcare.kids.protection.password.FakeSecureStore
+import uz.maxcare.kids.protection.service.NotificationStateMonitor
 
 class DevicePolicyProtectionTest {
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
     private val service = FakeProtectionServiceStarter()
 
+    private val events = FakeEventRecorder()
+    private var notificationsVisible = true
+    private val monitor =
+        NotificationStateMonitor(FakeSecureStore(), events) { notificationsVisible }
+
     private fun protection(gateway: FakeDevicePolicyGateway) =
-        DevicePolicyProtection(gateway, service, dispatcher)
+        DevicePolicyProtection(gateway, service, monitor, dispatcher)
 
     @Test
     fun `without admin no policies are applied and no notification is shown`() = testScope.runTest {
@@ -91,5 +99,30 @@ class DevicePolicyProtectionTest {
         assertEquals(ProtectionMode.NONE, protection.applyPolicies())
         assertFalse(gateway.isDeviceOwner())
         assertFalse(service.running)
+    }
+
+    @Test
+    fun `notifications turned off soon after setup are recorded`() = testScope.runTest {
+        // Как на Samsung: служба стартует до шага «Разрешить уведомления», родитель разрешает,
+        // ребёнок через пару минут выключает — раньше 15 минут, до проверки службы.
+        val protection = protection(FakeDevicePolicyGateway(adminActive = true))
+        notificationsVisible = false
+        protection.applyPolicies() // шаг «Администратор»: уведомления ещё не разрешены
+        notificationsVisible = true
+        protection.applyPolicies() // шаг «Уведомления»: разрешены
+        notificationsVisible = false
+        protection.applyPolicies() // открытие приложения или загрузка: выключены
+
+        assertEquals(listOf(EventType.NOTIFICATIONS_OFF), events.recorded)
+    }
+
+    @Test
+    fun `without protection notifications are not watched`() = testScope.runTest {
+        notificationsVisible = true
+        protection(FakeDevicePolicyGateway()).applyPolicies()
+        notificationsVisible = false
+        protection(FakeDevicePolicyGateway()).applyPolicies()
+
+        assertTrue(events.recorded.isEmpty())
     }
 }

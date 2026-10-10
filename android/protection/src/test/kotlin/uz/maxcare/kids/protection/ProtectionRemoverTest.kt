@@ -8,6 +8,8 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import uz.maxcare.kids.protection.password.FakeDeviceClock
+import uz.maxcare.kids.protection.password.FakeSecureStore
+import uz.maxcare.kids.protection.service.NotificationStateMonitor
 
 class ProtectionRemoverTest {
     private val service = FakeProtectionServiceStarter()
@@ -16,7 +18,12 @@ class ProtectionRemoverTest {
     @Test
     fun `device owner is fully removed`() = runTest {
         val gateway = FakeDevicePolicyGateway(deviceOwner = true)
-        DevicePolicyProtection(gateway, service, StandardTestDispatcher(testScheduler))
+        DevicePolicyProtection(
+            gateway,
+            service,
+            NotificationStateMonitor(FakeSecureStore(), FakeEventRecorder()) { true },
+            StandardTestDispatcher(testScheduler)
+        )
             .applyPolicies()
         assertTrue(service.running)
 

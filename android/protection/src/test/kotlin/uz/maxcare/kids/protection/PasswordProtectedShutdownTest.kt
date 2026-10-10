@@ -12,6 +12,8 @@ import uz.maxcare.kids.core.events.EventType
 import uz.maxcare.kids.core.protection.DisableProtectionResult
 import uz.maxcare.kids.core.protection.PasswordCheck
 import uz.maxcare.kids.protection.password.FakeDeviceClock
+import uz.maxcare.kids.protection.password.FakeSecureStore
+import uz.maxcare.kids.protection.service.NotificationStateMonitor
 
 class PasswordProtectedShutdownTest {
     private val service = FakeProtectionServiceStarter()
@@ -28,7 +30,12 @@ class PasswordProtectedShutdownTest {
 
     private suspend fun TestScope.deviceOwner(): FakeDevicePolicyGateway {
         val gateway = FakeDevicePolicyGateway(deviceOwner = true)
-        DevicePolicyProtection(gateway, service, StandardTestDispatcher(testScheduler))
+        DevicePolicyProtection(
+            gateway,
+            service,
+            NotificationStateMonitor(FakeSecureStore(), FakeEventRecorder()) { true },
+            StandardTestDispatcher(testScheduler)
+        )
             .applyPolicies()
         return gateway
     }

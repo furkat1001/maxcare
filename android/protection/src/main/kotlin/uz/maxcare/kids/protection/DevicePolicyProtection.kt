@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import uz.maxcare.kids.core.di.IoDispatcher
 import uz.maxcare.kids.core.protection.DeviceProtection
 import uz.maxcare.kids.core.protection.ProtectionMode
+import uz.maxcare.kids.protection.service.NotificationStateMonitor
 import uz.maxcare.kids.protection.service.ProtectionServiceStarter
 
 /** Ограничения пользователя, которые ставятся в режиме Device Owner. */
@@ -24,6 +25,7 @@ internal val DEVICE_OWNER_RESTRICTIONS = listOf(
 internal class DevicePolicyProtection @Inject constructor(
     private val gateway: DevicePolicyGateway,
     private val serviceStarter: ProtectionServiceStarter,
+    private val notificationMonitor: NotificationStateMonitor,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : DeviceProtection {
     private val _mode = MutableStateFlow(ProtectionMode.NONE)
@@ -44,6 +46,10 @@ internal class DevicePolicyProtection @Inject constructor(
         }
         // Пока защита работает, постоянное уведомление обязательно (политика Google Play о мониторинге).
         if (current == ProtectionMode.NONE) serviceStarter.stop() else serviceStarter.start()
+        // Не только раз в 15 минут из службы: applyPolicies вызывается на каждом шаге мастера и при
+        // открытии приложения, так включение уведомлений замечается сразу. Иначе выключение вскоре
+        // после настройки не отличить от «были выключены всегда» (найдено на Samsung).
+        if (current != ProtectionMode.NONE) notificationMonitor.check()
         _mode.value = current
         current
     }
