@@ -17,16 +17,30 @@ enum class EventType(val wireName: String) {
     PASSWORD_RECOVERED("password_recovered"),
     NOTIFICATIONS_OFF("notifications_off"),
     DEVICE_BOOTED("device_booted"),
-    DEVICE_SHUTDOWN("device_shutdown");
+    DEVICE_SHUTDOWN("device_shutdown"),
+    VPN_OFF("vpn_off"),
+    PRIVATE_DNS_ON("private_dns_on"),
+    SITE_BLOCKED_FILTERED("site_blocked_filtered"),
+    SITE_BLOCKED_GAMBLING("site_blocked_gambling");
 
     companion object {
         fun parse(value: String) = entries.firstOrNull { it.wireName == value }
     }
 }
 
-data class IncomingEvent(val id: UUID, val type: EventType, val occurredAt: Instant)
+data class IncomingEvent(
+    val id: UUID,
+    val type: EventType,
+    val occurredAt: Instant,
+    val detail: String? = null
+)
 
-data class StoredEvent(val type: EventType, val occurredAt: Instant, val receivedAt: Instant)
+data class StoredEvent(
+    val type: EventType,
+    val occurredAt: Instant,
+    val receivedAt: Instant,
+    val detail: String? = null
+)
 
 data class DeviceActivity(val lastSeenAt: Instant?, val events: List<StoredEvent>)
 
@@ -42,14 +56,15 @@ class EventService(private val db: Db, private val clock: Clock) {
         events.sumOf { event ->
             c.update(
                 """
-                insert into device_events (device_id, id, type, occurred_at, received_at)
-                values (?, ?, ?, ?, ?) on conflict do nothing
+                insert into device_events (device_id, id, type, occurred_at, received_at, detail)
+                values (?, ?, ?, ?, ?, ?) on conflict do nothing
                 """.trimIndent(),
                 deviceId,
                 event.id,
                 event.type.wireName,
                 event.occurredAt,
-                now
+                now,
+                event.detail
             )
         }
     }
@@ -64,7 +79,7 @@ class EventService(private val db: Db, private val clock: Clock) {
 
         val events = c.queryList(
             """
-            select type, occurred_at, received_at from device_events
+            select type, occurred_at, received_at, detail from device_events
             where device_id = ? order by received_at desc, occurred_at desc limit ?
             """.trimIndent(),
             deviceId,
@@ -74,7 +89,8 @@ class EventService(private val db: Db, private val clock: Clock) {
                 StoredEvent(
                     type = type,
                     occurredAt = requireNotNull(row.instantOrNull("occurred_at")),
-                    receivedAt = requireNotNull(row.instantOrNull("received_at"))
+                    receivedAt = requireNotNull(row.instantOrNull("received_at")),
+                    detail = row.getString("detail")
                 )
             }
         }.filterNotNull()

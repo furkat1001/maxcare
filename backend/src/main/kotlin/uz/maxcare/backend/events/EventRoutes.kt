@@ -24,7 +24,12 @@ import uz.maxcare.backend.ratelimit.check
 const val DEVICE_AUTH = "device"
 
 @Serializable
-data class EventDto(val id: String, val type: String, val occurredAt: String)
+data class EventDto(
+    val id: String,
+    val type: String,
+    val occurredAt: String,
+    val detail: String? = null
+)
 
 @Serializable
 data class EventBatchRequest(val events: List<EventDto> = emptyList())
@@ -33,7 +38,12 @@ data class EventBatchRequest(val events: List<EventDto> = emptyList())
 data class EventBatchResponse(val accepted: Int)
 
 @Serializable
-data class DeviceEventDto(val type: String, val occurredAt: String, val receivedAt: String)
+data class DeviceEventDto(
+    val type: String,
+    val occurredAt: String,
+    val receivedAt: String,
+    val detail: String? = null
+)
 
 @Serializable
 data class DeviceActivityResponse(val lastSeenAt: String?, val events: List<DeviceEventDto>)
@@ -82,7 +92,9 @@ private fun parseBatch(request: EventBatchRequest): List<IncomingEvent>? {
         request.events.mapNotNull { dto ->
             val id = UUID.fromString(dto.id)
             val occurredAt = Instant.parse(dto.occurredAt)
-            EventType.parse(dto.type)?.let { IncomingEvent(id, it, occurredAt) }
+            EventType.parse(dto.type)?.let {
+                IncomingEvent(id, it, occurredAt, dto.detail?.takeIf(::isPlainDomain))
+            }
         }
     } catch (ignored: IllegalArgumentException) {
         null
@@ -94,8 +106,22 @@ private fun parseBatch(request: EventBatchRequest): List<IncomingEvent>? {
 private fun DeviceActivity.toResponse() = DeviceActivityResponse(
     lastSeenAt = lastSeenAt?.toString(),
     events = events.map {
-        DeviceEventDto(it.type.wireName, it.occurredAt.toString(), it.receivedAt.toString())
+        DeviceEventDto(
+            it.type.wireName,
+            it.occurredAt.toString(),
+            it.receivedAt.toString(),
+            it.detail
+        )
     }
 )
 
+/**
+ * Уточнение принимается только как обычное доменное имя (адрес заблокированного сайта).
+ * Иное отбрасывается, а не отклоняет пачку, — по той же причине, что и неизвестный тип события.
+ */
+private fun isPlainDomain(value: String) =
+    value.length <= MAX_DOMAIN_LENGTH && DOMAIN.matches(value)
+
+private val DOMAIN = Regex("^[a-z0-9-]+(\\.[a-z0-9-]+)+$")
+private const val MAX_DOMAIN_LENGTH = 253
 private const val MAX_BATCH = 100

@@ -166,4 +166,53 @@ class EventApiTest : ApiTestBase() {
         assertEquals(HttpStatusCode.OK, statuses[119])
         assertEquals(HttpStatusCode.TooManyRequests, statuses.last())
     }
+
+    @Test
+    fun `blocked site address reaches the parent`() = apiTest { client ->
+        val parent = client.registerAndLogin()
+        val device = client.pairedDevice(parent)
+
+        client.send(
+            device.deviceToken,
+            EventDto(
+                newId(),
+                "site_blocked_filtered",
+                "2026-10-09T10:00:00Z",
+                "m.example-adult.test"
+            )
+        )
+
+        val stored = client.activity(
+            device.deviceId,
+            parent
+        ).body<DeviceActivityResponse>().events.single()
+        assertEquals("site_blocked_filtered", stored.type)
+        assertEquals("m.example-adult.test", stored.detail)
+    }
+
+    @Test
+    fun `detail that is not a plain domain is dropped, the event is kept`() = apiTest { client ->
+        val parent = client.registerAndLogin()
+        val device = client.pairedDevice(parent)
+
+        val response = client.send(
+            device.deviceToken,
+            EventDto(
+                newId(),
+                "site_blocked_filtered",
+                "2026-10-09T10:00:00Z",
+                "Not a domain! <script>"
+            ),
+            EventDto(
+                newId(),
+                "site_blocked_gambling",
+                "2026-10-09T10:00:00Z",
+                "a".repeat(250) + ".test"
+            )
+        )
+
+        assertEquals(2, response.body<EventBatchResponse>().accepted)
+        val events = client.activity(device.deviceId, parent).body<DeviceActivityResponse>().events
+        assertEquals(listOf(null, null), events.map { it.detail })
+    }
 }
