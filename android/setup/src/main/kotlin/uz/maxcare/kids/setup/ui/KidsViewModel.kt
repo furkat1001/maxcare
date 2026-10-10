@@ -147,7 +147,12 @@ class KidsViewModel @Inject internal constructor(
             KidsScreen.Home(protection.mode.value)
         } else {
             val steps = applicableSteps()
-            KidsScreen.Setup(step, number = steps.indexOf(step) + 1, total = steps.size)
+            KidsScreen.Setup(
+                step,
+                number = steps.indexOf(step) + 1,
+                total = steps.size,
+                canTurnOff = protection.mode.value != ProtectionMode.NONE
+            )
         }
         show(screen)
     }

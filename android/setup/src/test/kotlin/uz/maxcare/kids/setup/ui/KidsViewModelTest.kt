@@ -15,6 +15,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import uz.maxcare.kids.core.filter.NetworkFilter
@@ -103,11 +104,11 @@ class KidsViewModelTest {
         environment.notifications = false
         filter.permitted = false
         vm.onDeviceAdminResult()
-        assertEquals(KidsScreen.Setup(SetupStep.WEB_FILTER, 5, 6), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.WEB_FILTER, 5, 6, canTurnOff = true), vm.screen)
 
         filter.permitted = true
         vm.onWebFilterResult()
-        assertEquals(KidsScreen.Setup(SetupStep.NOTIFICATIONS, 6, 6), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.NOTIFICATIONS, 6, 6, canTurnOff = true), vm.screen)
 
         environment.notifications = true
         vm.onNotificationPermissionResult()
@@ -186,6 +187,34 @@ class KidsViewModelTest {
 
         assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 6), vm.screen)
         assertEquals(UiMessage.AdminNotActivated, vm.message)
+    }
+
+    @Test
+    fun `protection can be turned off from a step asking to re-enable something`() {
+        // Ребёнок удалил VPN-профиль: защита работает, мастер просит включить фильтр снова.
+        filter.permitted = false
+        val vm = setUpFully()
+        val step = vm.screen as KidsScreen.Setup
+        assertEquals(SetupStep.WEB_FILTER, step.step)
+        assertTrue(step.canTurnOff)
+
+        vm.openDisableProtection()
+        assertEquals(KidsScreen.DisableProtection, vm.screen)
+
+        vm.back()
+        assertEquals(SetupStep.WEB_FILTER, (vm.screen as KidsScreen.Setup).step)
+    }
+
+    @Test
+    fun `nothing to turn off before the device admin is on`() {
+        store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
+        pairing.paired = true
+        password.set = true
+
+        val step = viewModel().screen as KidsScreen.Setup
+
+        assertEquals(SetupStep.DEVICE_ADMIN, step.step)
+        assertFalse(step.canTurnOff)
     }
 
     @Test

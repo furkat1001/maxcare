@@ -18,7 +18,17 @@ enum class SetupStep {
 sealed interface KidsScreen {
     data object Loading : KidsScreen
 
-    data class Setup(val step: SetupStep, val number: Int, val total: Int) : KidsScreen
+    /**
+     * @param canTurnOff защита уже работает (администратор активен): родитель может отключить её
+     *   прямо с шага, который просит что-то включить обратно, — например, после того как ребёнок
+     *   удалил VPN-профиль или выключил уведомления.
+     */
+    data class Setup(
+        val step: SetupStep,
+        val number: Int,
+        val total: Int,
+        val canTurnOff: Boolean = false
+    ) : KidsScreen
 
     data class Home(val mode: ProtectionMode) : KidsScreen
 

@@ -18,6 +18,7 @@ internal fun SetupStepScreen(
     system: SystemActions
 ) {
     val caption = stringResource(R.string.setup_step_counter, screen.number, screen.total)
+    val turnOff = viewModel::openDisableProtection.takeIf { screen.canTurnOff }
     when (screen.step) {
         SetupStep.DISCLOSURE -> DisclosureStep(state, caption, viewModel::acceptDisclosure)
 
@@ -39,7 +40,8 @@ internal fun SetupStepScreen(
             R.string.filter_body,
             state,
             caption,
-            R.string.filter_submit to system.enableWebFilter
+            R.string.filter_submit to system.enableWebFilter,
+            turnOff = turnOff
         )
 
         SetupStep.NOTIFICATIONS -> ActionStep(
@@ -48,7 +50,8 @@ internal fun SetupStepScreen(
             state,
             caption,
             R.string.notifications_allow to system.requestNotifications,
-            R.string.open_settings to system.openNotificationSettings
+            R.string.open_settings to system.openNotificationSettings,
+            turnOff = turnOff
         )
 
         SetupStep.BACKGROUND_WORK -> ActionStep(
@@ -57,7 +60,8 @@ internal fun SetupStepScreen(
             state,
             caption,
             R.string.open_settings to system.openAppSettings,
-            R.string.background_done to viewModel::confirmBackgroundWork
+            R.string.background_done to viewModel::confirmBackgroundWork,
+            turnOff = turnOff
         )
     }
 }
@@ -71,7 +75,8 @@ private fun ActionStep(
     state: KidsUiState,
     caption: String,
     primary: Pair<Int, () -> Unit>,
-    secondary: Pair<Int, () -> Unit>? = null
+    secondary: Pair<Int, () -> Unit>? = null,
+    turnOff: (() -> Unit)? = null
 ) {
     ScreenLayout(
         title = stringResource(title),
@@ -83,6 +88,7 @@ private fun ActionStep(
         secondary?.let { (text, action) ->
             SecondaryButton(stringResource(text), !state.busy, action)
         }
+        turnOff?.let { SecondaryButton(stringResource(R.string.home_disable), !state.busy, it) }
     }
 }
 
