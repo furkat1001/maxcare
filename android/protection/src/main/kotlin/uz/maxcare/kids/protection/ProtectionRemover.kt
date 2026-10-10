@@ -2,6 +2,7 @@ package uz.maxcare.kids.protection
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import uz.maxcare.kids.core.filter.NetworkFilter
 import uz.maxcare.kids.protection.password.DeviceClock
 import uz.maxcare.kids.protection.service.ProtectionServiceStarter
 
@@ -15,6 +16,7 @@ import uz.maxcare.kids.protection.service.ProtectionServiceStarter
 internal class ProtectionRemover @Inject constructor(
     private val gateway: DevicePolicyGateway,
     private val serviceStarter: ProtectionServiceStarter,
+    private val networkFilter: NetworkFilter,
     private val clock: DeviceClock
 ) {
     @Volatile
@@ -28,6 +30,7 @@ internal class ProtectionRemover @Inject constructor(
             gateway.isDeviceOwner() -> {
                 // Пока права владельца есть — снимаем политики, затем сам режим.
                 DEVICE_OWNER_RESTRICTIONS.forEach(gateway::clearUserRestriction)
+                gateway.setAlwaysOnVpn(false)
                 gateway.setOwnUninstallBlocked(false)
                 gateway.clearDeviceOwner()
             }
@@ -37,6 +40,7 @@ internal class ProtectionRemover @Inject constructor(
             else -> return false
         }
         serviceStarter.stop()
+        networkFilter.stop()
         return true
     }
 

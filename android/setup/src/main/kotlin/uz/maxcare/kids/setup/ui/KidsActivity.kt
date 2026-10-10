@@ -55,6 +55,11 @@ private fun KidsApp(viewModel: KidsViewModel) {
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             viewModel.onDeviceAdminResult()
         }
+    val filterLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        viewModel.onWebFilterResult()
+    }
     val notificationLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
             viewModel.onNotificationPermissionResult()
@@ -65,6 +70,10 @@ private fun KidsApp(viewModel: KidsViewModel) {
         }
     val system = SystemActions(
         activateDeviceAdmin = { adminLauncher.launch(viewModel.deviceAdminIntent()) },
+        enableWebFilter = {
+            val intent = viewModel.webFilterIntent()
+            if (intent == null) viewModel.onWebFilterResult() else filterLauncher.launch(intent)
+        },
         requestNotifications = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)

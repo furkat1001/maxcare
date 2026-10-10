@@ -160,6 +160,8 @@ private fun messageText(message: UiMessage): String = when (message) {
 
     UiMessage.NotificationsDenied -> stringResource(R.string.error_notifications_denied)
 
+    UiMessage.FilterNotAllowed -> stringResource(R.string.error_filter_not_allowed)
+
     is UiMessage.WrongRecoveryCode -> stringResource(
         R.string.error_recovery_code_invalid,
         message.attemptsLeft

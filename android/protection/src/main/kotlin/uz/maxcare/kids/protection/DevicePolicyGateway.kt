@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -28,6 +29,9 @@ internal interface DevicePolicyGateway {
      * До Android 13 разрешения нет — ничего не делает.
      */
     fun lockNotificationPermissionGranted()
+
+    /** Постоянный VPN фильтра с блокировкой трафика без него (только Device Owner); false — снять. */
+    fun setAlwaysOnVpn(enabled: Boolean)
 }
 
 internal class AndroidDevicePolicyGateway @Inject constructor(
@@ -61,6 +65,16 @@ internal class AndroidDevicePolicyGateway @Inject constructor(
 
     override fun removeActiveAdmin() {
         dpm.removeActiveAdmin(admin)
+    }
+
+    override fun setAlwaysOnVpn(enabled: Boolean) {
+        try {
+            dpm.setAlwaysOnVpnPackage(admin, if (enabled) context.packageName else null, true)
+        } catch (ignored: PackageManager.NameNotFoundException) {
+            // Наш собственный пакет есть всегда; на случай невозможного — защита работает и без always-on.
+        } catch (ignored: UnsupportedOperationException) {
+            // Прошивка не поддерживает always-on VPN: фильтр запускается обычным способом.
+        }
     }
 
     override fun lockNotificationPermissionGranted() {

@@ -12,7 +12,7 @@ internal fun interface DnsUpstream {
 internal class DnsEngine(
     private val policy: DnsPolicy,
     private val upstream: DnsUpstream,
-    private val onBlocked: (BlockCategory) -> Unit
+    private val onBlocked: (category: BlockCategory, domain: String) -> Unit
 ) {
     suspend fun handle(packet: ByteArray): ByteArray? {
         val query = DnsCodec.parseQuery(packet) ?: return null
@@ -26,7 +26,7 @@ internal class DnsEngine(
             DnsDecision.NxDomain -> DnsCodec.buildResponse(query, DnsRcode.NXDOMAIN, emptyList())
 
             is DnsDecision.Block -> {
-                onBlocked(decision.category)
+                onBlocked(decision.category, query.name)
                 blockedAnswer(query)
             }
         }
@@ -34,7 +34,7 @@ internal class DnsEngine(
 
     private suspend fun forward(query: DnsQuestion, packet: ByteArray): ByteArray {
         val response = upstream.query(packet) ?: return servfail(query)
-        if (isBlockedByUpstream(response)) onBlocked(BlockCategory.FILTERED)
+        if (isBlockedByUpstream(response)) onBlocked(BlockCategory.FILTERED, query.name)
         return response
     }
 

@@ -27,11 +27,12 @@ internal class QueueingEventRecorder @Inject constructor(
     @ApplicationScope private val appScope: CoroutineScope
 ) : EventRecorder {
 
-    override suspend fun record(type: EventType) {
+    override suspend fun record(type: EventType, detail: String?) {
         val event = QueuedEvent(
             id = UUID.randomUUID().toString(),
             type = type.wireName,
-            occurredAt = clock.instant().toString()
+            occurredAt = clock.instant().toString(),
+            detail = detail
         )
         try {
             queue.add(event)

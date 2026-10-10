@@ -6,7 +6,7 @@
 
     <!-- Заметное раскрытие (политика Google Play). Обновлять вместе с каждой новой функцией сбора данных. -->
     <string name="disclosure_title">Before you start</string>
-    <string name="disclosure_body">MaxCare Kids is parental control. A parent installs it, and the child always sees that it is working.\n\nWhat the app does now:\n• protection can be turned off in the app only with the parent password;\n• it shows a permanent notification that protection is on;\n• it connects this phone to the parent’s account. The phone name and model are sent to the MaxCare server;\n• it sends protection events to the MaxCare server: device admin turned off, parent password locked or reset, notifications turned off, phone turned on and off — only what happened and when.\n\nThe app does not hide, does not read messages and does not send photos or screen contents.\n\nContinue only if you are the parent or guardian of this child.</string>
+    <string name="disclosure_body">MaxCare Kids is parental control. A parent installs it, and the child always sees that it is working.\n\nWhat the app does now:\n• protection can be turned off in the app only with the parent password;\n• it shows a permanent notification that protection is on;\n• it connects this phone to the parent’s account. The phone name and model are sent to the MaxCare server;\n• it sends protection events to the MaxCare server: device admin turned off, parent password locked or reset, notifications turned off, phone turned on and off, blocked sites with their address — only what happened and when;\n• it filters websites: site names (not page contents) are checked, encrypted, by the family DNS service Cloudflare for Families.\n\nThe app does not hide, does not read messages and does not send photos or screen contents.\n\nContinue only if you are the parent or guardian of this child.</string>
     <string name="disclosure_accept">I am the parent, continue</string>
 
     <string name="pairing_title">Connect to the parent</string>
@@ -67,4 +67,10 @@
     <string name="error_recovery_code_invalid">Wrong code. Attempts left before a pause: %1$d</string>
     <string name="error_not_paired">This phone is not connected to a parent, so a recovery code cannot be checked.</string>
     <string name="message_password_reset">New password saved.</string>
+
+    <!-- Отдельное раскрытие о VPN (политика Google Play). Обновлять вместе с правилами фильтра. -->
+    <string name="filter_title">Website filter</string>
+    <string name="filter_body">MaxCare Kids turns on a local VPN to filter websites. It sees only the names of sites the phone opens, not the pages themselves.\n\n• Site names are sent, encrypted, to the family DNS service Cloudflare for Families, which blocks adult and dangerous sites.\n• Google, Bing, Yandex and DuckDuckGo search and YouTube are switched to safe mode.\n• Betting and gambling sites are blocked.\n• The parent sees the address and category of each blocked site. Addresses of other sites are not sent to MaxCare.\n\nAndroid will ask for permission to set up a VPN connection.</string>
+    <string name="filter_submit">Turn on the filter</string>
+    <string name="error_filter_not_allowed">The filter is not on. Tap “Turn on the filter” and allow the VPN connection.</string>
 </resources>

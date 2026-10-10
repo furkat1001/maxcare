@@ -21,12 +21,28 @@ enum class EventType(val wireName: String) {
     NOTIFICATIONS_OFF("notifications_off"),
 
     DEVICE_BOOTED("device_booted"),
-    DEVICE_SHUTDOWN("device_shutdown")
+    DEVICE_SHUTDOWN("device_shutdown"),
+
+    /** Фильтр сайтов выключен не через приложение: другой VPN или отключение в настройках. */
+    VPN_OFF("vpn_off"),
+
+    /** Включён «Частный DNS» с адресом сервера — DNS-запросы идут мимо фильтра. */
+    PRIVATE_DNS_ON("private_dns_on"),
+
+    /** Сайт заблокирован семейным DNS-провайдером: взрослый или вредоносный. Адрес — в detail. */
+    SITE_BLOCKED_FILTERED("site_blocked_filtered"),
+
+    /** Сайт азартных игр или ставок заблокирован. Адрес — в detail. */
+    SITE_BLOCKED_GAMBLING("site_blocked_gambling")
 }
 
 /** Запись события в локальную очередь; отправка на сервер — отдельно и при первой возможности. */
 interface EventRecorder {
-    suspend fun record(type: EventType)
+    /**
+     * @param detail уточнение для родителя — только для того, что защита пометила как опасное
+     *   (сейчас — адрес заблокированного сайта). Адреса прочих сайтов не записываются (CLAUDE.md).
+     */
+    suspend fun record(type: EventType, detail: String? = null)
 }
 
 /**

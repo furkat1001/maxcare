@@ -94,6 +94,17 @@ class EventUploaderTest {
     }
 
     @Test
+    fun `address is sent to the server`() = runTest {
+        queue.add(
+            QueuedEvent("id-1", "site_blocked_filtered", "2026-10-09T10:00:00Z", "a.example.test")
+        )
+
+        uploader.sync()
+
+        assertEquals("a.example.test", api.batches.single().single().detail)
+    }
+
+    @Test
     fun `large queue goes in batches of 100`() = runTest {
         fill(250)
 
@@ -169,6 +180,13 @@ class QueueingEventRecorderTest {
         assertEquals("2026-10-09T10:15:30Z", queued.first().occurredAt)
         assertEquals(2, queued.map { it.id }.toSet().size)
         assertEquals(2, sync.calls)
+    }
+
+    @Test
+    fun `blocked site address travels with the event`() = runTest {
+        recorder().record(EventType.SITE_BLOCKED_GAMBLING, "1xbet.com")
+
+        assertEquals("1xbet.com", queue.peek(10).single().detail)
     }
 
     @Test

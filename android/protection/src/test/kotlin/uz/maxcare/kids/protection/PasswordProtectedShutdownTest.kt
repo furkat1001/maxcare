@@ -23,7 +23,7 @@ class PasswordProtectedShutdownTest {
     private fun TestScope.shutdown(gateway: FakeDevicePolicyGateway) = PasswordProtectedShutdown(
         parentPassword = password,
         gateway = gateway,
-        remover = ProtectionRemover(gateway, service, FakeDeviceClock()),
+        remover = ProtectionRemover(gateway, service, FakeNetworkFilter(), FakeDeviceClock()),
         events = events,
         ioDispatcher = StandardTestDispatcher(testScheduler)
     )
@@ -34,6 +34,7 @@ class PasswordProtectedShutdownTest {
             gateway,
             service,
             NotificationStateMonitor(FakeSecureStore(), FakeEventRecorder()) { true },
+            FakeNetworkFilter(),
             StandardTestDispatcher(testScheduler)
         )
             .applyPolicies()

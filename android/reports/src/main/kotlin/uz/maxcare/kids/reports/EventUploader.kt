@@ -47,7 +47,7 @@ internal class EventUploader @Inject constructor(
     }
 
     private suspend fun upload(token: String, batch: List<QueuedEvent>): SyncResult {
-        val outgoing = batch.map { OutgoingEvent(it.id, it.type, it.occurredAt) }
+        val outgoing = batch.map { OutgoingEvent(it.id, it.type, it.occurredAt, it.detail) }
         return when (val response = api.uploadEvents(token, outgoing)) {
             is ApiResult.Ok -> {
                 queue.remove(batch.map { it.id }.toSet())

@@ -8,6 +8,7 @@ enum class SetupStep {
     PAIRING,
     PASSWORD,
     DEVICE_ADMIN,
+    WEB_FILTER,
     NOTIFICATIONS,
 
     /** Только на прошивках, которые агрессивно закрывают фоновые приложения. */
@@ -43,6 +44,7 @@ sealed interface UiMessage {
     data object StorageDamaged : UiMessage
     data object AdminNotActivated : UiMessage
     data object NotificationsDenied : UiMessage
+    data object FilterNotAllowed : UiMessage
     data class WrongRecoveryCode(val attemptsLeft: Int) : UiMessage
     data object NotPaired : UiMessage
     data object PasswordReset : UiMessage

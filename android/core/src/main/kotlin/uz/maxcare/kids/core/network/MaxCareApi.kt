@@ -13,7 +13,12 @@ interface MaxCareApi {
 }
 
 /** @param occurredAt время по часам телефона в формате ISO-8601. */
-class OutgoingEvent(val id: String, val type: String, val occurredAt: String)
+class OutgoingEvent(
+    val id: String,
+    val type: String,
+    val occurredAt: String,
+    val detail: String? = null
+)
 
 class PairedDevice(val deviceId: String, val deviceToken: String, val recoverySecret: ByteArray)
 

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="blocked_channel_name">Заблокированные сайты</string>
+    <string name="blocked_title">Сайт заблокирован</string>
+    <string name="blocked_text">MaxCare Kids закрыл сайт, который не подходит детям.</string>
+</resources>

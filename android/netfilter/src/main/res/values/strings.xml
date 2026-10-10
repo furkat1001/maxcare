@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="blocked_channel_name">Blocked sites</string>
+    <string name="blocked_title">Site blocked</string>
+    <string name="blocked_text">MaxCare Kids closed a site that is not suitable for children.</string>
+</resources>

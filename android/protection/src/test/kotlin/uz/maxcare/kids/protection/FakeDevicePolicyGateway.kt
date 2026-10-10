@@ -9,6 +9,8 @@ internal class FakeDevicePolicyGateway(
     val restrictions = mutableSetOf<String>()
     var notificationPermissionLocked = false
         private set
+    var alwaysOnVpn = false
+        private set
     var policyCalls = 0
         private set
 
@@ -42,6 +44,11 @@ internal class FakeDevicePolicyGateway(
         policyCalls++
         if (deviceOwner) throw SecurityException("Device owner cannot be removed as an admin")
         adminActive = false
+    }
+
+    override fun setAlwaysOnVpn(enabled: Boolean) {
+        requireOwner()
+        alwaysOnVpn = enabled
     }
 
     override fun lockNotificationPermissionGranted() {

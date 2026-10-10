@@ -1,5 +1,6 @@
 package uz.maxcare.kids.setup.ui
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,53 +25,63 @@ internal fun SetupStepScreen(
 
         SetupStep.PASSWORD -> PasswordStep(state, caption, viewModel::submitNewPassword)
 
-        SetupStep.DEVICE_ADMIN -> ScreenLayout(
-            title = stringResource(R.string.admin_title),
-            body = stringResource(R.string.admin_body),
-            state = state,
-            caption = caption
-        ) {
-            PrimaryButton(
-                stringResource(R.string.admin_submit),
-                !state.busy,
-                system.activateDeviceAdmin
-            )
-        }
+        SetupStep.DEVICE_ADMIN -> ActionStep(
+            R.string.admin_title,
+            R.string.admin_body,
+            state,
+            caption,
+            R.string.admin_submit to system.activateDeviceAdmin
+        )
 
-        SetupStep.NOTIFICATIONS -> ScreenLayout(
-            title = stringResource(R.string.notifications_title),
-            body = stringResource(R.string.notifications_body),
-            state = state,
-            caption = caption
-        ) {
-            PrimaryButton(
-                stringResource(R.string.notifications_allow),
-                !state.busy,
-                system.requestNotifications
-            )
-            SecondaryButton(
-                stringResource(R.string.open_settings),
-                !state.busy,
-                system.openNotificationSettings
-            )
-        }
+        // Отдельное раскрытие о VPN: политика Google Play не разрешает объединять его с другими.
+        SetupStep.WEB_FILTER -> ActionStep(
+            R.string.filter_title,
+            R.string.filter_body,
+            state,
+            caption,
+            R.string.filter_submit to system.enableWebFilter
+        )
 
-        SetupStep.BACKGROUND_WORK -> ScreenLayout(
-            title = stringResource(R.string.background_title),
-            body = stringResource(R.string.background_body),
-            state = state,
-            caption = caption
-        ) {
-            PrimaryButton(
-                stringResource(R.string.open_settings),
-                !state.busy,
-                system.openAppSettings
-            )
-            SecondaryButton(
-                stringResource(R.string.background_done),
-                !state.busy,
-                viewModel::confirmBackgroundWork
-            )
+        SetupStep.NOTIFICATIONS -> ActionStep(
+            R.string.notifications_title,
+            R.string.notifications_body,
+            state,
+            caption,
+            R.string.notifications_allow to system.requestNotifications,
+            R.string.open_settings to system.openNotificationSettings
+        )
+
+        SetupStep.BACKGROUND_WORK -> ActionStep(
+            R.string.background_title,
+            R.string.background_body,
+            state,
+            caption,
+            R.string.open_settings to system.openAppSettings,
+            R.string.background_done to viewModel::confirmBackgroundWork
+        )
+    }
+}
+
+/** Шаг «заголовок, текст, кнопка и, возможно, вторая кнопка». */
+@Composable
+@Suppress("LongParameterList") // Параметры шага — все обязательные, группировать их не во что
+private fun ActionStep(
+    @StringRes title: Int,
+    @StringRes body: Int,
+    state: KidsUiState,
+    caption: String,
+    primary: Pair<Int, () -> Unit>,
+    secondary: Pair<Int, () -> Unit>? = null
+) {
+    ScreenLayout(
+        title = stringResource(title),
+        body = stringResource(body),
+        state = state,
+        caption = caption
+    ) {
+        PrimaryButton(stringResource(primary.first), !state.busy, primary.second)
+        secondary?.let { (text, action) ->
+            SecondaryButton(stringResource(text), !state.busy, action)
         }
     }
 }

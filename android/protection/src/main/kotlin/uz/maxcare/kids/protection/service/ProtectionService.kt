@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import uz.maxcare.kids.core.events.EventRecorder
 import uz.maxcare.kids.core.events.EventSync
 import uz.maxcare.kids.core.events.EventType
+import uz.maxcare.kids.core.filter.NetworkFilter
 
 /**
  * Foreground-служба с постоянным уведомлением «MaxCare Kids защищает этот телефон».
@@ -44,6 +45,9 @@ class ProtectionService : Service() {
 
     @Inject
     internal lateinit var notificationMonitor: NotificationStateMonitor
+
+    @Inject
+    lateinit var networkFilter: NetworkFilter
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var syncLoop: Job? = null
@@ -89,6 +93,7 @@ class ProtectionService : Service() {
             syncLoop = scope.launch {
                 while (isActive) {
                     notificationMonitor.check()
+                    networkFilter.checkBypasses()
                     eventSync.sync()
                     delay(SYNC_INTERVAL)
                 }

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import uz.maxcare.kids.core.filter.NetworkFilter
 import uz.maxcare.kids.core.pairing.DevicePairing
 import uz.maxcare.kids.core.pairing.PairingResult
 import uz.maxcare.kids.core.protection.DeviceAdminActivation
@@ -45,6 +46,7 @@ class KidsViewModel @Inject internal constructor(
     private val shutdown: ProtectionShutdown,
     private val recovery: PasswordRecovery,
     private val adminActivation: DeviceAdminActivation,
+    private val networkFilter: NetworkFilter,
     private val store: SecureStore,
     private val environment: SetupEnvironment
 ) : ViewModel() {
@@ -61,6 +63,9 @@ class KidsViewModel @Inject internal constructor(
     }
 
     fun deviceAdminIntent(): Intent = adminActivation.activationIntent()
+
+    /** Системный диалог согласия на VPN; null — согласие уже есть. */
+    fun webFilterIntent(): Intent? = networkFilter.permissionIntent()
 
     fun acceptDisclosure() = launchAction {
         store.writeString(DISCLOSURE_ACCEPTED_KEY, FLAG_SET)
@@ -88,6 +93,11 @@ class KidsViewModel @Inject internal constructor(
     fun onDeviceAdminResult() = launchAction {
         showNextScreen()
         if (currentStep() == SetupStep.DEVICE_ADMIN) showMessage(UiMessage.AdminNotActivated)
+    }
+
+    fun onWebFilterResult() = launchAction {
+        showNextScreen()
+        if (currentStep() == SetupStep.WEB_FILTER) showMessage(UiMessage.FilterNotAllowed)
     }
 
     fun onNotificationPermissionResult() = launchAction {
@@ -151,6 +161,9 @@ class KidsViewModel @Inject internal constructor(
 
         // Заодно применяет политики и запускает постоянное уведомление.
         protection.applyPolicies() == ProtectionMode.NONE -> SetupStep.DEVICE_ADMIN
+
+        // В режиме Device Owner согласие на VPN выдаётся вместе с постоянным VPN — шаг пропускается.
+        !networkFilter.isPermitted() -> SetupStep.WEB_FILTER
 
         !environment.notificationsAllowed() -> SetupStep.NOTIFICATIONS
 

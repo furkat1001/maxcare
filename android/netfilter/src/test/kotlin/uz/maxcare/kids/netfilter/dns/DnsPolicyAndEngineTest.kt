@@ -76,6 +76,7 @@ class DnsPolicyTest {
 
 class DnsEngineTest {
     private val blocked = mutableListOf<BlockCategory>()
+    private val blockedDomains = mutableListOf<String>()
     private val upstreamQueries = mutableListOf<String>()
     private var upstreamAnswer: (DnsQuestion) -> ByteArray? = { query ->
         DnsCodec.buildResponse(
@@ -88,7 +89,10 @@ class DnsEngineTest {
         val query = DnsCodec.parseQuery(packet)!!
         upstreamQueries += query.name
         upstreamAnswer(query)
-    }) { blocked += it }
+    }) { category, domain ->
+        blocked += category
+        blockedDomains += domain
+    }
 
     private fun ipv4(vararg b: Int) = ByteArray(4) { b[it].toByte() }
 
@@ -143,6 +147,7 @@ class DnsEngineTest {
         engine.handle(ask("blocked.example"))
 
         assertEquals(listOf(BlockCategory.FILTERED), blocked)
+        assertEquals(listOf("blocked.example"), blockedDomains)
     }
 
     @Test
@@ -154,6 +159,7 @@ class DnsEngineTest {
         assertArrayEquals(ByteArray(4), DnsCodec.parseAnswers(a)!!.single().data)
         assertArrayEquals(ByteArray(16), DnsCodec.parseAnswers(aaaa)!!.single().data)
         assertEquals(listOf(BlockCategory.GAMBLING, BlockCategory.GAMBLING), blocked)
+        assertEquals(listOf("1xbet.com", "1xbet.com"), blockedDomains)
     }
 
     @Test

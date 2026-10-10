@@ -5,7 +5,7 @@
     <string name="back">Orqaga</string>
 
     <string name="disclosure_title">Boshlashdan oldin</string>
-    <string name="disclosure_body">MaxCare Kids — ota-ona nazorati. Uni ota-ona o‘rnatadi, bola esa ilova ishlayotganini doim ko‘rib turadi.\n\nIlova hozir nima qiladi:\n• ilovada himoyani faqat ota-ona paroli bilan o‘chirish mumkin;\n• himoya yoqilgani haqida doimiy bildirishnoma ko‘rsatadi;\n• telefonni ota-onaning hisobiga bog‘laydi. MaxCare serveriga telefon nomi va modeli yuboriladi;\n• MaxCare serveriga himoya hodisalarini yuboradi: administratorning o‘chirilishi, ota-ona parolining bloklanishi yoki tiklanishi, bildirishnomalarning o‘chirilishi, telefonning yoqilishi va o‘chirilishi — faqat nima va qachon sodir bo‘lgani.\n\nIlova yashirinmaydi, yozishmalarni o‘qimaydi, rasmlar va ekran tarkibini yubormaydi.\n\nFaqat bolaning ota-onasi yoki vasiysi bo‘lsangiz, davom eting.</string>
+    <string name="disclosure_body">MaxCare Kids — ota-ona nazorati. Uni ota-ona o‘rnatadi, bola esa ilova ishlayotganini doim ko‘rib turadi.\n\nIlova hozir nima qiladi:\n• ilovada himoyani faqat ota-ona paroli bilan o‘chirish mumkin;\n• himoya yoqilgani haqida doimiy bildirishnoma ko‘rsatadi;\n• telefonni ota-onaning hisobiga bog‘laydi. MaxCare serveriga telefon nomi va modeli yuboriladi;\n• MaxCare serveriga himoya hodisalarini yuboradi: administratorning o‘chirilishi, ota-ona parolining bloklanishi yoki tiklanishi, bildirishnomalarning o‘chirilishi, telefonning yoqilishi va o‘chirilishi, bloklangan saytlar manzili bilan — faqat nima va qachon sodir bo‘lgani;\n• saytlarni filtrlaydi: sayt nomlarini (sahifalar tarkibini emas) shifrlangan holda Cloudflare for Families oilaviy DNS xizmati tekshiradi.\n\nIlova yashirinmaydi, yozishmalarni o‘qimaydi, rasmlar va ekran tarkibini yubormaydi.\n\nFaqat bolaning ota-onasi yoki vasiysi bo‘lsangiz, davom eting.</string>
     <string name="disclosure_accept">Men ota-onaman, davom etish</string>
 
     <string name="pairing_title">Ota-ona bilan bog‘lanish</string>
@@ -66,4 +66,10 @@
     <string name="error_recovery_code_invalid">Kod noto‘g‘ri. Tanaffusgacha qolgan urinishlar: %1$d</string>
     <string name="error_not_paired">Telefon ota-onaga bog‘lanmagan, shuning uchun tiklash kodini tekshirib bo‘lmaydi.</string>
     <string name="message_password_reset">Yangi parol saqlandi.</string>
+
+    <!-- Отдельное раскрытие о VPN (политика Google Play). Обновлять вместе с правилами фильтра. -->
+    <string name="filter_title">Saytlar filtri</string>
+    <string name="filter_body">MaxCare Kids saytlarni filtrlash uchun mahalliy VPN’ni yoqadi. U telefon ochayotgan saytlarning faqat nomlarini ko‘radi, sahifalarning o‘zini emas.\n\n• Sayt nomlari shifrlangan holda Cloudflare for Families oilaviy DNS xizmatiga yuboriladi, u kattalar uchun mo‘ljallangan va xavfli saytlarni bloklaydi.\n• Google, Bing, Yandex va DuckDuckGo qidiruvi hamda YouTube xavfsiz rejimga o‘tkaziladi.\n• Garov va qimor saytlari bloklanadi.\n• Ota-ona har bir bloklangan saytning manzili va toifasini ko‘radi. Boshqa saytlarning manzillari MaxCare’ga yuborilmaydi.\n\nAndroid VPN ulanishiga ruxsat so‘raydi.</string>
+    <string name="filter_submit">Filtrni yoqish</string>
+    <string name="error_filter_not_allowed">Filtr yoqilmadi. «Filtrni yoqish» tugmasini bosing va VPN ulanishiga ruxsat bering.</string>
 </resources>

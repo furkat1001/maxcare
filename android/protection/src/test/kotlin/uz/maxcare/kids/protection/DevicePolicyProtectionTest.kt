@@ -19,12 +19,13 @@ class DevicePolicyProtectionTest {
     private val service = FakeProtectionServiceStarter()
 
     private val events = FakeEventRecorder()
+    private val filter = FakeNetworkFilter()
     private var notificationsVisible = true
     private val monitor =
         NotificationStateMonitor(FakeSecureStore(), events) { notificationsVisible }
 
     private fun protection(gateway: FakeDevicePolicyGateway) =
-        DevicePolicyProtection(gateway, service, monitor, dispatcher)
+        DevicePolicyProtection(gateway, service, monitor, filter, dispatcher)
 
     @Test
     fun `without admin no policies are applied and no notification is shown`() = testScope.runTest {
@@ -57,7 +58,11 @@ class DevicePolicyProtectionTest {
         assertEquals(ProtectionMode.DEVICE_OWNER, protection.mode.value)
         assertTrue(gateway.uninstallBlocked)
         assertEquals(
-            setOf(UserManager.DISALLOW_SAFE_BOOT, UserManager.DISALLOW_FACTORY_RESET),
+            setOf(
+                UserManager.DISALLOW_SAFE_BOOT,
+                UserManager.DISALLOW_FACTORY_RESET,
+                UserManager.DISALLOW_CONFIG_VPN
+            ),
             gateway.restrictions
         )
     }
@@ -124,5 +129,37 @@ class DevicePolicyProtectionTest {
         protection(FakeDevicePolicyGateway()).applyPolicies()
 
         assertTrue(events.recorded.isEmpty())
+    }
+
+    @Test
+    fun `device owner turns the filter into an always-on vpn`() = testScope.runTest {
+        val gateway = FakeDevicePolicyGateway(deviceOwner = true)
+
+        protection(gateway).applyPolicies()
+
+        assertTrue(gateway.alwaysOnVpn)
+        assertTrue(filter.running)
+    }
+
+    @Test
+    fun `device admin starts the filter only with vpn consent`() = testScope.runTest {
+        filter.permitted = false
+        protection(FakeDevicePolicyGateway(adminActive = true)).applyPolicies()
+        assertFalse(filter.running)
+
+        filter.permitted = true
+        protection(FakeDevicePolicyGateway(adminActive = true)).applyPolicies()
+        assertTrue(filter.running)
+        assertEquals(2, filter.bypassChecks)
+    }
+
+    @Test
+    fun `without protection the filter is stopped and not checked`() = testScope.runTest {
+        filter.start()
+
+        protection(FakeDevicePolicyGateway()).applyPolicies()
+
+        assertFalse(filter.running)
+        assertEquals(0, filter.bypassChecks)
     }
 }

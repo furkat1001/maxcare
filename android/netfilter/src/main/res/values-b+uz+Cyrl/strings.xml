@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="blocked_channel_name">Блокланган сайтлар</string>
+    <string name="blocked_title">Сайт блокланди</string>
+    <string name="blocked_text">MaxCare Kids болалар учун мос бўлмаган сайтни ёпди.</string>
+</resources>

@@ -14,6 +14,7 @@ import uz.maxcare.kids.protection.service.NotificationStateMonitor
 class ProtectionRemoverTest {
     private val service = FakeProtectionServiceStarter()
     private val clock = FakeDeviceClock()
+    private val filter = FakeNetworkFilter()
 
     @Test
     fun `device owner is fully removed`() = runTest {
@@ -22,12 +23,13 @@ class ProtectionRemoverTest {
             gateway,
             service,
             NotificationStateMonitor(FakeSecureStore(), FakeEventRecorder()) { true },
+            filter,
             StandardTestDispatcher(testScheduler)
         )
             .applyPolicies()
         assertTrue(service.running)
 
-        assertTrue(ProtectionRemover(gateway, service, clock).removeAll())
+        assertTrue(ProtectionRemover(gateway, service, filter, clock).removeAll())
 
         assertFalse(gateway.uninstallBlocked)
         assertTrue(gateway.restrictions.isEmpty())
@@ -41,7 +43,7 @@ class ProtectionRemoverTest {
         val gateway = FakeDevicePolicyGateway(adminActive = true)
         service.start()
 
-        assertTrue(ProtectionRemover(gateway, service, clock).removeAll())
+        assertTrue(ProtectionRemover(gateway, service, filter, clock).removeAll())
 
         assertFalse(gateway.isAdminActive())
         assertFalse(service.running)
@@ -51,14 +53,14 @@ class ProtectionRemoverTest {
     fun `nothing to remove without protection`() {
         val gateway = FakeDevicePolicyGateway()
 
-        assertFalse(ProtectionRemover(gateway, service, clock).removeAll())
+        assertFalse(ProtectionRemover(gateway, service, filter, clock).removeAll())
         assertEquals(0, gateway.policyCalls)
     }
 
     @Test
     fun `remembers its own removal for a minute`() {
         val gateway = FakeDevicePolicyGateway(adminActive = true)
-        val remover = ProtectionRemover(gateway, service, clock)
+        val remover = ProtectionRemover(gateway, service, filter, clock)
         assertFalse(remover.removedRecently())
 
         remover.removeAll()
@@ -66,5 +68,23 @@ class ProtectionRemoverTest {
 
         clock.advance(61.seconds)
         assertFalse(remover.removedRecently())
+    }
+
+    @Test
+    fun `removal turns off the always-on vpn and stops the filter`() = runTest {
+        val gateway = FakeDevicePolicyGateway(deviceOwner = true)
+        DevicePolicyProtection(
+            gateway,
+            service,
+            NotificationStateMonitor(FakeSecureStore(), FakeEventRecorder()) { true },
+            filter,
+            StandardTestDispatcher(testScheduler)
+        ).applyPolicies()
+        assertTrue(gateway.alwaysOnVpn)
+
+        ProtectionRemover(gateway, service, filter, clock).removeAll()
+
+        assertFalse(gateway.alwaysOnVpn)
+        assertFalse(filter.running)
     }
 }

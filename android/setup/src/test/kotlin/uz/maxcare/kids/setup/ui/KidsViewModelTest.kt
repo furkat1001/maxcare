@@ -17,6 +17,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
+import uz.maxcare.kids.core.filter.NetworkFilter
 import uz.maxcare.kids.core.pairing.DevicePairing
 import uz.maxcare.kids.core.pairing.PairingResult
 import uz.maxcare.kids.core.protection.ChangePasswordResult
@@ -42,6 +43,7 @@ class KidsViewModelTest {
     private val recovery = FakeRecovery()
     private val store = FakeStore()
     private val environment = FakeEnvironment()
+    private val filter = FakeFilter()
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -56,6 +58,7 @@ class KidsViewModelTest {
         shutdown,
         recovery,
         NoAdminActivation,
+        filter,
         store,
         environment
     ).also { it.refresh() }
@@ -73,14 +76,14 @@ class KidsViewModelTest {
 
     @Test
     fun `fresh install starts with the disclosure`() {
-        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 5), viewModel().screen)
+        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 6), viewModel().screen)
     }
 
     @Test
     fun `background hint adds a step on aggressive firmware`() {
         environment.backgroundHint = true
 
-        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 6), viewModel().screen)
+        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 7), viewModel().screen)
     }
 
     @Test
@@ -88,18 +91,23 @@ class KidsViewModelTest {
         val vm = viewModel()
 
         vm.acceptDisclosure()
-        assertEquals(KidsScreen.Setup(SetupStep.PAIRING, 2, 5), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.PAIRING, 2, 6), vm.screen)
 
         vm.submitPairingCode("12345678")
-        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 5), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 6), vm.screen)
 
         vm.submitNewPassword("secret-1", "secret-1")
-        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 5), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 6), vm.screen)
 
         protection.activeMode = ProtectionMode.DEVICE_ADMIN
         environment.notifications = false
+        filter.permitted = false
         vm.onDeviceAdminResult()
-        assertEquals(KidsScreen.Setup(SetupStep.NOTIFICATIONS, 5, 5), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.WEB_FILTER, 5, 6), vm.screen)
+
+        filter.permitted = true
+        vm.onWebFilterResult()
+        assertEquals(KidsScreen.Setup(SetupStep.NOTIFICATIONS, 6, 6), vm.screen)
 
         environment.notifications = true
         vm.onNotificationPermissionResult()
@@ -111,7 +119,7 @@ class KidsViewModelTest {
         store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
         pairing.paired = true
 
-        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 5), viewModel().screen)
+        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 6), viewModel().screen)
     }
 
     @Test
@@ -176,8 +184,19 @@ class KidsViewModelTest {
 
         vm.onDeviceAdminResult()
 
-        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 5), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 6), vm.screen)
         assertEquals(UiMessage.AdminNotActivated, vm.message)
+    }
+
+    @Test
+    fun `declined vpn consent is explained`() {
+        filter.permitted = false
+        val vm = setUpFully()
+
+        vm.onWebFilterResult()
+
+        assertEquals(SetupStep.WEB_FILTER, (vm.screen as KidsScreen.Setup).step)
+        assertEquals(UiMessage.FilterNotAllowed, vm.message)
     }
 
     @Test
@@ -352,6 +371,20 @@ class KidsViewModelTest {
         override suspend fun remove(key: String) {
             values.remove(key)
         }
+    }
+
+    private class FakeFilter : NetworkFilter {
+        var permitted = true
+
+        override fun isPermitted() = permitted
+
+        override fun permissionIntent(): Intent? = null
+
+        override fun start() = Unit
+
+        override fun stop() = Unit
+
+        override suspend fun checkBypasses() = Unit
     }
 
     private class FakeEnvironment : SetupEnvironment {

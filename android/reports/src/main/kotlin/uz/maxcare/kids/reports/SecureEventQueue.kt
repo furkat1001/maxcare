@@ -13,7 +13,13 @@ import uz.maxcare.kids.core.storage.writeString
 
 /** @param occurredAt время по часам телефона, ISO-8601. */
 @Serializable
-internal data class QueuedEvent(val id: String, val type: String, val occurredAt: String)
+internal data class QueuedEvent(
+    val id: String,
+    val type: String,
+    val occurredAt: String,
+    // По умолчанию null: очередь, записанная прошлой версией, читается без ошибок.
+    val detail: String? = null
+)
 
 /**
  * Очередь событий до отправки на сервер, в зашифрованном хранилище (CLAUDE.md: локальные данные

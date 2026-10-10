@@ -40,7 +40,7 @@ internal class OkHttpMaxCareApi(
         events: List<OutgoingEvent>
     ): ApiResult<Unit> = post(
         "v1/device/events",
-        EventBatchRequest(events.map { EventDto(it.id, it.type, it.occurredAt) }),
+        EventBatchRequest(events.map { EventDto(it.id, it.type, it.occurredAt, it.detail) }),
         bearerToken = deviceToken
     ) { _: EventBatchResponse -> }
 
@@ -92,7 +92,12 @@ internal class OkHttpMaxCareApi(
     private data class ErrorResponse(val error: String)
 
     @Serializable
-    private data class EventDto(val id: String, val type: String, val occurredAt: String)
+    private data class EventDto(
+        val id: String,
+        val type: String,
+        val occurredAt: String,
+        val detail: String? = null
+    )
 
     @Serializable
     private data class EventBatchRequest(val events: List<EventDto>)

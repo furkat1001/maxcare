@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Значок строки состояния «сайт заблокирован»: щит со знаком запрета. Временный, как и логотип. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,1L3,5v6c0,5.55 3.84,10.74 9,12 5.16,-1.26 9,-6.45 9,-12V5L12,1zM12,7c2.76,0 5,2.24 5,5 0,1.02 -0.31,1.97 -0.83,2.76L9.24,7.83C10.03,7.31 10.98,7 12,7zM7,12c0,-1.02 0.31,-1.97 0.83,-2.76l6.93,6.93C13.97,16.69 13.02,17 12,17c-2.76,0 -5,-2.24 -5,-5z" />
+</vector>
