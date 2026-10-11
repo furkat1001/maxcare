@@ -8,6 +8,8 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
 import uz.maxcare.backend.db.Db
+import uz.maxcare.backend.db.instantOrNull
+import uz.maxcare.backend.db.queryList
 import uz.maxcare.backend.db.queryOne
 import uz.maxcare.backend.db.update
 import uz.maxcare.backend.db.uuid
@@ -29,6 +31,15 @@ data class RecoveryCode(val code: String, val validUntil: Instant)
 
 /** Телефон ребёнка, обратившийся с токеном устройства. */
 data class DevicePrincipal(val deviceId: UUID)
+
+/** Устройство ребёнка для списка в приложении родителя. */
+data class DeviceSummary(
+    val id: UUID,
+    val name: String,
+    val childName: String?,
+    val platform: String,
+    val lastSeenAt: Instant?
+)
 
 enum class Platform(val value: String) {
     ANDROID("android"),
@@ -107,6 +118,25 @@ class DeviceService(
             )
             PairResult.Paired(deviceId, token, secret)
         }
+
+    /** Устройства семьи, новые сверху. */
+    suspend fun listDevices(familyId: UUID): List<DeviceSummary> = db.tx { c ->
+        c.queryList(
+            """
+            select id, name, child_name, platform, last_seen_at from devices
+            where family_id = ? order by paired_at desc
+            """.trimIndent(),
+            familyId
+        ) { row ->
+            DeviceSummary(
+                id = row.uuid("id"),
+                name = row.getString("name"),
+                childName = row.getString("child_name"),
+                platform = row.getString("platform"),
+                lastSeenAt = row.instantOrNull("last_seen_at")
+            )
+        }
+    }
 
     /** Телефон по токену устройства; null — токен неизвестен (например, после повторной привязки). */
     suspend fun authenticate(token: String): DevicePrincipal? = db.tx { c ->
