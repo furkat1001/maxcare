@@ -1,0 +1,72 @@
+{
+  "@@locale": "en",
+  "appName": "MaxCare",
+  "commonCancel": "Cancel",
+  "commonRetry": "Retry",
+  "commonBack": "Back",
+  "commonEmail": "Email",
+  "commonPassword": "Password",
+
+  "authSignInTitle": "Sign in",
+  "authSignUpTitle": "Create an account",
+  "authSignInAction": "Sign in",
+  "authSignUpAction": "Sign up",
+  "authToSignUp": "No account yet? Sign up",
+  "authToSignIn": "Already have an account? Sign in",
+  "authPasswordHint": "At least 8 characters",
+
+  "errorInvalidEmail": "Enter a valid email.",
+  "errorPasswordShort": "The password must be at least 8 characters.",
+  "errorEmailTaken": "This email is already registered.",
+  "errorInvalidCredentials": "Wrong email or password.",
+  "errorTooManyAttempts": "Too many attempts. Try again in a few minutes.",
+  "errorNoConnection": "No internet connection.",
+  "errorServer": "Server error. Try again later.",
+
+  "homeTitle": "Children",
+  "homeEmpty": "No phones connected yet. Tap “Add child” to connect one.",
+  "homeAddChild": "Add child",
+  "homeSignOut": "Sign out",
+
+  "addChildTitle": "Add child",
+  "addChildBody": "Enter a name, get a code, and type it in MaxCare Kids on the child's phone within 10 minutes.",
+  "addChildNameLabel": "Child's name (optional)",
+  "addChildGetCode": "Get a code",
+  "addChildCodeTitle": "Pairing code",
+  "addChildCodeExpires": "Valid until {time}",
+  "@addChildCodeExpires": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "addChildCodeHint": "Enter this code in MaxCare Kids on the child's phone.",
+
+  "deviceLastSeen": "Last seen: {time}",
+  "@deviceLastSeen": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "deviceNeverSeen": "Not connected yet",
+  "deviceOffline": "No connection for {duration}",
+  "@deviceOffline": {
+    "placeholders": { "duration": { "type": "String" } }
+  },
+
+  "eventsTitle": "Activity",
+  "eventsEmpty": "No events yet.",
+  "eventAdminDisabled": "Device admin turned off",
+  "eventProtectionDisabled": "Protection turned off with the password",
+  "eventPasswordLockout": "Too many wrong password attempts",
+  "eventPasswordRecovered": "Password reset with a recovery code",
+  "eventNotificationsOff": "Notifications turned off",
+  "eventDeviceBooted": "Phone turned on",
+  "eventDeviceShutdown": "Phone turned off",
+  "eventVpnOff": "Website filter turned off",
+  "eventPrivateDnsOn": "Private DNS turned on (bypasses the filter)",
+  "eventSiteBlockedFiltered": "Blocked an adult or dangerous site",
+  "eventSiteBlockedGambling": "Blocked a betting or gambling site",
+  "eventSiteWithAddress": "{event}: {site}",
+  "@eventSiteWithAddress": {
+    "placeholders": {
+      "event": { "type": "String" },
+      "site": { "type": "String" }
+    }
+  }
+}

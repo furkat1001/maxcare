@@ -30,3 +30,10 @@ DerivedData/
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# Flutter (parent-app)
+parent-app/.dart_tool/
+parent-app/build/
+parent-app/.flutter-plugins
+parent-app/.flutter-plugins-dependencies
+parent-app/lib/l10n/app_localizations*.dart
