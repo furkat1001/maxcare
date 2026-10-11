@@ -32,6 +32,12 @@ data class LocationReportRequest(
 )
 
 @Serializable
+data class LocationBatchRequest(val locations: List<LocationReportRequest> = emptyList())
+
+@Serializable
+data class LocationBatchResponse(val accepted: Int)
+
+@Serializable
 data class DeviceLocationResponse(
     val latitude: Double,
     val longitude: Double,
@@ -41,6 +47,11 @@ data class DeviceLocationResponse(
 )
 
 fun Route.locationRoutes(locations: LocationService, rateLimiter: RateLimiter) {
+    deviceLocationRoutes(locations, rateLimiter)
+    parentLocationRoutes(locations)
+}
+
+private fun Route.deviceLocationRoutes(locations: LocationService, rateLimiter: RateLimiter) {
     authenticate(DEVICE_AUTH) {
         post("/v1/device/location") {
             val device = requireNotNull(call.principal<DevicePrincipal>())
@@ -54,8 +65,21 @@ fun Route.locationRoutes(locations: LocationService, rateLimiter: RateLimiter) {
                 call.respond(HttpStatusCode.Accepted)
             }
         }
-    }
 
+        post("/v1/device/locations") {
+            val device = requireNotNull(call.principal<DevicePrincipal>())
+            rateLimiter.check("location:${device.deviceId}", limit = 120, window = 1.hours)
+            val batch = call.receive<LocationBatchRequest>().parseAll()
+            if (batch == null) {
+                call.respondError(HttpStatusCode.BadRequest, ErrorCodes.INVALID_REQUEST)
+            } else {
+                call.respond(LocationBatchResponse(locations.record(device.deviceId, batch)))
+            }
+        }
+    }
+}
+
+private fun Route.parentLocationRoutes(locations: LocationService) {
     authenticate(PARENT_AUTH) {
         get("/v1/devices/{deviceId}/location") {
             val parent = requireNotNull(call.principal<ParentPrincipal>())
@@ -126,5 +150,13 @@ private fun DeviceLocation.toResponse() = DeviceLocationResponse(
     receivedAt = receivedAt.toString()
 )
 
+// Вся пачка отклоняется, если хоть одна точка испорчена: это ошибка клиента, а не «часть потерять».
+private fun LocationBatchRequest.parseAll(): List<IncomingLocation>? {
+    if (locations.size > MAX_BATCH) return null
+    val parsed = locations.mapNotNull { it.parse() }
+    return if (parsed.size == locations.size) parsed else null
+}
+
 private val LAT_RANGE = -90.0..90.0
 private val LON_RANGE = -180.0..180.0
+private const val MAX_BATCH = 100

@@ -6,6 +6,7 @@ import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import uz.maxcare.backend.location.DeviceLocationResponse
+import uz.maxcare.backend.location.LocationBatchRequest
 import uz.maxcare.backend.location.LocationReportRequest
 
 class LocationApiTest : ApiTestBase() {
@@ -159,6 +160,50 @@ class LocationApiTest : ApiTestBase() {
 
         val response = client.getJson("/v1/devices/${device.deviceId}/locations", otherParent)
         assertEquals(HttpStatusCode.NotFound, response.status)
+    }
+
+    private fun point(latitude: Double, recordedAt: String) = LocationReportRequest(
+        id = UUID.randomUUID().toString(),
+        latitude = latitude,
+        longitude = tashkentLon,
+        accuracyMeters = 10.0,
+        recordedAt = recordedAt
+    )
+
+    @Test
+    fun `a batch of locations is stored and read back as a track`() = apiTest { client ->
+        val token = client.registerAndLogin()
+        val device = client.pairedDevice(token)
+
+        val response = client.postJson(
+            "/v1/device/locations",
+            LocationBatchRequest(
+                listOf(
+                    point(41.1, clock.now.toString()),
+                    point(41.2, clock.now.plusSeconds(60).toString())
+                )
+            ),
+            device.deviceToken
+        )
+        assertEquals(HttpStatusCode.OK, response.status)
+
+        val track = client.getJson("/v1/devices/${device.deviceId}/locations", token)
+            .body<List<DeviceLocationResponse>>()
+        assertEquals(listOf(41.1, 41.2), track.map { it.latitude })
+    }
+
+    @Test
+    fun `a batch with one bad point is rejected whole`() = apiTest { client ->
+        val device = client.pairedDevice(client.registerAndLogin())
+
+        val response = client.postJson(
+            "/v1/device/locations",
+            LocationBatchRequest(
+                listOf(point(41.1, clock.now.toString()), point(999.0, clock.now.toString()))
+            ),
+            device.deviceToken
+        )
+        assertEquals(HttpStatusCode.BadRequest, response.status)
     }
 
     @Test

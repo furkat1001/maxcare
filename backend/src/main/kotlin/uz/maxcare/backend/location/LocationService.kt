@@ -32,24 +32,32 @@ data class IncomingLocation(
 class LocationService(private val db: Db, private val clock: Clock) {
 
     /** Сохраняет отметку и отмечает, что телефон на связи. @return true, если отметка новая. */
-    suspend fun record(deviceId: UUID, location: IncomingLocation): Boolean = db.tx { c ->
+    suspend fun record(deviceId: UUID, location: IncomingLocation): Boolean =
+        record(deviceId, listOf(location)) == 1
+
+    /**
+     * Сохраняет пачку отметок и отмечает, что телефон на связи (в том числе при пустой пачке).
+     * @return сколько отметок новых; повторно присланные (по id) не считаются.
+     */
+    suspend fun record(deviceId: UUID, locations: List<IncomingLocation>): Int = db.tx { c ->
         val now = clock.instant()
         c.update("update devices set last_seen_at = ? where id = ?", now, deviceId)
-        val inserted = c.update(
-            """
-            insert into device_locations
-                (device_id, id, latitude, longitude, accuracy_m, recorded_at, received_at)
-            values (?, ?, ?, ?, ?, ?, ?) on conflict do nothing
-            """.trimIndent(),
-            deviceId,
-            location.id,
-            location.latitude,
-            location.longitude,
-            location.accuracyMeters,
-            location.recordedAt,
-            now
-        )
-        inserted == 1
+        locations.sumOf { location ->
+            c.update(
+                """
+                insert into device_locations
+                    (device_id, id, latitude, longitude, accuracy_m, recorded_at, received_at)
+                values (?, ?, ?, ?, ?, ?, ?) on conflict do nothing
+                """.trimIndent(),
+                deviceId,
+                location.id,
+                location.latitude,
+                location.longitude,
+                location.accuracyMeters,
+                location.recordedAt,
+                now
+            )
+        }
     }
 
     /**
@@ -67,7 +75,7 @@ class LocationService(private val db: Db, private val clock: Clock) {
         val location = c.queryOne(
             """
             $LOCATION_COLUMNS from device_locations where device_id = ?
-            order by received_at desc limit 1
+            order by received_at desc, recorded_at desc limit 1
             """.trimIndent(),
             deviceId
         ) { row -> row.toLocation() }
@@ -97,7 +105,7 @@ class LocationService(private val db: Db, private val clock: Clock) {
             """
             $LOCATION_COLUMNS from device_locations
             where device_id = ? and received_at >= ?
-            order by received_at desc limit ?
+            order by received_at desc, recorded_at desc limit ?
             """.trimIndent(),
             deviceId,
             from,
