@@ -84,5 +84,19 @@
       "event": { "type": "String" },
       "site": { "type": "String" }
     }
-  }
+  },
+
+  "locationTitle": "Location",
+  "locationOpen": "Location",
+  "locationNone": "No location reported yet.",
+  "locationUpdated": "Updated {time}",
+  "@locationUpdated": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "locationAccuracy": "Accuracy ±{meters} m",
+  "@locationAccuracy": {
+    "placeholders": { "meters": { "type": "int" } }
+  },
+  "locationTrackToday": "Today's route",
+  "locationAttribution": "© OpenStreetMap"
 }

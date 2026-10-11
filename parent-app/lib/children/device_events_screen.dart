@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../core/error_text.dart';
 import '../core/providers.dart';
 import '../l10n/app_localizations.dart';
+import 'child_location_screen.dart';
 import 'device_repository.dart';
 import 'event_label.dart';
 import 'last_seen.dart';
@@ -21,7 +22,20 @@ class DeviceEventsScreen extends ConsumerWidget {
     final t = AppLocalizations.of(context);
     final activity = ref.watch(deviceActivityProvider(deviceId));
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(
+        title: Text(title),
+        actions: [
+          IconButton(
+            tooltip: t.locationOpen,
+            icon: const Icon(Icons.location_on_outlined),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => ChildLocationScreen(deviceId: deviceId, title: title),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(deviceActivityProvider(deviceId).future),
         child: activity.when(

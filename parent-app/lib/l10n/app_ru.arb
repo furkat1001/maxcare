@@ -57,5 +57,13 @@
   "eventPrivateDnsOn": "Включён «Частный DNS» (обходит фильтр)",
   "eventSiteBlockedFiltered": "Заблокирован взрослый или опасный сайт",
   "eventSiteBlockedGambling": "Заблокирован сайт ставок или азартных игр",
-  "eventSiteWithAddress": "{event}: {site}"
+  "eventSiteWithAddress": "{event}: {site}",
+
+  "locationTitle": "Местоположение",
+  "locationOpen": "Местоположение",
+  "locationNone": "Местоположение ещё не передано.",
+  "locationUpdated": "Обновлено {time}",
+  "locationAccuracy": "Точность ±{meters} м",
+  "locationTrackToday": "Маршрут за сегодня",
+  "locationAttribution": "© OpenStreetMap"
 }

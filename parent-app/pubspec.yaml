@@ -21,6 +21,9 @@ dependencies:
   flutter_secure_storage: ^11.2.0
   # Форматирование дат в журнале событий
   intl: any
+  # Карта «где ребёнок»: OpenStreetMap, без ключа и платных SDK (лицензия BSD-3)
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
 
 dev_dependencies:
   flutter_test:

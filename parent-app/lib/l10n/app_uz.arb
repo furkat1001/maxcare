@@ -57,5 +57,13 @@
   "eventPrivateDnsOn": "«Shaxsiy DNS» yoqildi (filtrni chetlab o‘tadi)",
   "eventSiteBlockedFiltered": "Kattalar yoki xavfli sayt bloklandi",
   "eventSiteBlockedGambling": "Garov yoki qimor sayti bloklandi",
-  "eventSiteWithAddress": "{event}: {site}"
+  "eventSiteWithAddress": "{event}: {site}",
+
+  "locationTitle": "Joylashuv",
+  "locationOpen": "Joylashuv",
+  "locationNone": "Joylashuv hali yuborilmagan.",
+  "locationUpdated": "Yangilandi {time}",
+  "locationAccuracy": "Aniqlik ±{meters} m",
+  "locationTrackToday": "Bugungi marshrut",
+  "locationAttribution": "© OpenStreetMap"
 }

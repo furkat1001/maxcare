@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/auth_repository.dart';
 import '../children/device_repository.dart';
+import '../children/location_repository.dart';
 import '../children/pairing_repository.dart';
 import 'api_client.dart';
 import 'token_store.dart';
@@ -36,6 +37,16 @@ final devicesProvider = FutureProvider.autoDispose<List<Device>>(
 final deviceActivityProvider =
     FutureProvider.autoDispose.family<DeviceActivity, String>(
   (ref, deviceId) => ref.watch(deviceRepositoryProvider).activity(deviceId),
+);
+
+final locationRepositoryProvider = Provider<LocationRepository>(
+  (ref) => LocationRepository(ref.watch(apiClientProvider)),
+);
+
+/// Трек устройства за последние сутки (для карты «где был ребёнок»).
+final deviceTrackProvider =
+    FutureProvider.autoDispose.family<List<DeviceLocation>, String>(
+  (ref, deviceId) => ref.watch(locationRepositoryProvider).history(deviceId),
 );
 
 /// Состояние сессии: null — ещё проверяем, true/false — вошли/нет.
