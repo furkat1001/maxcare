@@ -39,6 +39,10 @@
   "deviceLastSeen": "Aloqada: {time}",
   "deviceNeverSeen": "Hali ulanmagan",
   "deviceOffline": "{duration} dan beri aloqa yo‘q",
+  "durationMinutes": "{count, plural, one{{count} daqiqa} other{{count} daqiqa}}",
+  "durationHours": "{count, plural, one{{count} soat} other{{count} soat}}",
+  "durationDays": "{count, plural, one{{count} kun} other{{count} kun}}",
+  "eventReceivedAt": "Qabul qilindi: {time}",
 
   "eventsTitle": "Hodisalar",
   "eventsEmpty": "Hozircha hodisalar yo‘q.",

@@ -33,7 +33,25 @@ class ApiClient {
   Future<Map<String, dynamic>> get(String path, {bool authorized = true}) =>
       _request((options) => _dio.get<dynamic>(path, options: options), authorized);
 
+  /// Для эндпоинтов, отвечающих JSON-массивом (например, список устройств).
+  Future<List<Map<String, dynamic>>> getList(String path, {bool authorized = true}) async {
+    final data = await _requestRaw(
+      (options) => _dio.get<dynamic>(path, options: options),
+      authorized,
+    );
+    if (data is! List) return const [];
+    return data.whereType<Map<String, dynamic>>().toList();
+  }
+
   Future<Map<String, dynamic>> _request(
+    Future<Response<dynamic>> Function(Options) call,
+    bool authorized,
+  ) async {
+    final data = await _requestRaw(call, authorized);
+    return data is Map<String, dynamic> ? data : <String, dynamic>{};
+  }
+
+  Future<Object?> _requestRaw(
     Future<Response<dynamic>> Function(Options) call,
     bool authorized,
   ) async {
@@ -54,8 +72,7 @@ class ApiClient {
       final code = _errorCode(response.data);
       throw ApiException(_kindFor(status, code), code: code);
     }
-    final data = response.data;
-    return data is Map<String, dynamic> ? data : <String, dynamic>{};
+    return response.data;
   }
 
   ApiErrorKind _kindFor(int status, String? code) {

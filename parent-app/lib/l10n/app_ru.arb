@@ -39,6 +39,10 @@
   "deviceLastSeen": "На связи: {time}",
   "deviceNeverSeen": "Ещё не подключён",
   "deviceOffline": "Нет связи уже {duration}",
+  "durationMinutes": "{count, plural, one{{count} минуту} few{{count} минуты} many{{count} минут} other{{count} минуты}}",
+  "durationHours": "{count, plural, one{{count} час} few{{count} часа} many{{count} часов} other{{count} часа}}",
+  "durationDays": "{count, plural, one{{count} день} few{{count} дня} many{{count} дней} other{{count} дня}}",
+  "eventReceivedAt": "Получено {time}",
 
   "eventsTitle": "События",
   "eventsEmpty": "Пока событий нет.",

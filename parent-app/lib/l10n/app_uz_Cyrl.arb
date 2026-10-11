@@ -39,6 +39,10 @@
   "deviceLastSeen": "Алоқада: {time}",
   "deviceNeverSeen": "Ҳали уланмаган",
   "deviceOffline": "{duration} дан бери алоқа йўқ",
+  "durationMinutes": "{count, plural, one{{count} дақиқа} other{{count} дақиқа}}",
+  "durationHours": "{count, plural, one{{count} соат} other{{count} соат}}",
+  "durationDays": "{count, plural, one{{count} кун} other{{count} кун}}",
+  "eventReceivedAt": "Қабул қилинди: {time}",
 
   "eventsTitle": "Ҳодисалар",
   "eventsEmpty": "Ҳозирча ҳодисалар йўқ.",

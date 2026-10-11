@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/auth_repository.dart';
+import '../children/device_repository.dart';
 import '../children/pairing_repository.dart';
 import 'api_client.dart';
 import 'token_store.dart';
@@ -20,6 +21,21 @@ final authRepositoryProvider = Provider<AuthRepository>(
 
 final pairingRepositoryProvider = Provider<PairingRepository>(
   (ref) => PairingRepository(ref.watch(apiClientProvider)),
+);
+
+final deviceRepositoryProvider = Provider<DeviceRepository>(
+  (ref) => DeviceRepository(ref.watch(apiClientProvider)),
+);
+
+/// Список телефонов детей. Обновляется pull-to-refresh и после привязки.
+final devicesProvider = FutureProvider.autoDispose<List<Device>>(
+  (ref) => ref.watch(deviceRepositoryProvider).list(),
+);
+
+/// Журнал событий одного устройства.
+final deviceActivityProvider =
+    FutureProvider.autoDispose.family<DeviceActivity, String>(
+  (ref, deviceId) => ref.watch(deviceRepositoryProvider).activity(deviceId),
 );
 
 /// Состояние сессии: null — ещё проверяем, true/false — вошли/нет.

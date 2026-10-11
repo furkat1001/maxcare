@@ -48,6 +48,22 @@
   "@deviceOffline": {
     "placeholders": { "duration": { "type": "String" } }
   },
+  "durationMinutes": "{count, plural, one{{count} minute} other{{count} minutes}}",
+  "@durationMinutes": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "durationHours": "{count, plural, one{{count} hour} other{{count} hours}}",
+  "@durationHours": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "durationDays": "{count, plural, one{{count} day} other{{count} days}}",
+  "@durationDays": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "eventReceivedAt": "Received {time}",
+  "@eventReceivedAt": {
+    "placeholders": { "time": { "type": "String" } }
+  },
 
   "eventsTitle": "Activity",
   "eventsEmpty": "No events yet.",
