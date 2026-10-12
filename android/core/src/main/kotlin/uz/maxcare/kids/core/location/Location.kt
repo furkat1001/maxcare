@@ -27,3 +27,9 @@ interface LocationCollector {
 interface LocationSync {
     suspend fun sync(): SyncResult
 }
+
+/** Запуск периодического сбора позиции. Реализация — в модуле `location`. */
+fun interface LocationScheduler {
+    /** Поставить периодический сбор (идемпотентно: повторный вызов не плодит задачи). */
+    fun schedulePeriodic()
+}

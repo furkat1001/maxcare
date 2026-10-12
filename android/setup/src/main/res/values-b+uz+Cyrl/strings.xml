@@ -27,6 +27,10 @@
     <string name="notifications_body">MaxCare Kids ҳимоя ёқилгани ҳақида доим билдиришнома кўрсатади — шунда бола бу ҳақда билади. Давом этиш учун билдиришномаларга рухсат беринг.</string>
     <string name="notifications_allow">Рухсат бериш</string>
 
+    <string name="location_title">Жойлашув</string>
+    <string name="location_body">Бола қаердалигини кўришингиз учун MaxCare Kids унинг жойлашувини сизга юборади. Жойлашувга рухсат беринг, сўнг фонда ишлаши учун “Доимо рухсат бериш”ни танланг.</string>
+    <string name="location_allow">Жойлашувга рухсат</string>
+
     <string name="background_title">Фонда ишлаш</string>
     <string name="background_body">Бу телефонда тизим MaxCare Kids иловасини фонда тўхтатиб қўйиши мумкин. Илова созламаларида автоишга туширишга рухсат беринг ва MaxCare Kids учун батарея чекловларини ўчиринг.</string>
     <string name="background_done">Тайёр</string>

@@ -6,9 +6,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import uz.maxcare.kids.core.location.LocationCollector
 import uz.maxcare.kids.core.location.LocationProvider
+import uz.maxcare.kids.core.location.LocationScheduler
 import uz.maxcare.kids.core.location.LocationSync
 import uz.maxcare.kids.location.LocationManagerLocationProvider
-import uz.maxcare.kids.location.LocationScheduler
 import uz.maxcare.kids.location.LocationUploader
 import uz.maxcare.kids.location.PeriodicLocationCollector
 import uz.maxcare.kids.location.WorkManagerLocationScheduler

@@ -17,13 +17,8 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import uz.maxcare.kids.core.events.SyncResult
 import uz.maxcare.kids.core.location.LocationCollector
+import uz.maxcare.kids.core.location.LocationScheduler
 import uz.maxcare.kids.core.location.LocationSync
-
-/** Периодический сбор позиции; интерфейс — для запуска из приложения без привязки к WorkManager. */
-fun interface LocationScheduler {
-    /** Поставить периодический сбор (идемпотентно: повторный вызов не плодит задачи). */
-    fun schedulePeriodic()
-}
 
 /**
  * Раз в [INTERVAL_MINUTES] минут (минимум WorkManager) снимает позицию и отправляет накопленное.

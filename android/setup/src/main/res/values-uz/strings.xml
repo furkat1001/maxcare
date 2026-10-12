@@ -27,6 +27,10 @@
     <string name="notifications_body">MaxCare Kids himoya yoqilgani haqida doim bildirishnoma ko‘rsatadi — shunda bola bu haqda biladi. Davom etish uchun bildirishnomalarga ruxsat bering.</string>
     <string name="notifications_allow">Ruxsat berish</string>
 
+    <string name="location_title">Joylashuv</string>
+    <string name="location_body">Bola qayerdaligini ko‘rishingiz uchun MaxCare Kids uning joylashuvini sizga yuboradi. Joylashuvga ruxsat bering, so‘ng fonda ishlashi uchun “Doimo ruxsat berish”ni tanlang.</string>
+    <string name="location_allow">Joylashuvga ruxsat</string>
+
     <string name="background_title">Fonda ishlash</string>
     <string name="background_body">Bu telefonda tizim MaxCare Kids ilovasini fonda to‘xtatib qo‘yishi mumkin. Ilova sozlamalarida avtoishga tushirishga ruxsat bering va MaxCare Kids uchun batareya cheklovlarini o‘chiring.</string>
     <string name="background_done">Tayyor</string>

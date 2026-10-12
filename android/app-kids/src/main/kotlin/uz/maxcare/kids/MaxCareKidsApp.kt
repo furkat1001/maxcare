@@ -6,9 +6,9 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import uz.maxcare.kids.core.di.ApplicationScope
+import uz.maxcare.kids.core.location.LocationScheduler
 import uz.maxcare.kids.core.pairing.DevicePairing
 import uz.maxcare.kids.core.protection.DeviceProtection
-import uz.maxcare.kids.location.LocationScheduler
 
 @HiltAndroidApp
 class MaxCareKidsApp : Application() {
