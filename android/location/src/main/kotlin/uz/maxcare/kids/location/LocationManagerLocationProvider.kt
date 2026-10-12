@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.CancellationSignal
+import android.os.SystemClock
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -15,6 +16,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import uz.maxcare.kids.core.di.IoDispatcher
 import uz.maxcare.kids.core.location.LocationFix
 import uz.maxcare.kids.core.location.LocationProvider
@@ -34,7 +36,12 @@ internal class LocationManagerLocationProvider @Inject constructor(
         val manager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
         val provider = manager?.let(::enabledProvider)
         return if (manager != null && provider != null) {
-            withContext(ioDispatcher) { requestFix(manager, provider) }
+            withContext(ioDispatcher) {
+                // getCurrentLocation может «висеть» в помещении, пока система не остановит задачу —
+                // ограничиваем ожидание, затем берём недавнюю последнюю позицию.
+                withTimeoutOrNull(FIX_TIMEOUT_MILLIS) { requestFix(manager, provider) }
+                    ?: recentLastKnown(manager)
+            }
         } else {
             null
         }
@@ -62,6 +69,20 @@ internal class LocationManagerLocationProvider @Inject constructor(
             }
         }
 
+    // Самая свежая последняя позиция среди провайдеров, если она не старше MAX_FIX_AGE_NANOS.
+    @SuppressLint("MissingPermission")
+    private fun recentLastKnown(manager: LocationManager): LocationFix? = try {
+        val now = SystemClock.elapsedRealtimeNanos()
+        PROVIDER_ORDER
+            .filter { manager.allProviders.contains(it) }
+            .mapNotNull { manager.getLastKnownLocation(it) }
+            .filter { now - it.elapsedRealtimeNanos <= MAX_FIX_AGE_NANOS }
+            .maxByOrNull { it.elapsedRealtimeNanos }
+            ?.toFix()
+    } catch (ignored: SecurityException) {
+        null
+    }
+
     private fun Location.toFix() = LocationFix(
         latitude = latitude,
         longitude = longitude,
@@ -85,7 +106,11 @@ internal class LocationManagerLocationProvider @Inject constructor(
         // Fused лучше по батарее, но константа LocationManager.FUSED_PROVIDER появилась в API 31,
         // а minSdk 26 — используем её строковое значение; на старых версиях провайдера просто нет
         // в allProviders и он пропускается. Дальше — сеть (дешевле GPS), затем GPS как запасной.
+        const val FIX_TIMEOUT_MILLIS = 10_000L
         const val FUSED_PROVIDER = "fused"
+
+        // Последняя позиция старше 10 минут уже не «где сейчас» — лучше дождаться нового фикса.
+        const val MAX_FIX_AGE_NANOS = 10L * 60 * 1_000_000_000
         val PROVIDER_ORDER = listOf(
             FUSED_PROVIDER,
             LocationManager.NETWORK_PROVIDER,
