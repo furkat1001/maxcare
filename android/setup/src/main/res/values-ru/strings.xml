@@ -28,7 +28,7 @@
     <string name="notifications_allow">Разрешить</string>
 
     <string name="location_title">Местоположение</string>
-    <string name="location_body">Чтобы вы видели, где ребёнок, MaxCare Kids отправляет вам его местоположение. Разрешите доступ к геолокации, а затем выберите «Разрешить всегда» — чтобы это работало в фоне.</string>
+    <string name="location_body">MaxCare Kids отправляет вам местоположение этого телефона — периодически и в фоне, даже когда приложение закрыто, — чтобы вы видели, где ребёнок. Нажмите «Разрешить геолокацию», затем выберите «Разрешить всегда».</string>
     <string name="location_allow">Разрешить геолокацию</string>
 
     <string name="background_title">Работа в фоне</string>

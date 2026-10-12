@@ -29,7 +29,7 @@
     <string name="notifications_allow">Allow</string>
 
     <string name="location_title">Location</string>
-    <string name="location_body">So you can see where your child is, MaxCare Kids sends the location to you. Allow location, and then choose “Allow all the time” so it keeps working in the background.</string>
+    <string name="location_body">MaxCare Kids sends this phone\'s location to you — periodically and in the background, even when the app is closed — so you can see where your child is. Tap “Allow location”, then choose “Allow all the time”.</string>
     <string name="location_allow">Allow location</string>
 
     <string name="background_title">Working in the background</string>

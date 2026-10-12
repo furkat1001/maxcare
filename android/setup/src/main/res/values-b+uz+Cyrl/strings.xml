@@ -28,7 +28,7 @@
     <string name="notifications_allow">Рухсат бериш</string>
 
     <string name="location_title">Жойлашув</string>
-    <string name="location_body">Бола қаердалигини кўришингиз учун MaxCare Kids унинг жойлашувини сизга юборади. Жойлашувга рухсат беринг, сўнг фонда ишлаши учун “Доимо рухсат бериш”ни танланг.</string>
+    <string name="location_body">MaxCare Kids бу телефон жойлашувини сизга юборади — вақти-вақти билан ва фонда, илова ёпиқ бўлса ҳам, — шунда сиз бола қаердалигини кўрасиз. “Жойлашувга рухсат”ни босинг, сўнг “Доимо рухсат бериш”ни танланг.</string>
     <string name="location_allow">Жойлашувга рухсат</string>
 
     <string name="background_title">Фонда ишлаш</string>

@@ -28,7 +28,7 @@
     <string name="notifications_allow">Ruxsat berish</string>
 
     <string name="location_title">Joylashuv</string>
-    <string name="location_body">Bola qayerdaligini ko‘rishingiz uchun MaxCare Kids uning joylashuvini sizga yuboradi. Joylashuvga ruxsat bering, so‘ng fonda ishlashi uchun “Doimo ruxsat berish”ni tanlang.</string>
+    <string name="location_body">MaxCare Kids bu telefon joylashuvini sizga yuboradi — vaqti-vaqti bilan va fonda, ilova yopiq bo‘lsa ham, — shunda siz bola qayerdaligini ko‘rasiz. “Joylashuvga ruxsat”ni bosing, so‘ng “Doimo ruxsat berish”ni tanlang.</string>
     <string name="location_allow">Joylashuvga ruxsat</string>
 
     <string name="background_title">Fonda ishlash</string>
