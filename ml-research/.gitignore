@@ -1,0 +1,12 @@
+# Данные и веса в репозиторий не коммитим.
+data/
+models/
+*.tflite
+*.keras
+*.h5
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
