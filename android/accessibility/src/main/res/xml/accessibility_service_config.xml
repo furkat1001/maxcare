@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     Конфиг службы доступности. Читаем содержимое окна, чтобы находить опасный текст
-    (поиск, ввод). canTakeScreenshot для анализа картинок добавится в PR 4.
-    typeWindowStateChanged оставлен на будущее (перехват экрана удаления, PR 3).
+    (поиск, ввод) и перехватывать экран удаления. canTakeScreenshot (API 30+) — для
+    анализа картинок по скриншотам.
 -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeViewTextChanged|typeWindowContentChanged|typeWindowStateChanged"
+    android:accessibilityEventTypes="typeViewTextChanged|typeViewScrolled|typeWindowContentChanged|typeWindowStateChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:canRetrieveWindowContent="true"
+    android:canTakeScreenshot="true"
     android:description="@string/accessibility_service_description"
     android:notificationTimeout="200" />

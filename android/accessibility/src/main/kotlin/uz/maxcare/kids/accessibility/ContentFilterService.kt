@@ -1,9 +1,11 @@
 package uz.maxcare.kids.accessibility
 
 import android.accessibilityservice.AccessibilityService
-import android.app.admin.DevicePolicyManager
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
@@ -15,16 +17,19 @@ import uz.maxcare.kids.blocker.BlockerActivity
 import uz.maxcare.kids.core.di.ApplicationScope
 import uz.maxcare.kids.core.events.EventRecorder
 import uz.maxcare.kids.core.events.EventType
+import uz.maxcare.kids.core.ml.ImageCategory
+import uz.maxcare.kids.core.ml.ImageClassifier
+import uz.maxcare.kids.core.ml.ImageVerdict
 
 /**
  * Служба доступности фильтра контента.
  *
- * - Текст набора/поиска: при опасном запросе редактируемое поле очищается, иначе показывается
- *   заглушка; родителю уходит событие. Текст с экрана никуда не пишется (CLAUDE.md).
- * - Защита от удаления: если наш администратор активен и в Настройках/установщике открыт экран с
- *   именем приложения («Деактивировать и удалить»), уводим на HOME и показываем заглушку.
+ * - Текст набора/поиска: опасный запрос — поле очищается (иначе заглушка), событие родителю.
+ * - Защита от удаления: активный админ + экран Настроек с именем приложения → HOME + заглушка.
+ * - Картинки: скриншот окон браузеров/мессенджеров → [ImageClassifier] → при опасном вердикте
+ *   заглушка. Без файла модели классификатор возвращает SAFE — пайплайн вхолостую (PR 4a).
  *
- * Картинки по скриншотам — PR 4; сканирование текста выдачи — отдельно (нужны белые списки).
+ * Текст и кадры анализируются только в памяти: не на диск, не в логи, не в аналитику (CLAUDE.md).
  */
 @AndroidEntryPoint
 class ContentFilterService : AccessibilityService() {
@@ -36,47 +41,45 @@ class ContentFilterService : AccessibilityService() {
     lateinit var forbidden: ForbiddenWords
 
     @Inject
+    lateinit var classifier: ImageClassifier
+
+    @Inject
     @ApplicationScope
     lateinit var appScope: CoroutineScope
+
+    private val mainHandler = Handler(Looper.getMainLooper())
+
+    private val uninstall = UninstallInterceptor(this) { trigger(it) }
+
+    private var scanner: ScreenshotScanner? = null
 
     @Volatile
     private var lastTriggerUptime = 0L
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        event ?: return
-        when {
-            isUninstallAttempt(event) -> blockUninstall()
-            else -> filterText(event)
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            scanner = ScreenshotScanner(this, classifier, appScope) { verdict ->
+                mainHandler.post { onUnsafeImage(verdict) }
+            }
         }
     }
 
-    // --- Защита от удаления ---
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        event ?: return
+        when {
+            uninstall.handle(event) -> Unit
 
-    private fun isUninstallAttempt(event: AccessibilityEvent): Boolean {
-        // И STATE, и CONTENT changed: окно настроек наполняется не сразу, первое событие часто
-        // приходит без текста (имя приложения ещё не отрисовано).
-        val windowEvent = event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ||
-            event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
-        val pkg = event.packageName?.toString()
-        // Дешёвые проверки сначала; активный админ и обход дерева считаем только для нужного окна.
-        if (!(windowEvent && pkg in UninstallGuard.SCREEN_PACKAGES)) return false
-        return UninstallGuard.shouldBlock(windowEvent, pkg, adminActive(), appLabelOnScreen())
+            else -> {
+                filterText(event)
+                maybeScanImages(event)
+            }
+        }
     }
 
-    private fun adminActive(): Boolean {
-        val dpm = getSystemService(DevicePolicyManager::class.java) ?: return false
-        return dpm.activeAdmins?.any { it.packageName == packageName } == true
-    }
-
-    private fun appLabelOnScreen(): Boolean {
-        val root = rootInActiveWindow ?: return false
-        return root.findAccessibilityNodeInfosByText(UninstallGuard.APP_LABEL).isNotEmpty()
-    }
-
-    private fun blockUninstall() {
-        // HOME всегда (это и есть защита), заглушка и событие — через общий дебаунс.
-        performGlobalAction(GLOBAL_ACTION_HOME)
-        trigger(EventType.UNINSTALL_ATTEMPT_BLOCKED)
+    override fun onUnbind(intent: Intent?): Boolean {
+        scanner?.shutdown()
+        return super.onUnbind(intent)
     }
 
     // --- Фильтр текста ---
@@ -106,6 +109,23 @@ class ContentFilterService : AccessibilityService() {
         node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
     }
 
+    // --- Картинки ---
+
+    private fun maybeScanImages(event: AccessibilityEvent) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+        val pkg = event.packageName?.toString() ?: return
+        if (ScanTargets.matches(pkg)) scanner?.maybeCapture(SHOT_INTERVAL_MS)
+    }
+
+    private fun onUnsafeImage(verdict: ImageVerdict) {
+        val type = if (verdict.category == ImageCategory.VIOLENCE) {
+            EventType.IMAGE_BLOCKED_VIOLENCE
+        } else {
+            EventType.IMAGE_BLOCKED_NUDITY
+        }
+        trigger(type)
+    }
+
     // --- Общее ---
 
     /** Заглушка + событие, не чаще раза в [DEBOUNCE_MS]: экраны шлют события пачками. */
@@ -129,5 +149,6 @@ class ContentFilterService : AccessibilityService() {
 
     private companion object {
         const val DEBOUNCE_MS = 1500L
+        const val SHOT_INTERVAL_MS = 1500L
     }
 }
