@@ -26,10 +26,10 @@ def load_val(data_dir: str, batch_size: int):
         label_mode="int",
         class_names=CLASS_NAMES,
         image_size=(INPUT_SIZE, INPUT_SIZE),
-        batch_size=batch_size,
+        batch_size=None,  # поштучно, чтобы ignore_errors отбрасывал битые файлы по одному
         shuffle=False,
     )
-    return ds.map(lambda x, y: (x / 255.0, y))
+    return ds.ignore_errors().map(lambda x, y: (x / 255.0, y)).batch(batch_size)
 
 
 def collect(model: tf.keras.Model, ds) -> tuple[np.ndarray, np.ndarray]:

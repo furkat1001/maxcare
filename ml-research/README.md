@@ -42,6 +42,10 @@ data/
 ## Пайплайн
 
 ```bash
+# 0. Очистка: найти (и удалить) битые картинки, на которых спотыкается обучение
+python clean_data.py --data-dir data            # только показать
+python clean_data.py --data-dir data --delete   # удалить
+
 # 1. Обучение (перенос обучения на MobileNetV2)
 python train.py --data-dir data --epochs 10 --out models/nsfw.keras
 

@@ -21,22 +21,32 @@ from config import CLASS_NAMES, INPUT_SIZE
 
 def make_datasets(data_dir: str, batch_size: int):
     def load(split: str, shuffle: bool):
+        # batch_size=None — по одной картинке, чтобы ignore_errors отбрасывал битый файл
+        # поштучно, а не терял целую пачку. Батчим уже после фильтра.
         return tf.keras.utils.image_dataset_from_directory(
             os.path.join(data_dir, split),
             labels="inferred",
             label_mode="int",
             class_names=CLASS_NAMES,  # safe=0, nsfw=1
             image_size=(INPUT_SIZE, INPUT_SIZE),
-            batch_size=batch_size,
+            batch_size=None,
             shuffle=shuffle,
         )
 
     # image_dataset_from_directory отдаёт [0, 255]; модель и Android работают в [0, 1].
     to_unit = lambda x, y: (x / 255.0, y)
     autotune = tf.data.AUTOTUNE
-    train = load("train", shuffle=True).map(to_unit).prefetch(autotune)
-    val = load("val", shuffle=False).map(to_unit).prefetch(autotune)
-    return train, val
+
+    def pipeline(split: str, shuffle: bool):
+        return (
+            load(split, shuffle)
+            .ignore_errors()  # защитная сетка: битый кадр пропускаем, не роняем обучение
+            .map(to_unit)
+            .batch(batch_size)
+            .prefetch(autotune)
+        )
+
+    return pipeline("train", shuffle=True), pipeline("val", shuffle=False)
 
 
 def build_model() -> tf.keras.Model:
