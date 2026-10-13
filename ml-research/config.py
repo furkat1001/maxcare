@@ -15,7 +15,7 @@ CLASS_NAMES = ["safe", "nsfw"]
 NSFW_INDEX = 1
 
 # Тот же порог, что в LiteRtImageClassifier.THRESHOLD.
-DEFAULT_THRESHOLD = 0.75
+DEFAULT_THRESHOLD = 0.5
 
 # Имя файла модели — его ждёт LiteRtImageClassifier.MODEL_ASSET.
 MODEL_FILENAME = "nsfw_model.tflite"
