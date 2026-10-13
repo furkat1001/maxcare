@@ -12,6 +12,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import uz.maxcare.kids.blocker.BlockerActivity
 import uz.maxcare.kids.core.di.ApplicationScope
@@ -53,31 +54,42 @@ class ContentFilterService : AccessibilityService() {
 
     private var scanner: ScreenshotScanner? = null
 
+    private var captureJob: Job? = null
+
+    @Volatile
+    private var foregroundPackage: String? = null
+
     @Volatile
     private var lastTriggerUptime = 0L
 
     override fun onServiceConnected() {
         super.onServiceConnected()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            scanner = ScreenshotScanner(this, classifier, appScope) { verdict ->
+            val screenshotScanner = ScreenshotScanner(this, classifier, appScope) { verdict ->
                 mainHandler.post { onUnsafeImage(verdict) }
+            }
+            scanner = screenshotScanner
+            // Периодически снимаем кадр, пока на переднем плане браузер/мессенджер.
+            captureJob = screenshotScanner.startLoop(SHOT_INTERVAL_MS) {
+                foregroundPackage?.let(ScanTargets::matches) == true
             }
         }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         event ?: return
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            val pkg = event.packageName?.toString()
+            if (pkg != null && pkg != packageName) foregroundPackage = pkg
+        }
         when {
             uninstall.handle(event) -> Unit
-
-            else -> {
-                filterText(event)
-                maybeScanImages(event)
-            }
+            else -> filterText(event)
         }
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
+        captureJob?.cancel()
         scanner?.shutdown()
         return super.onUnbind(intent)
     }
@@ -110,12 +122,6 @@ class ContentFilterService : AccessibilityService() {
     }
 
     // --- Картинки ---
-
-    private fun maybeScanImages(event: AccessibilityEvent) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
-        val pkg = event.packageName?.toString() ?: return
-        if (ScanTargets.matches(pkg)) scanner?.maybeCapture(SHOT_INTERVAL_MS)
-    }
 
     private fun onUnsafeImage(verdict: ImageVerdict) {
         val type = if (verdict.category == ImageCategory.VIOLENCE) {

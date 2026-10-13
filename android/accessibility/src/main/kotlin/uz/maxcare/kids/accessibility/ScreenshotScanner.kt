@@ -11,6 +11,9 @@ import androidx.annotation.RequiresApi
 import androidx.core.graphics.scale
 import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import uz.maxcare.kids.core.ml.ImageClassifier
 import uz.maxcare.kids.core.ml.ImageVerdict
@@ -31,6 +34,18 @@ internal class ScreenshotScanner(
     private val executor = Executors.newSingleThreadExecutor()
     private var lastShotUptime = 0L
     private var lastHash = 0
+
+    /**
+     * Периодический захват: кадр раз в [intervalMs], пока [shouldScan] истинно (активен браузер/
+     * мессенджер). Надёжнее привязки к событиям — браузеры шлют их нерегулярно. Неизменные кадры
+     * всё равно отбрасываются по отпечатку. Возвращает [Job] для остановки.
+     */
+    fun startLoop(intervalMs: Long, shouldScan: () -> Boolean): Job = scope.launch {
+        while (isActive) {
+            delay(intervalMs)
+            if (shouldScan()) maybeCapture(intervalMs)
+        }
+    }
 
     fun maybeCapture(intervalMs: Long) {
         val now = SystemClock.uptimeMillis()
