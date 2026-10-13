@@ -30,3 +30,6 @@ DerivedData/
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# Модель фильтра раздаётся отдельно (assets при сборке или с сервера), в репозиторий не коммитим.
+*.tflite
