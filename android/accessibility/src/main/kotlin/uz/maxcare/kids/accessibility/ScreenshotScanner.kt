@@ -35,6 +35,11 @@ internal class ScreenshotScanner(
     private var lastShotUptime = 0L
     private var lastHash = 0
 
+    // Пропуск неизменного кадра применяем только пока контент безопасен; на опасном продолжаем
+    // проверять, иначе «закрыл заглушку → тот же экран уже не блокируется».
+    @Volatile
+    private var lastVerdictSafe = true
+
     /**
      * Периодический захват: кадр раз в [intervalMs], пока [shouldScan] истинно (активен браузер/
      * мессенджер). Надёжнее привязки к событиям — браузеры шлют их нерегулярно. Неизменные кадры
@@ -69,24 +74,36 @@ internal class ScreenshotScanner(
         } finally {
             buffer.close()
         }
-        if (software == null || unchanged(software)) {
-            software?.recycle()
+        if (software == null) return
+        val fingerprint = fingerprint(software)
+        // Пустой кадр браузер иногда отдаёт вместо контента — его нельзя засчитывать как
+        // безопасный, пропускаем (таймер снимет следующий). Неизменный экран пропускаем только
+        // пока он безопасен; опасный продолжаем блокировать.
+        val skip = FrameQuality.isBlank(fingerprint) || (lastVerdictSafe && unchanged(fingerprint))
+        if (skip) {
+            software.recycle()
             return
         }
         scope.launch {
             val verdict = classifier.classify(software)
+            lastVerdictSafe = verdict.isSafe
             software.recycle()
             if (!verdict.isSafe) onUnsafe(verdict)
         }
     }
 
-    /** Дешёвый отпечаток 8×8: пропускаем кадр, если экран не изменился. */
-    private fun unchanged(bitmap: Bitmap): Boolean {
+    /** Дешёвый отпечаток экрана 8×8 — для проверки на пустоту и неизменность. */
+    private fun fingerprint(bitmap: Bitmap): IntArray {
         val thumb = bitmap.scale(HASH_SIZE, HASH_SIZE)
         val pixels = IntArray(HASH_SIZE * HASH_SIZE)
         thumb.getPixels(pixels, 0, HASH_SIZE, 0, 0, HASH_SIZE, HASH_SIZE)
         if (thumb !== bitmap) thumb.recycle()
-        val hash = pixels.contentHashCode()
+        return pixels
+    }
+
+    /** Экран не изменился с прошлого кадра. Пустые кадры сюда не доходят, lastHash не засоряют. */
+    private fun unchanged(fingerprint: IntArray): Boolean {
+        val hash = fingerprint.contentHashCode()
         val same = hash == lastHash
         lastHash = hash
         return same
