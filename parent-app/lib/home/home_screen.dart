@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../children/add_child_screen.dart';
 import '../children/device_events_screen.dart';
 import '../children/device_repository.dart';
+import '../children/filter_words_screen.dart';
 import '../children/last_seen.dart';
 import '../core/error_text.dart';
 import '../core/providers.dart';
@@ -20,6 +21,13 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(t.homeTitle),
         actions: [
+          IconButton(
+            tooltip: t.filterWordsTitle,
+            icon: const Icon(Icons.block),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const FilterWordsScreen()),
+            ),
+          ),
           IconButton(
             tooltip: t.homeSignOut,
             icon: const Icon(Icons.logout),

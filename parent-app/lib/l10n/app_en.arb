@@ -27,6 +27,13 @@
   "homeEmpty": "No phones connected yet. Tap “Add child” to connect one.",
   "homeAddChild": "Add child",
   "homeSignOut": "Sign out",
+  "filterWordsTitle": "Blocked words",
+  "filterWordsBody": "Words you add are blocked on your child's phone in addition to the built-in list.",
+  "filterWordsHint": "Word to block",
+  "filterWordsAdd": "Add",
+  "filterWordsRemove": "Remove",
+  "filterWordsEmpty": "No words added yet. The built-in list still applies.",
+  "filterWordsLimit": "The list is full. Remove a word to add a new one.",
 
   "addChildTitle": "Add child",
   "addChildBody": "Enter a name, get a code, and type it in MaxCare Kids on the child's phone within 10 minutes.",

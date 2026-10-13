@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/auth_repository.dart';
 import '../children/device_repository.dart';
+import '../children/filter_words_repository.dart';
 import '../children/location_repository.dart';
 import '../children/pairing_repository.dart';
 import 'api_client.dart';
@@ -26,6 +27,15 @@ final pairingRepositoryProvider = Provider<PairingRepository>(
 
 final deviceRepositoryProvider = Provider<DeviceRepository>(
   (ref) => DeviceRepository(ref.watch(apiClientProvider)),
+);
+
+final filterWordsRepositoryProvider = Provider<FilterWordsRepository>(
+  (ref) => FilterWordsRepository(ref.watch(apiClientProvider)),
+);
+
+/// Свои стоп-слова семьи; обновляется после добавления/удаления.
+final filterWordsProvider = FutureProvider.autoDispose<List<String>>(
+  (ref) => ref.watch(filterWordsRepositoryProvider).list(),
 );
 
 /// Список телефонов детей. Обновляется pull-to-refresh и после привязки.

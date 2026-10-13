@@ -33,6 +33,10 @@ class ApiClient {
   Future<Map<String, dynamic>> get(String path, {bool authorized = true}) =>
       _request((options) => _dio.get<dynamic>(path, options: options), authorized);
 
+  Future<void> delete(String path, {bool authorized = true}) async {
+    await _requestRaw((options) => _dio.delete<dynamic>(path, options: options), authorized);
+  }
+
   /// Для эндпоинтов, отвечающих JSON-массивом (например, список устройств).
   Future<List<Map<String, dynamic>>> getList(String path, {bool authorized = true}) async {
     final data = await _requestRaw(

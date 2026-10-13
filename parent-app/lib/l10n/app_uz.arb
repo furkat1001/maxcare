@@ -27,6 +27,13 @@
   "homeEmpty": "Hali telefonlar ulanmagan. «Bola qo‘shish»ni bosing.",
   "homeAddChild": "Bola qo‘shish",
   "homeSignOut": "Chiqish",
+  "filterWordsTitle": "Stop-so‘zlar",
+  "filterWordsBody": "Qo‘shgan so‘zlaringiz bolangiz telefonida o‘rnatilgan ro‘yxatga qo‘shimcha ravishda bloklanadi.",
+  "filterWordsHint": "Bloklash uchun so‘z",
+  "filterWordsAdd": "Qo‘shish",
+  "filterWordsRemove": "O‘chirish",
+  "filterWordsEmpty": "Hali o‘z so‘zlaringiz yo‘q. O‘rnatilgan ro‘yxat ishlashda davom etadi.",
+  "filterWordsLimit": "Ro‘yxat to‘lgan. Yangi so‘z qo‘shish uchun bittasini o‘chiring.",
 
   "addChildTitle": "Bola qo‘shish",
   "addChildBody": "Ism kiriting, kodni oling va uni 10 daqiqa ichida bolaning telefonidagi MaxCare Kids ilovasiga kiriting.",
