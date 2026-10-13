@@ -57,6 +57,12 @@
   "eventPrivateDnsOn": "«Shaxsiy DNS» yoqildi (filtrni chetlab o‘tadi)",
   "eventSiteBlockedFiltered": "Kattalar yoki xavfli sayt bloklandi",
   "eventSiteBlockedGambling": "Garov yoki qimor sayti bloklandi",
+  "eventSearchBlocked": "Xavfli qidiruv tozalandi",
+  "eventTextFlaggedMessenger": "Messenjerda xavfli matn",
+  "eventImageBlockedNudity": "Yalang‘ochlik tasviri bloklandi",
+  "eventImageBlockedViolence": "Zo‘ravonlik tasviri bloklandi",
+  "eventUninstallAttemptBlocked": "Ilovani o‘chirishga urinish to‘xtatildi",
+  "eventAccessibilityOff": "Kontent filtri o‘chirildi",
   "eventSiteWithAddress": "{event}: {site}",
 
   "locationTitle": "Joylashuv",
