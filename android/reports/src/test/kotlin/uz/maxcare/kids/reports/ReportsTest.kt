@@ -250,6 +250,9 @@ private class FakeApi : MaxCareApi {
         batches += events
         return result
     }
+
+    override suspend fun fetchFilterWords(deviceToken: String): ApiResult<List<String>> =
+        error("Not used")
 }
 
 private class CountingSync : EventSync {

@@ -10,6 +10,9 @@ interface MaxCareApi {
      * Повторная отправка тех же событий безопасна: сервер узнаёт их по [OutgoingEvent.id].
      */
     suspend fun uploadEvents(deviceToken: String, events: List<OutgoingEvent>): ApiResult<Unit>
+
+    /** Свои стоп-слова семьи, заданные родителем. Телефон добавляет их к базовому словарю. */
+    suspend fun fetchFilterWords(deviceToken: String): ApiResult<List<String>>
 }
 
 /** @param occurredAt время по часам телефона в формате ISO-8601. */

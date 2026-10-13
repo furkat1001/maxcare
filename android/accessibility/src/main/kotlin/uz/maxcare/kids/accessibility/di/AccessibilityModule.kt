@@ -7,8 +7,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import uz.maxcare.kids.accessibility.BaseDictionary
 import uz.maxcare.kids.accessibility.DictionarySource
-import uz.maxcare.kids.accessibility.ForbiddenWords
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -16,6 +16,6 @@ internal object AccessibilityModule {
 
     @Provides
     @Singleton
-    fun provideForbiddenWords(@ApplicationContext context: Context): ForbiddenWords =
-        ForbiddenWords(DictionarySource.loadStems(context))
+    fun provideBaseDictionary(@ApplicationContext context: Context): BaseDictionary =
+        BaseDictionary(DictionarySource.loadStems(context))
 }

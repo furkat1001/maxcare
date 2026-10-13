@@ -44,6 +44,22 @@ internal class OkHttpMaxCareApi(
         bearerToken = deviceToken
     ) { _: EventBatchResponse -> }
 
+    override suspend fun fetchFilterWords(deviceToken: String): ApiResult<List<String>> =
+        get("v1/device/filter-words", deviceToken) { response: FilterWordsResponse -> response.words }
+
+    private suspend inline fun <reified Res, T> get(
+        path: String,
+        bearerToken: String,
+        crossinline map: (Res) -> T
+    ): ApiResult<T> = withContext(ioDispatcher) {
+        val httpRequest = Request.Builder()
+            .url(baseUrl.resolve(path) ?: error("Bad API path: $path"))
+            .get()
+            .header("Authorization", "Bearer $bearerToken")
+            .build()
+        execute(httpRequest, map)
+    }
+
     private suspend inline fun <reified Req, reified Res, T> post(
         path: String,
         request: Req,
@@ -55,24 +71,29 @@ internal class OkHttpMaxCareApi(
             .post(json.encodeToString(request).toRequestBody(JSON_TYPE))
             .apply { bearerToken?.let { header("Authorization", "Bearer $it") } }
             .build()
-        try {
-            client.newCall(httpRequest).execute().use { response ->
-                val body = response.body.string()
-                if (response.isSuccessful) {
-                    ApiResult.Ok(map(json.decodeFromString<Res>(body)))
-                } else {
-                    ApiResult.HttpError(response.code, errorCode(body))
-                }
+        execute(httpRequest, map)
+    }
+
+    private inline fun <reified Res, T> execute(
+        httpRequest: Request,
+        map: (Res) -> T
+    ): ApiResult<T> = try {
+        client.newCall(httpRequest).execute().use { response ->
+            val body = response.body.string()
+            if (response.isSuccessful) {
+                ApiResult.Ok(map(json.decodeFromString<Res>(body)))
+            } else {
+                ApiResult.HttpError(response.code, errorCode(body))
             }
-        } catch (ignored: SSLException) {
-            // Раньше IOException: SSLException — её подкласс, но означает другое.
-            ApiResult.InsecureConnection
-        } catch (ignored: IOException) {
-            ApiResult.NoConnection
-        } catch (ignored: IllegalArgumentException) {
-            // SerializationException и ошибки Base64 — подклассы IllegalArgumentException.
-            ApiResult.BadResponse
         }
+    } catch (ignored: SSLException) {
+        // Раньше IOException: SSLException — её подкласс, но означает другое.
+        ApiResult.InsecureConnection
+    } catch (ignored: IOException) {
+        ApiResult.NoConnection
+    } catch (ignored: IllegalArgumentException) {
+        // SerializationException и ошибки Base64 — подклассы IllegalArgumentException.
+        ApiResult.BadResponse
     }
 
     private fun errorCode(body: String): String? =
@@ -104,6 +125,9 @@ internal class OkHttpMaxCareApi(
 
     @Serializable
     private data class EventBatchResponse(val accepted: Int)
+
+    @Serializable
+    private data class FilterWordsResponse(val words: List<String>)
 
     private companion object {
         const val PLATFORM = "android"
