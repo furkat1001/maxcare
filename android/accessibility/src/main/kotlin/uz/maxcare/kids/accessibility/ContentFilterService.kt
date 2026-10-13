@@ -155,6 +155,9 @@ class ContentFilterService : AccessibilityService() {
 
     private companion object {
         const val DEBOUNCE_MS = 1500L
-        const val SHOT_INTERVAL_MS = 1500L
+
+        // 1 с — у предела частоты takeScreenshot ОС (~1/сек): меньше «окно», в котором видео
+        // проскакивает между кадрами. Лишние вызовы при троттлинге ОС просто отклоняются.
+        const val SHOT_INTERVAL_MS = 1000L
     }
 }
