@@ -80,7 +80,10 @@ class LiteRtImageClassifier @Inject constructor(
         const val BYTES_PER_FLOAT = 4
         const val OUTPUT_CLASSES = 2
         const val NSFW_INDEX = 1
-        const val THRESHOLD = 0.75f
+
+        // 0.5: меньше пропусков (4.6% против 7.4% на 0.75) ценой чуть большего числа ложных.
+        // Для детского фильтра приоритет — не пропустить. Должен совпадать с ml-research/config.py.
+        const val THRESHOLD = 0.5f
         const val INFERENCE_THREADS = 2
         const val RED_SHIFT = 16
         const val GREEN_SHIFT = 8
