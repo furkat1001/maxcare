@@ -29,6 +29,7 @@ internal class ScreenshotScanner(
     private val service: AccessibilityService,
     private val classifier: ImageClassifier,
     private val scope: CoroutineScope,
+    private val threshold: () -> Float,
     private val onUnsafe: (ImageVerdict) -> Unit
 ) {
     private val executor = Executors.newSingleThreadExecutor()
@@ -86,9 +87,11 @@ internal class ScreenshotScanner(
         }
         scope.launch {
             val verdict = classifier.classify(software)
-            lastVerdictSafe = verdict.isSafe
             software.recycle()
-            if (!verdict.isSafe) onUnsafe(verdict)
+            // Порог зависит от строгости семьи; isSafe — нет модели.
+            val blocked = !verdict.isSafe && verdict.confidence >= threshold()
+            lastVerdictSafe = !blocked
+            if (blocked) onUnsafe(verdict)
         }
     }
 

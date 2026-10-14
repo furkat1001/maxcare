@@ -40,12 +40,8 @@ class LiteRtImageClassifier @Inject constructor(
     private fun runInference(tflite: Interpreter, bitmap: Bitmap): ImageVerdict {
         val output = Array(1) { FloatArray(OUTPUT_CLASSES) }
         tflite.run(toInput(bitmap), output)
-        val nsfwScore = output[0][NSFW_INDEX]
-        return if (nsfwScore >= THRESHOLD) {
-            ImageVerdict(ImageCategory.NUDITY, nsfwScore)
-        } else {
-            ImageVerdict.SAFE
-        }
+        // Отдаём сырой скор наготы; порог (по строгости) применяет вызывающая сторона.
+        return ImageVerdict(ImageCategory.NUDITY, output[0][NSFW_INDEX])
     }
 
     private fun toInput(bitmap: Bitmap): ByteBuffer {
@@ -80,10 +76,6 @@ class LiteRtImageClassifier @Inject constructor(
         const val BYTES_PER_FLOAT = 4
         const val OUTPUT_CLASSES = 2
         const val NSFW_INDEX = 1
-
-        // 0.5: меньше пропусков (4.6% против 7.4% на 0.75) ценой чуть большего числа ложных.
-        // Для детского фильтра приоритет — не пропустить. Должен совпадать с ml-research/config.py.
-        const val THRESHOLD = 0.5f
         const val INFERENCE_THREADS = 2
         const val RED_SHIFT = 16
         const val GREEN_SHIFT = 8

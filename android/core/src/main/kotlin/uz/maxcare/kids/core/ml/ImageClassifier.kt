@@ -19,12 +19,17 @@ interface ImageClassifier {
     suspend fun classify(bitmap: Bitmap): ImageVerdict
 }
 
-/** Что ИИ нашёл на кадре. [category] = null — ничего опасного не найдено. */
+/**
+ * Результат по кадру. [category] — наиболее вероятный опасный класс, [confidence] — его
+ * вероятность (без порога: порог применяет вызывающая сторона, он зависит от строгости).
+ * [category] = null — кадр не анализировался (нет модели).
+ */
 data class ImageVerdict(val category: ImageCategory?, val confidence: Float) {
+    /** Кадр не анализировался (нет модели). Порог блокировки — на вызывающей стороне. */
     val isSafe: Boolean get() = category == null
 
     companion object {
-        /** Кадр безопасен. */
+        /** Кадр не анализировался. */
         val SAFE = ImageVerdict(category = null, confidence = 0f)
     }
 }

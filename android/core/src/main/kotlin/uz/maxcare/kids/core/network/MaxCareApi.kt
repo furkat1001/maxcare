@@ -11,9 +11,20 @@ interface MaxCareApi {
      */
     suspend fun uploadEvents(deviceToken: String, events: List<OutgoingEvent>): ApiResult<Unit>
 
-    /** Свои стоп-слова семьи, заданные родителем. Телефон добавляет их к базовому словарю. */
-    suspend fun fetchFilterWords(deviceToken: String): ApiResult<List<String>>
+    /** Настройка фильтра семьи: свои стоп-слова, разрешённые слова и уровень строгости. */
+    suspend fun fetchFilterConfig(deviceToken: String): ApiResult<FilterConfig>
 }
+
+/**
+ * @param block свои стоп-слова родителя (добавляются к базовому словарю).
+ * @param allow разрешённые слова (убирают соответствующий корень из словаря).
+ * @param strictness `standard` или `strict` (strict — ниже порог анализа картинок).
+ */
+class FilterConfig(
+    val block: List<String>,
+    val allow: List<String>,
+    val strictness: String
+)
 
 /** @param occurredAt время по часам телефона в формате ISO-8601. */
 class OutgoingEvent(

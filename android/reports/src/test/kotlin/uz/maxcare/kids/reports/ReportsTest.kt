@@ -251,7 +251,7 @@ private class FakeApi : MaxCareApi {
         return result
     }
 
-    override suspend fun fetchFilterWords(deviceToken: String): ApiResult<List<String>> =
+    override suspend fun fetchFilterConfig(deviceToken: String) =
         error("Not used")
 }
 

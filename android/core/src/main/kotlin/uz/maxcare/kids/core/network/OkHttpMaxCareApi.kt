@@ -44,8 +44,10 @@ internal class OkHttpMaxCareApi(
         bearerToken = deviceToken
     ) { _: EventBatchResponse -> }
 
-    override suspend fun fetchFilterWords(deviceToken: String): ApiResult<List<String>> =
-        get("v1/device/filter-words", deviceToken) { response: FilterWordsResponse -> response.words }
+    override suspend fun fetchFilterConfig(deviceToken: String): ApiResult<FilterConfig> =
+        get("v1/device/filter-config", deviceToken) { response: FilterConfigResponse ->
+            FilterConfig(response.block, response.allow, response.strictness)
+        }
 
     private suspend inline fun <reified Res, T> get(
         path: String,
@@ -127,7 +129,11 @@ internal class OkHttpMaxCareApi(
     private data class EventBatchResponse(val accepted: Int)
 
     @Serializable
-    private data class FilterWordsResponse(val words: List<String>)
+    private data class FilterConfigResponse(
+        val block: List<String>,
+        val allow: List<String>,
+        val strictness: String
+    )
 
     private companion object {
         const val PLATFORM = "android"

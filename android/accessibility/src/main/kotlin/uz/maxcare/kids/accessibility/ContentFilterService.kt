@@ -71,7 +71,12 @@ class ContentFilterService : AccessibilityService() {
         super.onServiceConnected()
         dictionaryJob = appScope.launch { keepDictionaryFresh() }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val screenshotScanner = ScreenshotScanner(this, classifier, appScope) { verdict ->
+            val screenshotScanner = ScreenshotScanner(
+                this,
+                classifier,
+                appScope,
+                threshold = { dictionary.imageThreshold() }
+            ) { verdict ->
                 mainHandler.post { onUnsafeImage(verdict) }
             }
             scanner = screenshotScanner

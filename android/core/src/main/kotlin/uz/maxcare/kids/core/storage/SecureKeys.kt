@@ -11,6 +11,12 @@ object SecureKeys {
     /** Секрет для проверки кодов восстановления без сети (32 байта). */
     const val RECOVERY_SECRET = "recovery_secret"
 
-    /** Кэш своих стоп-слов родителя (JSON-массив); подмешиваются к базовому словарю фильтра. */
+    /** Кэш своих стоп-слов родителя (по строке на слово); подмешиваются к базовому словарю. */
     const val PARENT_FILTER_WORDS = "parent_filter_words"
+
+    /** Кэш разрешённых слов родителя; убирают соответствующий корень из словаря. */
+    const val PARENT_ALLOW_WORDS = "parent_allow_words"
+
+    /** Уровень строгости фильтра: `standard` или `strict`. */
+    const val FILTER_STRICTNESS = "filter_strictness"
 }

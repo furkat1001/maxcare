@@ -110,7 +110,7 @@ class ApiDevicePairingTest {
         override suspend fun uploadEvents(deviceToken: String, events: List<OutgoingEvent>) =
             error("Not used")
 
-        override suspend fun fetchFilterWords(deviceToken: String) = error("Not used")
+        override suspend fun fetchFilterConfig(deviceToken: String) = error("Not used")
     }
 
     private class InMemorySecureStore : SecureStore {

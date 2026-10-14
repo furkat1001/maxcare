@@ -1,10 +1,12 @@
 package uz.maxcare.kids.accessibility
 
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import uz.maxcare.kids.core.network.ApiResult
+import uz.maxcare.kids.core.network.FilterConfig
 import uz.maxcare.kids.core.network.MaxCareApi
 import uz.maxcare.kids.core.network.OutgoingEvent
 import uz.maxcare.kids.core.storage.SecureKeys
@@ -25,27 +27,35 @@ class DictionaryRepositoryTest {
         }
     }
 
-    private class FakeApi(private val words: ApiResult<List<String>>) : MaxCareApi {
+    private class FakeApi(private val config: ApiResult<FilterConfig>) : MaxCareApi {
         override suspend fun pairDevice(code: String, deviceName: String) = error("unused")
         override suspend fun uploadEvents(deviceToken: String, events: List<OutgoingEvent>) =
             error("unused")
 
-        override suspend fun fetchFilterWords(deviceToken: String) = words
+        override suspend fun fetchFilterConfig(deviceToken: String) = config
     }
 
+    private fun config(
+        block: List<String> = emptyList(),
+        allow: List<String> = emptyList(),
+        strictness: String = "standard"
+    ) = ApiResult.Ok(FilterConfig(block, allow, strictness))
+
     private fun repo(store: SecureStore, api: MaxCareApi) =
-        DictionaryRepository(BaseDictionary(listOf("порн")), store, api)
+        DictionaryRepository(BaseDictionary(listOf("порн", "оружие")), store, api)
+
+    private suspend fun withToken() =
+        FakeStore().apply { writeString(SecureKeys.DEVICE_TOKEN, "tok") }
 
     @Test
     fun `base words match before any refresh`() {
-        val repository = repo(FakeStore(), FakeApi(ApiResult.Ok(emptyList())))
+        val repository = repo(FakeStore(), FakeApi(config()))
         assertTrue(repository.current().matches("порнуха"))
     }
 
     @Test
-    fun `refresh adds parent words and keeps base`() = runTest {
-        val store = FakeStore().apply { writeString(SecureKeys.DEVICE_TOKEN, "tok") }
-        val repository = repo(store, FakeApi(ApiResult.Ok(listOf("казино"))))
+    fun `refresh adds block words and keeps base`() = runTest {
+        val repository = repo(withToken(), FakeApi(config(block = listOf("казино"))))
 
         assertFalse(repository.current().matches("казино онлайн"))
         repository.refresh()
@@ -55,14 +65,41 @@ class DictionaryRepositoryTest {
     }
 
     @Test
+    fun `allow word disables a base stem`() = runTest {
+        val repository = repo(withToken(), FakeApi(config(allow = listOf("оружие"))))
+
+        assertTrue(repository.current().matches("оружие")) // до refresh базовый корень ловит
+        repository.refresh()
+
+        assertFalse(repository.current().matches("оружие"))
+        assertTrue(repository.current().matches("порно")) // остальная база работает
+    }
+
+    @Test
+    fun `strict strictness lowers the image threshold`() = runTest {
+        val repository = repo(withToken(), FakeApi(config(strictness = "strict")))
+
+        repository.refresh()
+
+        assertTrue(repository.imageThreshold() < 0.5f)
+    }
+
+    @Test
+    fun `standard strictness keeps the default threshold`() = runTest {
+        val repository = repo(withToken(), FakeApi(config()))
+        repository.refresh()
+        assertEquals(0.5f, repository.imageThreshold(), 0.0001f)
+    }
+
+    @Test
     fun `refresh without a device token does nothing`() = runTest {
-        val repository = repo(FakeStore(), FakeApi(ApiResult.Ok(listOf("казино"))))
+        val repository = repo(FakeStore(), FakeApi(config(block = listOf("казино"))))
         repository.refresh()
         assertFalse(repository.current().matches("казино"))
     }
 
     @Test
-    fun `loadCached reads parent words from the store`() = runTest {
+    fun `loadCached reads cached words`() = runTest {
         val store = FakeStore().apply { writeString(SecureKeys.PARENT_FILTER_WORDS, "ставки") }
         val repository = repo(store, FakeApi(ApiResult.NoConnection))
 
@@ -73,11 +110,8 @@ class DictionaryRepositoryTest {
 
     @Test
     fun `refresh keeps base words when offline`() = runTest {
-        val store = FakeStore().apply { writeString(SecureKeys.DEVICE_TOKEN, "tok") }
-        val repository = repo(store, FakeApi(ApiResult.NoConnection))
-
+        val repository = repo(withToken(), FakeApi(ApiResult.NoConnection))
         repository.refresh()
-
         assertTrue(repository.current().matches("порно"))
     }
 }
