@@ -146,6 +146,19 @@ class _ChildLocationScreenState extends ConsumerState<ChildLocationScreen> {
                   Polyline(points: latLngs, strokeWidth: 4, color: scheme.primary),
                 ],
               ),
+            // Кружок на каждой записанной точке, чтобы был виден весь маршрут.
+            CircleLayer(
+              circles: [
+                for (final p in latLngs)
+                  CircleMarker(
+                    point: p,
+                    radius: 5,
+                    color: scheme.primary,
+                    borderColor: scheme.onPrimary,
+                    borderStrokeWidth: 1.5,
+                  ),
+              ],
+            ),
             MarkerLayer(
               markers: [
                 Marker(
