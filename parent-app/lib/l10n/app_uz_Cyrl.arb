@@ -47,6 +47,7 @@
   "addChildCodeTitle": "Боғлаш коди",
   "addChildCodeExpires": "{time} гача амал қилади",
   "addChildCodeHint": "Ушбу кодни боланинг телефонидаги MaxCare Kids иловасига киритинг.",
+  "addChildLimit": "Кўпи билан 3 та бола қўшиш мумкин.",
 
   "deviceLastSeen": "Алоқада: {time}",
   "deviceNeverSeen": "Ҳали уланмаган",

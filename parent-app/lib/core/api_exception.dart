@@ -16,6 +16,7 @@ enum ApiErrorKind {
   emailTaken,
   invalidRequest,
   invalidCode,
+  childLimit,
   notFound,
   tooManyRequests,
   server,

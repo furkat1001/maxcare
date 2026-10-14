@@ -69,6 +69,7 @@ void main() {
       'invalid_credentials': ApiErrorKind.unauthorized,
       'rate_limited': ApiErrorKind.tooManyRequests,
       'invalid_code': ApiErrorKind.invalidCode,
+      'child_limit': ApiErrorKind.childLimit,
     };
     for (final entry in cases.entries) {
       final client = _client(_StubAdapter(400, {'error': entry.key}));

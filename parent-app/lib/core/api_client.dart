@@ -95,6 +95,8 @@ class ApiClient {
         return ApiErrorKind.unauthorized;
       case 'invalid_code':
         return ApiErrorKind.invalidCode;
+      case 'child_limit':
+        return ApiErrorKind.childLimit;
       case 'not_found':
         return ApiErrorKind.notFound;
       case 'rate_limited':

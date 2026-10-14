@@ -47,6 +47,7 @@
   "addChildCodeTitle": "Bog‘lash kodi",
   "addChildCodeExpires": "{time} gacha amal qiladi",
   "addChildCodeHint": "Ushbu kodni bolaning telefonidagi MaxCare Kids ilovasiga kiriting.",
+  "addChildLimit": "Ko‘pi bilan 3 ta bola qo‘shish mumkin.",
 
   "deviceLastSeen": "Aloqada: {time}",
   "deviceNeverSeen": "Hali ulanmagan",

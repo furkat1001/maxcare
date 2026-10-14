@@ -50,6 +50,7 @@
     "placeholders": { "time": { "type": "String" } }
   },
   "addChildCodeHint": "Enter this code in MaxCare Kids on the child's phone.",
+  "addChildLimit": "You can add up to 3 children.",
 
   "deviceLastSeen": "Last seen: {time}",
   "@deviceLastSeen": {

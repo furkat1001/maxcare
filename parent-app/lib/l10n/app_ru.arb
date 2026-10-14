@@ -47,6 +47,7 @@
   "addChildCodeTitle": "Код привязки",
   "addChildCodeExpires": "Действует до {time}",
   "addChildCodeHint": "Введите этот код в MaxCare Kids на телефоне ребёнка.",
+  "addChildLimit": "Можно добавить не больше 3 детей.",
 
   "deviceLastSeen": "На связи: {time}",
   "deviceNeverSeen": "Ещё не подключён",
