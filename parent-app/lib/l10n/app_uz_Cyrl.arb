@@ -77,6 +77,9 @@
   "locationNone": "Жойлашув ҳали юборилмаган.",
   "locationUpdated": "Янгиланди {time}",
   "locationAccuracy": "Аниқлик ±{meters} м",
-  "locationTrackToday": "Бугунги маршрут",
+  "locationTrackPoints": "{count, plural, one{{count} нуқта} other{{count} нуқта}}",
+  "locationDayToday": "Бугун",
+  "locationDayYesterday": "Кеча",
+  "locationDayEmpty": "Бу кун учун маршрут йўқ.",
   "locationAttribution": "© OpenStreetMap"
 }

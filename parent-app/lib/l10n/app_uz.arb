@@ -77,6 +77,9 @@
   "locationNone": "Joylashuv hali yuborilmagan.",
   "locationUpdated": "Yangilandi {time}",
   "locationAccuracy": "Aniqlik ±{meters} m",
-  "locationTrackToday": "Bugungi marshrut",
+  "locationTrackPoints": "{count, plural, one{{count} nuqta} other{{count} nuqta}}",
+  "locationDayToday": "Bugun",
+  "locationDayYesterday": "Kecha",
+  "locationDayEmpty": "Bu kun uchun marshrut yo‘q.",
   "locationAttribution": "© OpenStreetMap"
 }

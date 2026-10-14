@@ -59,11 +59,20 @@ final locationRepositoryProvider = Provider<LocationRepository>(
   (ref) => LocationRepository(ref.watch(apiClientProvider)),
 );
 
-/// Трек устройства за последние сутки (для карты «где был ребёнок»).
+/// Трек устройства за последние 3 календарных дня (для карты «где был ребёнок»).
+/// Берём с локальной полуночи позавчера, чтобы попали сегодня, вчера и позавчера.
 final deviceTrackProvider =
     FutureProvider.autoDispose.family<List<DeviceLocation>, String>(
-  (ref, deviceId) => ref.watch(locationRepositoryProvider).history(deviceId),
+  (ref, deviceId) {
+    final now = DateTime.now();
+    final since = DateTime(now.year, now.month, now.day)
+        .subtract(const Duration(days: trackDays - 1));
+    return ref.watch(locationRepositoryProvider).history(deviceId, since: since);
+  },
 );
+
+/// Сколько календарных дней трека показываем на карте.
+const int trackDays = 3;
 
 /// Состояние сессии: null — ещё проверяем, true/false — вошли/нет.
 class SessionController extends StateNotifier<bool?> {

@@ -110,6 +110,12 @@
   "@locationAccuracy": {
     "placeholders": { "meters": { "type": "int" } }
   },
-  "locationTrackToday": "Today's route",
+  "locationTrackPoints": "{count, plural, one{{count} point} other{{count} points}}",
+  "@locationTrackPoints": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "locationDayToday": "Today",
+  "locationDayYesterday": "Yesterday",
+  "locationDayEmpty": "No route for this day.",
   "locationAttribution": "© OpenStreetMap"
 }
