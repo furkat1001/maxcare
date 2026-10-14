@@ -34,6 +34,11 @@
   "filterWordsRemove": "Remove",
   "filterWordsEmpty": "No words added yet. The built-in list still applies.",
   "filterWordsLimit": "The list is full. Remove a word to add a new one.",
+  "filterWordsBlockTab": "Blocked",
+  "filterWordsAllowTab": "Allowed",
+  "filterWordsAllowBody": "Allowed words are never blocked, even if they contain a word from the built-in list.",
+  "filterStrictTitle": "Strict image filtering",
+  "filterStrictBody": "Blocks more images, with more false alarms.",
 
   "addChildTitle": "Add child",
   "addChildBody": "Enter a name, get a code, and type it in MaxCare Kids on the child's phone within 10 minutes.",

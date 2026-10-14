@@ -5,8 +5,9 @@ import '../core/api_exception.dart';
 import '../core/error_text.dart';
 import '../core/providers.dart';
 import '../l10n/app_localizations.dart';
+import 'filter_words_repository.dart';
 
-/// Экран своих стоп-слов родителя: список + добавление + удаление.
+/// Экран настройки фильтра: строгость, стоп-слова и разрешённые слова.
 class FilterWordsScreen extends ConsumerStatefulWidget {
   const FilterWordsScreen({super.key});
 
@@ -16,6 +17,7 @@ class FilterWordsScreen extends ConsumerStatefulWidget {
 
 class _FilterWordsScreenState extends ConsumerState<FilterWordsScreen> {
   final _word = TextEditingController();
+  WordKind _kind = WordKind.block;
   bool _busy = false;
   String? _error;
 
@@ -34,9 +36,9 @@ class _FilterWordsScreenState extends ConsumerState<FilterWordsScreen> {
       _error = null;
     });
     try {
-      await ref.read(filterWordsRepositoryProvider).add(word);
+      await ref.read(filterWordsRepositoryProvider).add(word, _kind);
       _word.clear();
-      ref.invalidate(filterWordsProvider);
+      ref.invalidate(filterWordsProvider(_kind));
     } on ApiException catch (e) {
       if (mounted) {
         setState(() => _error = e.code == 'limit_reached' ? t.filterWordsLimit : errorText(t, e));
@@ -48,29 +50,57 @@ class _FilterWordsScreenState extends ConsumerState<FilterWordsScreen> {
 
   Future<void> _remove(String word) async {
     try {
-      await ref.read(filterWordsRepositoryProvider).remove(word);
-      ref.invalidate(filterWordsProvider);
+      await ref.read(filterWordsRepositoryProvider).remove(word, _kind);
+      ref.invalidate(filterWordsProvider(_kind));
     } on ApiException catch (e) {
       if (mounted) setState(() => _error = errorText(AppLocalizations.of(context), e));
     }
   }
 
+  Future<void> _setStrict(bool strict) async {
+    final value = strict ? 'strict' : 'standard';
+    await ref.read(filterWordsRepositoryProvider).setStrictness(value);
+    ref.invalidate(strictnessProvider);
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final words = ref.watch(filterWordsProvider);
+    final words = ref.watch(filterWordsProvider(_kind));
+    final strictness = ref.watch(strictnessProvider);
     return Scaffold(
       appBar: AppBar(title: Text(t.filterWordsTitle)),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            SwitchListTile(
+              title: Text(t.filterStrictTitle),
+              subtitle: Text(t.filterStrictBody),
+              value: strictness.valueOrNull == 'strict',
+              onChanged: strictness.hasValue ? (v) => _setStrict(v) : null,
+            ),
+            const Divider(height: 1),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: SegmentedButton<WordKind>(
+                segments: [
+                  ButtonSegment(value: WordKind.block, label: Text(t.filterWordsBlockTab)),
+                  ButtonSegment(value: WordKind.allow, label: Text(t.filterWordsAllowTab)),
+                ],
+                selected: {_kind},
+                onSelectionChanged: (s) => setState(() {
+                  _kind = s.first;
+                  _error = null;
+                }),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(t.filterWordsBody),
+                  Text(_kind == WordKind.block ? t.filterWordsBody : t.filterWordsAllowBody),
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -102,6 +132,7 @@ class _FilterWordsScreenState extends ConsumerState<FilterWordsScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 8),
             const Divider(height: 1),
             Expanded(
               child: words.when(

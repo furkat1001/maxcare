@@ -52,18 +52,23 @@ void main() {
   test('list parses the words array', () async {
     final words = await _repo({
       'words': ['казино', 'ставки'],
-    }).list();
+    }).list(WordKind.block);
 
     expect(words, ['казино', 'ставки']);
   });
 
   test('missing words field yields an empty list', () async {
-    expect(await _repo(<String, dynamic>{}).list(), isEmpty);
+    expect(await _repo(<String, dynamic>{}).list(WordKind.allow), isEmpty);
   });
 
-  test('add and remove complete without error', () async {
+  test('strictness parses the value', () async {
+    expect(await _repo({'strictness': 'strict'}).strictness(), 'strict');
+  });
+
+  test('add, remove and setStrictness complete without error', () async {
     final repo = _repo(<String, dynamic>{});
-    await repo.add('казино');
-    await repo.remove('казино');
+    await repo.add('казино', WordKind.block);
+    await repo.remove('оружие', WordKind.allow);
+    await repo.setStrictness('strict');
   });
 }

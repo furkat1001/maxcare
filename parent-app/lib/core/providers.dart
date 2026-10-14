@@ -33,9 +33,15 @@ final filterWordsRepositoryProvider = Provider<FilterWordsRepository>(
   (ref) => FilterWordsRepository(ref.watch(apiClientProvider)),
 );
 
-/// Свои стоп-слова семьи; обновляется после добавления/удаления.
-final filterWordsProvider = FutureProvider.autoDispose<List<String>>(
-  (ref) => ref.watch(filterWordsRepositoryProvider).list(),
+/// Слова семьи по виду (block/allow); обновляется после добавления/удаления.
+final filterWordsProvider =
+    FutureProvider.autoDispose.family<List<String>, WordKind>(
+  (ref, kind) => ref.watch(filterWordsRepositoryProvider).list(kind),
+);
+
+/// Уровень строгости семьи.
+final strictnessProvider = FutureProvider.autoDispose<String>(
+  (ref) => ref.watch(filterWordsRepositoryProvider).strictness(),
 );
 
 /// Список телефонов детей. Обновляется pull-to-refresh и после привязки.

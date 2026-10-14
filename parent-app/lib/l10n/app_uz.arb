@@ -34,6 +34,11 @@
   "filterWordsRemove": "O‘chirish",
   "filterWordsEmpty": "Hali o‘z so‘zlaringiz yo‘q. O‘rnatilgan ro‘yxat ishlashda davom etadi.",
   "filterWordsLimit": "Ro‘yxat to‘lgan. Yangi so‘z qo‘shish uchun bittasini o‘chiring.",
+  "filterWordsBlockTab": "Stop-so‘zlar",
+  "filterWordsAllowTab": "Ruxsat etilgan",
+  "filterWordsAllowBody": "Ruxsat etilgan so‘zlar, hatto o‘rnatilgan ro‘yxatdagi so‘zni o‘z ichiga olsa ham, bloklanmaydi.",
+  "filterStrictTitle": "Qat’iy rasm filtri",
+  "filterStrictBody": "Ko‘proq rasmni bloklaydi, lekin noto‘g‘ri ishga tushishlar ko‘payadi.",
 
   "addChildTitle": "Bola qo‘shish",
   "addChildBody": "Ism kiriting, kodni oling va uni 10 daqiqa ichida bolaning telefonidagi MaxCare Kids ilovasiga kiriting.",
