@@ -89,5 +89,13 @@
   "locationDayToday": "Бугун",
   "locationDayYesterday": "Кеча",
   "locationDayEmpty": "Бу кун учун маршрут йўқ.",
-  "locationAttribution": "© OpenStreetMap"
+  "locationAttribution": "© OpenStreetMap",
+  "reportUsage": "Иловалардаги вақт",
+  "reportUsageSubtitle": "Ҳар бир иловада неча дақиқа",
+  "usageTotal": "Кун бўйи жами: {time}",
+  "usageUpdated": "{time} да янгиланди",
+  "usageDayEmpty": "Бу кун учун маълумот йўқ. Агар шундай қолса, бола телефонида фойдаланиш тарихига рухсат ёқилганини текширинг.",
+  "usageDayUnused": "Бу куни телефондан фойдаланилмаган.",
+  "usageHoursMinutes": "{hours} соат {minutes} дақ",
+  "usageMinutes": "{minutes} дақ"
 }

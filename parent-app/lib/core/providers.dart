@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../children/app_usage_repository.dart';
 import '../auth/auth_repository.dart';
 import '../children/device_repository.dart';
 import '../children/filter_words_repository.dart';
@@ -73,6 +74,21 @@ final deviceTrackProvider =
 
 /// Сколько календарных дней трека показываем на карте.
 const int trackDays = 3;
+
+final appUsageRepositoryProvider = Provider<AppUsageRepository>(
+  (ref) => AppUsageRepository(ref.watch(apiClientProvider)),
+);
+
+/// Запрос времени в приложениях: устройство и день в виде `2026-10-15`.
+typedef AppUsageRequest = ({String deviceId, String date});
+
+/// Время в приложениях за один день.
+final appUsageProvider =
+    FutureProvider.autoDispose.family<DayAppUsage, AppUsageRequest>(
+  (ref, request) => ref
+      .watch(appUsageRepositoryProvider)
+      .day(request.deviceId, DateTime.parse(request.date)),
+);
 
 /// Состояние сессии: null — ещё проверяем, true/false — вошли/нет.
 class SessionController extends StateNotifier<bool?> {

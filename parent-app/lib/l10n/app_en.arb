@@ -125,5 +125,25 @@
   "locationDayToday": "Today",
   "locationDayYesterday": "Yesterday",
   "locationDayEmpty": "No route for this day.",
-  "locationAttribution": "© OpenStreetMap"
+  "locationAttribution": "© OpenStreetMap",
+  "reportUsage": "App usage time",
+  "reportUsageSubtitle": "Minutes in each app",
+  "usageTotal": "Total for the day: {time}",
+  "@usageTotal": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "usageUpdated": "Updated at {time}",
+  "@usageUpdated": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "usageDayEmpty": "No data for this day. If it stays empty, check that usage access is turned on on your child’s phone.",
+  "usageDayUnused": "The phone was not used this day.",
+  "usageHoursMinutes": "{hours} h {minutes} min",
+  "@usageHoursMinutes": {
+    "placeholders": { "hours": { "type": "int" }, "minutes": { "type": "int" } }
+  },
+  "usageMinutes": "{minutes} min",
+  "@usageMinutes": {
+    "placeholders": { "minutes": { "type": "int" } }
+  }
 }
