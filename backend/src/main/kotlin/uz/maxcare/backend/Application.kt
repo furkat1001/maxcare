@@ -30,6 +30,8 @@ import uz.maxcare.backend.parents.parentRoutes
 import uz.maxcare.backend.ratelimit.RedisRateLimiter
 import uz.maxcare.backend.security.Argon2Hasher
 import uz.maxcare.backend.security.SecretBox
+import uz.maxcare.backend.usage.AppUsageService
+import uz.maxcare.backend.usage.appUsageRoutes
 
 fun main() {
     val config = AppConfig.fromEnv(System.getenv())
@@ -43,6 +45,7 @@ fun main() {
         devices = DeviceService(db, SecretBox(config.secretKey), clock),
         events = EventService(db, clock),
         locations = LocationService(db, clock),
+        appUsage = AppUsageService(db, clock),
         rateLimiter = RedisRateLimiter(redis)
     )
 
@@ -75,5 +78,6 @@ fun Application.maxcareModule(services: Services) {
         deviceRoutes(services.devices, services.rateLimiter)
         eventRoutes(services.events, services.rateLimiter)
         locationRoutes(services.locations, services.rateLimiter)
+        appUsageRoutes(services.appUsage, services.rateLimiter)
     }
 }
