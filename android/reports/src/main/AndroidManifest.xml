@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+        Время в приложениях для отчёта родителю. Особый доступ: включается вручную в настройках
+        («Доступ к истории использования») на шаге мастера с раскрытием. Только «какое приложение
+        и сколько минут» — без содержимого (CLAUDE.md).
+    -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!--
+        Названия приложений для отчёта: видимость только запускаемых приложений и лаунчера
+        (Android 11+), без QUERY_ALL_PACKAGES — его Google Play разрешает лишь в особых случаях.
+    -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.HOME" />
+        </intent>
+    </queries>
+
+</manifest>

@@ -19,7 +19,19 @@ interface MaxCareApi {
         deviceToken: String,
         locations: List<OutgoingLocation>
     ): ApiResult<Unit>
+
+    /**
+     * Отправить время в приложениях по дням. Каждый присланный день сервер заменяет целиком,
+     * поэтому повторная отправка безопасна.
+     */
+    suspend fun uploadAppUsage(deviceToken: String, days: List<OutgoingDayUsage>): ApiResult<Unit>
 }
+
+/** @param date календарный день по местному времени телефона, `2026-10-15`. */
+class OutgoingDayUsage(val date: String, val apps: List<OutgoingAppUsage>)
+
+/** Сколько миллисекунд приложение было на экране за день. */
+class OutgoingAppUsage(val packageName: String, val label: String, val foregroundMs: Long)
 
 /** @param recordedAt время фикса по часам телефона в формате ISO-8601. */
 class OutgoingLocation(

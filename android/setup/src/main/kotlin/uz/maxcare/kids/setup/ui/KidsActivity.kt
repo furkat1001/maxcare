@@ -52,6 +52,27 @@ class KidsActivity : ComponentActivity() {
 @Composable
 private fun KidsApp(viewModel: KidsViewModel) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val system = rememberSystemActions(viewModel)
+
+    when (val screen = state.screen) {
+        KidsScreen.Loading -> ScreenLayout(title = "", body = "", state = state.copy(busy = true)) {
+        }
+
+        is KidsScreen.Setup -> SetupStepScreen(screen, state, viewModel, system)
+
+        is KidsScreen.Home -> HomeScreen(screen, state, viewModel)
+
+        KidsScreen.DisableProtection -> DisableProtectionScreen(state, viewModel)
+
+        KidsScreen.RecoverPassword -> RecoverPasswordScreen(state, viewModel)
+
+        KidsScreen.Disabled -> DisabledScreen(state)
+    }
+}
+
+/** Системные диалоги и экраны настроек для шагов мастера; результат возвращается во ViewModel. */
+@Composable
+private fun rememberSystemActions(viewModel: KidsViewModel): SystemActions {
     val packageName = LocalContext.current.packageName
     val adminLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -71,12 +92,16 @@ private fun KidsApp(viewModel: KidsViewModel) {
     ) {
         viewModel.onLocationPermissionResult()
     }
+    val usageAccessLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            viewModel.onUsageAccessResult()
+        }
     val context = LocalContext.current
     val settingsLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             viewModel.refresh()
         }
-    val system = SystemActions(
+    return SystemActions(
         activateDeviceAdmin = { adminLauncher.launch(viewModel.deviceAdminIntent()) },
         enableWebFilter = {
             val intent = viewModel.webFilterIntent()
@@ -94,23 +119,11 @@ private fun KidsApp(viewModel: KidsViewModel) {
             settingsLauncher.launch(notificationSettingsIntent(packageName))
         },
         requestLocation = { requestLocation(context, locationLauncher::launch) },
+        openUsageAccessSettings = {
+            usageAccessLauncher.launch(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+        },
         openAppSettings = { settingsLauncher.launch(appSettingsIntent(packageName)) }
     )
-
-    when (val screen = state.screen) {
-        KidsScreen.Loading -> ScreenLayout(title = "", body = "", state = state.copy(busy = true)) {
-        }
-
-        is KidsScreen.Setup -> SetupStepScreen(screen, state, viewModel, system)
-
-        is KidsScreen.Home -> HomeScreen(screen, state, viewModel)
-
-        KidsScreen.DisableProtection -> DisableProtectionScreen(state, viewModel)
-
-        KidsScreen.RecoverPassword -> RecoverPasswordScreen(state, viewModel)
-
-        KidsScreen.Disabled -> DisabledScreen(state)
-    }
 }
 
 /**

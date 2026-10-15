@@ -8,6 +8,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import uz.maxcare.kids.core.usage.hasUsageAccess
 
 /** То, что ViewModel узнаёт у системы; интерфейс — для тестов без Android. */
 internal interface SetupEnvironment {
@@ -18,6 +19,9 @@ internal interface SetupEnvironment {
      * ещё и фоновое («Разрешить всегда»). До Android 10 отдельного фонового разрешения нет.
      */
     fun locationAllowed(): Boolean
+
+    /** Выдан «Доступ к истории использования» — для времени в приложениях в отчёте родителю. */
+    fun usageAccessAllowed(): Boolean
 
     /** Прошивка закрывает фоновые приложения: родителю нужна подсказка про автозапуск. */
     fun needsBackgroundHint(): Boolean
@@ -38,6 +42,8 @@ internal class AndroidSetupEnvironment @Inject constructor(
             foreground
         }
     }
+
+    override fun usageAccessAllowed(): Boolean = context.hasUsageAccess()
 
     private fun granted(permission: String) =
         ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED

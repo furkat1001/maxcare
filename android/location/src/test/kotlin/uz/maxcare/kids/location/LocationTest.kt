@@ -222,4 +222,9 @@ private class FakeApi : MaxCareApi {
         locationBatches += locations
         return result
     }
+
+    override suspend fun uploadAppUsage(
+        deviceToken: String,
+        days: List<uz.maxcare.kids.core.network.OutgoingDayUsage>
+    ): ApiResult<Unit> = error("Not used")
 }

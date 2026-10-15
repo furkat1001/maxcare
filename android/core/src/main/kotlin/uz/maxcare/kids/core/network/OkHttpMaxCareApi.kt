@@ -57,6 +57,22 @@ internal class OkHttpMaxCareApi(
         bearerToken = deviceToken
     ) { _: LocationBatchResponse -> }
 
+    override suspend fun uploadAppUsage(
+        deviceToken: String,
+        days: List<OutgoingDayUsage>
+    ): ApiResult<Unit> = post(
+        "v1/device/app-usage",
+        AppUsageRequest(
+            days.map { day ->
+                DayUsageDto(
+                    day.date,
+                    day.apps.map { AppUsageDto(it.packageName, it.label, it.foregroundMs) }
+                )
+            }
+        ),
+        bearerToken = deviceToken
+    ) { _: AppUsageResponse -> }
+
     private suspend inline fun <reified Req, reified Res, T> post(
         path: String,
         request: Req,
@@ -132,6 +148,22 @@ internal class OkHttpMaxCareApi(
 
     @Serializable
     private data class LocationBatchResponse(val accepted: Int)
+
+    @Serializable
+    private data class AppUsageDto(
+        val packageName: String,
+        val label: String,
+        val foregroundMs: Long
+    )
+
+    @Serializable
+    private data class DayUsageDto(val date: String, val apps: List<AppUsageDto>)
+
+    @Serializable
+    private data class AppUsageRequest(val days: List<DayUsageDto>)
+
+    @Serializable
+    private data class AppUsageResponse(val accepted: Int)
 
     private companion object {
         const val PLATFORM = "android"

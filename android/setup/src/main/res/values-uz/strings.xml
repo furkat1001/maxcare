@@ -5,7 +5,7 @@
     <string name="back">Orqaga</string>
 
     <string name="disclosure_title">Boshlashdan oldin</string>
-    <string name="disclosure_body">MaxCare Kids — ota-ona nazorati. Uni ota-ona o‘rnatadi, bola esa ilova ishlayotganini doim ko‘rib turadi.\n\nIlova hozir nima qiladi:\n• ilovada himoyani faqat ota-ona paroli bilan o‘chirish mumkin;\n• himoya yoqilgani haqida doimiy bildirishnoma ko‘rsatadi;\n• telefonni ota-onaning hisobiga bog‘laydi. MaxCare serveriga telefon nomi va modeli yuboriladi;\n• MaxCare serveriga himoya hodisalarini yuboradi: administratorning o‘chirilishi, ota-ona parolining bloklanishi yoki tiklanishi, bildirishnomalarning o‘chirilishi, telefonning yoqilishi va o‘chirilishi, bloklangan saytlar manzili bilan — faqat nima va qachon sodir bo‘lgani;\n• saytlarni filtrlaydi: sayt nomlarini (sahifalar tarkibini emas) shifrlangan holda Cloudflare for Families oilaviy DNS xizmati tekshiradi.\n\nIlova yashirinmaydi, yozishmalarni o‘qimaydi, rasmlar va ekran tarkibini yubormaydi.\n\nFaqat bolaning ota-onasi yoki vasiysi bo‘lsangiz, davom eting.</string>
+    <string name="disclosure_body">MaxCare Kids — ota-ona nazorati. Uni ota-ona o‘rnatadi, bola esa ilova ishlayotganini doim ko‘rib turadi.\n\nIlova hozir nima qiladi:\n• ilovada himoyani faqat ota-ona paroli bilan o‘chirish mumkin;\n• himoya yoqilgani haqida doimiy bildirishnoma ko‘rsatadi;\n• telefonni ota-onaning hisobiga bog‘laydi. MaxCare serveriga telefon nomi va modeli yuboriladi;\n• MaxCare serveriga himoya hodisalarini yuboradi: administratorning o‘chirilishi, ota-ona parolining bloklanishi yoki tiklanishi, bildirishnomalarning o‘chirilishi, telefonning yoqilishi va o‘chirilishi, bloklangan saytlar manzili bilan — faqat nima va qachon sodir bo‘lgani;\n• MaxCare serveriga har bir ilova kun davomida ekranda qancha vaqt bo‘lganini yuboradi — faqat ilova nomi va daqiqalar, unda nima qilingani emas;\n• saytlarni filtrlaydi: sayt nomlarini (sahifalar tarkibini emas) shifrlangan holda Cloudflare for Families oilaviy DNS xizmati tekshiradi.\n\nIlova yashirinmaydi, yozishmalarni o‘qimaydi, rasmlar va ekran tarkibini yubormaydi.\n\nFaqat bolaning ota-onasi yoki vasiysi bo‘lsangiz, davom eting.</string>
     <string name="disclosure_accept">Men ota-onaman, davom etish</string>
 
     <string name="pairing_title">Ota-ona bilan bog‘lanish</string>
@@ -30,6 +30,9 @@
     <string name="location_title">Joylashuv</string>
     <string name="location_body">MaxCare Kids bu telefon joylashuvini sizga yuboradi — vaqti-vaqti bilan va fonda, ilova yopiq bo‘lsa ham, — shunda siz bola qayerdaligini ko‘rasiz. “Joylashuvga ruxsat”ni bosing, so‘ng “Doimo ruxsat berish”ni tanlang.</string>
     <string name="location_allow">Joylashuvga ruxsat</string>
+    <string name="usage_title">Ilovalardagi vaqt</string>
+    <string name="usage_body">MaxCare Kids sizga har bir ilova kun davomida bu telefon ekranida qancha vaqt bo‘lganini yuboradi — har 15 daqiqada, fonda. Faqat ilova nomi va daqiqalar yuboriladi: bola ichida nimani ko‘rgani, yozgani yoki qidirgani yuborilmaydi. “Ruxsatni ochish”ni bosing, ro‘yxatdan MaxCare Kids’ni toping va foydalanish tarixiga ruxsatni yoqing.</string>
+    <string name="usage_allow">Ruxsatni ochish</string>
 
     <string name="background_title">Fonda ishlash</string>
     <string name="background_body">Bu telefonda tizim MaxCare Kids ilovasini fonda to‘xtatib qo‘yishi mumkin. Ilova sozlamalarida avtoishga tushirishga ruxsat bering va MaxCare Kids uchun batareya cheklovlarini o‘chiring.</string>
