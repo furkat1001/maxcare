@@ -26,6 +26,12 @@ hashish
 casino
 kazino
 букмекер
+# Только фразы: корень «ставк» ловил бы «доставка», «заставка», «dostavka».
+ставки на спорт
+ставка на спорт
+stavki na sport
+stavka na sport
+sport stavka
 # Оружие
 оружие
 1xbet

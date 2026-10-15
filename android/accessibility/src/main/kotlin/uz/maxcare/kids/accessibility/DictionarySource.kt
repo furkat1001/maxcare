@@ -13,9 +13,10 @@ object DictionarySource {
 
     /** Сырые строки словаря; комментарии (`#`) и пустые строки отброшены. Нормализация — в [ForbiddenWords]. */
     fun loadStems(context: Context): List<String> =
-        context.assets.open(ASSET).bufferedReader().useLines { lines ->
-            lines.map { it.substringBefore('#').trim() }
-                .filter { it.isNotEmpty() }
-                .toList()
-        }
+        context.assets.open(ASSET).bufferedReader().useLines(::parse)
+
+    /** Разбор строк словаря — отдельно от Android, чтобы тесты проверяли настоящий файл. */
+    fun parse(lines: Sequence<String>): List<String> = lines.map { it.substringBefore('#').trim() }
+        .filter { it.isNotEmpty() }
+        .toList()
 }
