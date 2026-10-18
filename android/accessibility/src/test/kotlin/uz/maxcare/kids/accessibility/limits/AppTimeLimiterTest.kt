@@ -135,6 +135,19 @@ class AppTimeLimiterTest {
     }
 
     @Test
+    fun `warnings come again after the parent gives more time`() {
+        val limiter = limiter(video(session = 2, pause = 1))
+        val early = limiter.verdicts(VIDEO_A, 1).filterIsInstance<LimitVerdict.Warn>()
+        assertEquals(listOf(LimitVerdict.Warn(2), LimitVerdict.Warn(1)), early)
+
+        // Найдено на телефоне: правило сменили на 10 минут, а «осталось 2/1 мин» не пришло.
+        limiter.config = AppLimitsConfig(listOf(video(session = 10, pause = 5)))
+        val later = limiter.verdicts(VIDEO_A, 9).filterIsInstance<LimitVerdict.Warn>()
+
+        assertEquals(listOf(LimitVerdict.Warn(2), LimitVerdict.Warn(1)), later)
+    }
+
+    @Test
     fun `exempt and always-allowed apps are never blocked`() {
         val limiter = limiter(
             video(daily = 1),

@@ -72,6 +72,12 @@ internal fun BucketState.extend(rule: AppLimitRule, t: Long) {
 }
 
 private fun BucketState.warning(remainingMs: Long?): LimitVerdict {
+    // Времени снова больше порога (родитель ослабил правило) — предупредить заново, когда дойдёт.
+    if (remainingMs != null &&
+        warnedAt?.let { remainingMs > it * MINUTE_MS } == true
+    ) {
+        warnedAt = null
+    }
     val threshold = remainingMs?.let { left -> WARN_AT_MIN.lastOrNull { left <= it * MINUTE_MS } }
     if (threshold == null || warnedAt?.let { it <= threshold } == true) return LimitVerdict.Free
     warnedAt = threshold
