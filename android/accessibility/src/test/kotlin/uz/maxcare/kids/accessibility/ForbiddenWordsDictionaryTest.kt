@@ -29,4 +29,20 @@ class ForbiddenWordsDictionaryTest {
         assertFalse(words.matches("поставки товаров"))
         assertFalse(words.matches("dostavka bepul"))
     }
+
+    @Test
+    fun `every stem stays at least three letters after normalization`() {
+        val stems = File(
+            "src/main/assets/forbidden_words.txt"
+        ).useLines(block = DictionarySource::parse)
+        val short = stems.filter { TextNormalizer.normalize(it).length < 3 }
+        assertTrue("слишком короткие корни: $short", short.isEmpty())
+    }
+
+    @Test
+    fun `everyday text with x is not blocked`() {
+        assertFalse(words.matches("usage-test@example.test"))
+        assertFalse(words.matches("Xiaomi Redmi"))
+        assertFalse(words.matches("экскурсия в музей"))
+    }
 }
