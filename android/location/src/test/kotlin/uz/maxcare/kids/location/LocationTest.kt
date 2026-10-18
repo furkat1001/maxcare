@@ -227,4 +227,6 @@ private class FakeApi : MaxCareApi {
         deviceToken: String,
         days: List<uz.maxcare.kids.core.network.OutgoingDayUsage>
     ): ApiResult<Unit> = error("Not used")
+
+    override suspend fun fetchFilterConfig(deviceToken: String) = error("Not used")
 }

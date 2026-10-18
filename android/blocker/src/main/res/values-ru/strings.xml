@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="blocker_title">Заблокировано MaxCare</string>
+    <string name="blocker_message">Это не подходит детям. Если это ошибка, обратись к родителю.</string>
+    <string name="blocker_open_app">Открыть MaxCare Kids</string>
+</resources>

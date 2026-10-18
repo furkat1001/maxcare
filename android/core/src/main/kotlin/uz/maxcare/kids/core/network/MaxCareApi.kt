@@ -25,6 +25,9 @@ interface MaxCareApi {
      * поэтому повторная отправка безопасна.
      */
     suspend fun uploadAppUsage(deviceToken: String, days: List<OutgoingDayUsage>): ApiResult<Unit>
+
+    /** Настройка фильтра семьи: свои стоп-слова, разрешённые слова и уровень строгости. */
+    suspend fun fetchFilterConfig(deviceToken: String): ApiResult<FilterConfig>
 }
 
 /** @param date календарный день по местному времени телефона, `2026-10-15`. */
@@ -40,6 +43,17 @@ class OutgoingLocation(
     val longitude: Double,
     val accuracyMeters: Double?,
     val recordedAt: String
+)
+
+/**
+ * @param block свои стоп-слова родителя (добавляются к базовому словарю).
+ * @param allow разрешённые слова (убирают соответствующий корень из словаря).
+ * @param strictness `standard` или `strict` (strict — ниже порог анализа картинок).
+ */
+class FilterConfig(
+    val block: List<String>,
+    val allow: List<String>,
+    val strictness: String
 )
 
 /** @param occurredAt время по часам телефона в формате ISO-8601. */
