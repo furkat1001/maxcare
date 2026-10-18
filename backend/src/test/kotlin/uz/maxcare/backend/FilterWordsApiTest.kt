@@ -72,7 +72,10 @@ class FilterWordsApiTest : ApiTestBase() {
     @Test
     fun `strictness defaults to standard and can be set to strict`() = apiTest { client ->
         val parent = client.registerAndLogin()
-        assertEquals("standard", client.getJson("/v1/settings", parent).body<SettingsResponse>().strictness)
+        assertEquals(
+            "standard",
+            client.getJson("/v1/settings", parent).body<SettingsResponse>().strictness
+        )
 
         assertEquals("strict", client.setStrict(parent))
     }
@@ -106,7 +109,10 @@ class FilterWordsApiTest : ApiTestBase() {
     fun `delete removes a word of the given kind`() = apiTest { client ->
         val parent = client.registerAndLogin()
         client.addWord("оружие", parent, kind = "allow")
-        assertEquals(HttpStatusCode.NoContent, client.deleteWord("оружие", parent, kind = "allow").status)
+        assertEquals(
+            HttpStatusCode.NoContent,
+            client.deleteWord("оружие", parent, kind = "allow").status
+        )
         assertEquals(emptyList(), client.words(parent, kind = "allow"))
     }
 
