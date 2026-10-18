@@ -27,6 +27,10 @@
     <string name="notifications_body">MaxCare Kids всегда показывает уведомление о том, что защита включена, — так ребёнок знает о ней. Разрешите уведомления, чтобы продолжить.</string>
     <string name="notifications_allow">Разрешить</string>
 
+    <string name="location_title">Местоположение</string>
+    <string name="location_body">MaxCare Kids отправляет вам местоположение этого телефона — периодически и в фоне, даже когда приложение закрыто, — чтобы вы видели, где ребёнок. Нажмите «Разрешить геолокацию», затем выберите «Разрешить всегда».</string>
+    <string name="location_allow">Разрешить геолокацию</string>
+
     <string name="background_title">Работа в фоне</string>
     <string name="background_body">На этом телефоне система может останавливать MaxCare Kids в фоне. В настройках приложения разрешите автозапуск и отключите ограничения батареи для MaxCare Kids.</string>
     <string name="background_done">Готово</string>

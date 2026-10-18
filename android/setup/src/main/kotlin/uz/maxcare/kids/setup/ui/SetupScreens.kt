@@ -54,6 +54,17 @@ internal fun SetupStepScreen(
             turnOff = turnOff
         )
 
+        // Раскрытие о фоновой геолокации (политика Google Play): зачем и как «Разрешить всегда».
+        SetupStep.LOCATION -> ActionStep(
+            R.string.location_title,
+            R.string.location_body,
+            state,
+            caption,
+            R.string.location_allow to system.requestLocation,
+            R.string.open_settings to system.openAppSettings,
+            turnOff = turnOff
+        )
+
         SetupStep.BACKGROUND_WORK -> ActionStep(
             R.string.background_title,
             R.string.background_body,

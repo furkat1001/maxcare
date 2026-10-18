@@ -4,6 +4,12 @@
     <!-- Постоянное уведомление о работе защиты (политика Google Play о мониторинге). -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- Сбор геопозиции ребёнка, пока служба на переднем плане (чаще, чем даёт WorkManager).
+         Сами ACCESS_*_LOCATION объявляет и модуль location; дублируем здесь — их требует тип
+         службы location, и так манифест protection самодостаточен. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Восстановление защиты после перезагрузки. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -26,7 +32,7 @@
         <service
             android:name=".service.ProtectionService"
             android:exported="false"
-            android:foregroundServiceType="specialUse">
+            android:foregroundServiceType="specialUse|location">
             <!-- Обоснование типа specialUse; тот же текст — в декларации Google Play. -->
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"

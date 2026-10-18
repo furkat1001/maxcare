@@ -12,6 +12,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 import uz.maxcare.backend.db.Db
 import uz.maxcare.backend.devices.DeviceService
 import uz.maxcare.backend.events.EventService
+import uz.maxcare.backend.location.LocationService
 import uz.maxcare.backend.parents.ParentService
 import uz.maxcare.backend.ratelimit.RedisRateLimiter
 import uz.maxcare.backend.security.Argon2Hasher
@@ -46,6 +47,7 @@ object TestInfra {
             parents = ParentService(db, Argon2Hasher(memoryKb = 64, iterations = 1), clock),
             devices = DeviceService(db, SecretBox(secretKey), clock),
             events = EventService(db, clock),
+            locations = LocationService(db, clock),
             rateLimiter = RedisRateLimiter(redis)
         )
     }

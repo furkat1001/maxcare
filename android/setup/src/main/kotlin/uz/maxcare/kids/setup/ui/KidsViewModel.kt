@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.maxcare.kids.core.filter.NetworkFilter
+import uz.maxcare.kids.core.location.LocationScheduler
 import uz.maxcare.kids.core.pairing.DevicePairing
 import uz.maxcare.kids.core.pairing.PairingResult
 import uz.maxcare.kids.core.protection.DeviceAdminActivation
@@ -47,6 +48,7 @@ class KidsViewModel @Inject internal constructor(
     private val recovery: PasswordRecovery,
     private val adminActivation: DeviceAdminActivation,
     private val networkFilter: NetworkFilter,
+    private val locationScheduler: LocationScheduler,
     private val store: SecureStore,
     private val environment: SetupEnvironment
 ) : ViewModel() {
@@ -103,6 +105,16 @@ class KidsViewModel @Inject internal constructor(
     fun onNotificationPermissionResult() = launchAction {
         showNextScreen()
         if (currentStep() == SetupStep.NOTIFICATIONS) showMessage(UiMessage.NotificationsDenied)
+    }
+
+    /**
+     * После запроса разрешения на геолокацию. Разрешение двухступенчатое (сначала доступ,
+     * затем «Разрешить всегда»), поэтому сообщение об отказе не показываем — шаг просто остаётся,
+     * пока не выдадут оба; как только выдали — сразу запускаем периодический сбор.
+     */
+    fun onLocationPermissionResult() = launchAction {
+        showNextScreen()
+        if (currentStep() != SetupStep.LOCATION) locationScheduler.schedulePeriodic()
     }
 
     fun confirmBackgroundWork() = launchAction {
@@ -171,6 +183,8 @@ class KidsViewModel @Inject internal constructor(
         !networkFilter.isPermitted() -> SetupStep.WEB_FILTER
 
         !environment.notificationsAllowed() -> SetupStep.NOTIFICATIONS
+
+        !environment.locationAllowed() -> SetupStep.LOCATION
 
         environment.needsBackgroundHint() && !isFlagSet(BACKGROUND_HINT_SHOWN_KEY) ->
             SetupStep.BACKGROUND_WORK

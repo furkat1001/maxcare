@@ -4,6 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -47,6 +48,9 @@ abstract class ApiTestBase {
         setBody(body)
         token?.let { bearerAuth(it) }
     }
+
+    protected suspend fun HttpClient.getJson(path: String, token: String? = null) =
+        get(path) { token?.let { bearerAuth(it) } }
 
     protected suspend fun HttpClient.registerAndLogin(email: String = newEmail()): String {
         val credentials = CredentialsRequest(email, PASSWORD)

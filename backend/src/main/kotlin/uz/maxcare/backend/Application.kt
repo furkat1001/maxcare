@@ -23,6 +23,8 @@ import uz.maxcare.backend.events.DEVICE_AUTH
 import uz.maxcare.backend.events.EventService
 import uz.maxcare.backend.events.eventRoutes
 import uz.maxcare.backend.http.installErrorHandling
+import uz.maxcare.backend.location.LocationService
+import uz.maxcare.backend.location.locationRoutes
 import uz.maxcare.backend.parents.ParentService
 import uz.maxcare.backend.parents.parentRoutes
 import uz.maxcare.backend.ratelimit.RedisRateLimiter
@@ -40,6 +42,7 @@ fun main() {
         parents = ParentService(db, Argon2Hasher(), clock),
         devices = DeviceService(db, SecretBox(config.secretKey), clock),
         events = EventService(db, clock),
+        locations = LocationService(db, clock),
         rateLimiter = RedisRateLimiter(redis)
     )
 
@@ -71,5 +74,6 @@ fun Application.maxcareModule(services: Services) {
         parentRoutes(services.parents, services.rateLimiter)
         deviceRoutes(services.devices, services.rateLimiter)
         eventRoutes(services.events, services.rateLimiter)
+        locationRoutes(services.locations, services.rateLimiter)
     }
 }

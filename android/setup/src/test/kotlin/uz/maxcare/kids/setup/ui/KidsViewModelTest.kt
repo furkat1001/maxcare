@@ -19,6 +19,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import uz.maxcare.kids.core.filter.NetworkFilter
+import uz.maxcare.kids.core.location.LocationScheduler
 import uz.maxcare.kids.core.pairing.DevicePairing
 import uz.maxcare.kids.core.pairing.PairingResult
 import uz.maxcare.kids.core.protection.ChangePasswordResult
@@ -45,6 +46,7 @@ class KidsViewModelTest {
     private val store = FakeStore()
     private val environment = FakeEnvironment()
     private val filter = FakeFilter()
+    private val scheduler = FakeScheduler()
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -60,6 +62,7 @@ class KidsViewModelTest {
         recovery,
         NoAdminActivation,
         filter,
+        scheduler,
         store,
         environment
     ).also { it.refresh() }
@@ -77,14 +80,14 @@ class KidsViewModelTest {
 
     @Test
     fun `fresh install starts with the disclosure`() {
-        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 6), viewModel().screen)
+        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 7), viewModel().screen)
     }
 
     @Test
     fun `background hint adds a step on aggressive firmware`() {
         environment.backgroundHint = true
 
-        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 7), viewModel().screen)
+        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 8), viewModel().screen)
     }
 
     @Test
@@ -92,27 +95,33 @@ class KidsViewModelTest {
         val vm = viewModel()
 
         vm.acceptDisclosure()
-        assertEquals(KidsScreen.Setup(SetupStep.PAIRING, 2, 6), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.PAIRING, 2, 7), vm.screen)
 
         vm.submitPairingCode("12345678")
-        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 6), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 7), vm.screen)
 
         vm.submitNewPassword("secret-1", "secret-1")
-        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 6), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 7), vm.screen)
 
         protection.activeMode = ProtectionMode.DEVICE_ADMIN
         environment.notifications = false
+        environment.location = false
         filter.permitted = false
         vm.onDeviceAdminResult()
-        assertEquals(KidsScreen.Setup(SetupStep.WEB_FILTER, 5, 6, canTurnOff = true), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.WEB_FILTER, 5, 7, canTurnOff = true), vm.screen)
 
         filter.permitted = true
         vm.onWebFilterResult()
-        assertEquals(KidsScreen.Setup(SetupStep.NOTIFICATIONS, 6, 6, canTurnOff = true), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.NOTIFICATIONS, 6, 7, canTurnOff = true), vm.screen)
 
         environment.notifications = true
         vm.onNotificationPermissionResult()
+        assertEquals(KidsScreen.Setup(SetupStep.LOCATION, 7, 7, canTurnOff = true), vm.screen)
+
+        environment.location = true
+        vm.onLocationPermissionResult()
         assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_ADMIN), vm.screen)
+        assertEquals(1, scheduler.scheduled)
     }
 
     @Test
@@ -120,7 +129,7 @@ class KidsViewModelTest {
         store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
         pairing.paired = true
 
-        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 6), viewModel().screen)
+        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 7), viewModel().screen)
     }
 
     @Test
@@ -185,7 +194,7 @@ class KidsViewModelTest {
 
         vm.onDeviceAdminResult()
 
-        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 6), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 7), vm.screen)
         assertEquals(UiMessage.AdminNotActivated, vm.message)
     }
 
@@ -236,6 +245,39 @@ class KidsViewModelTest {
         vm.onNotificationPermissionResult()
 
         assertEquals(UiMessage.NotificationsDenied, vm.message)
+    }
+
+    @Test
+    fun `location permission is asked for before setup finishes`() {
+        environment.location = false
+        val vm = setUpFully()
+
+        val step = vm.screen as KidsScreen.Setup
+        assertEquals(SetupStep.LOCATION, step.step)
+        assertNull(vm.message)
+    }
+
+    @Test
+    fun `granting location starts the periodic collection`() {
+        environment.location = false
+        val vm = setUpFully()
+
+        environment.location = true
+        vm.onLocationPermissionResult()
+
+        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_ADMIN), vm.screen)
+        assertEquals(1, scheduler.scheduled)
+    }
+
+    @Test
+    fun `location step stays and schedules nothing until granted`() {
+        environment.location = false
+        val vm = setUpFully()
+
+        vm.onLocationPermissionResult()
+
+        assertEquals(SetupStep.LOCATION, (vm.screen as KidsScreen.Setup).step)
+        assertEquals(0, scheduler.scheduled)
     }
 
     @Test
@@ -418,10 +460,21 @@ class KidsViewModelTest {
 
     private class FakeEnvironment : SetupEnvironment {
         var notifications = true
+        var location = true
         var backgroundHint = false
 
         override fun notificationsAllowed() = notifications
 
+        override fun locationAllowed() = location
+
         override fun needsBackgroundHint() = backgroundHint
+    }
+
+    private class FakeScheduler : LocationScheduler {
+        var scheduled = 0
+
+        override fun schedulePeriodic() {
+            scheduled++
+        }
     }
 }
