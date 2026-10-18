@@ -6,5 +6,6 @@ internal class SystemActions(
     val enableWebFilter: () -> Unit,
     val requestNotifications: () -> Unit,
     val openNotificationSettings: () -> Unit,
+    val requestLocation: () -> Unit,
     val openAppSettings: () -> Unit
 )

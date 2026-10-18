@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Геолокация ребёнка для родителя. Разрешения сливаются в приложение app-kids.
+  Фоновый сбор (ACCESS_BACKGROUND_LOCATION) — политика Google Play требует раскрытия в
+  онбординге и в политике конфиденциальности; обоснование — родительский контроль.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+</manifest>

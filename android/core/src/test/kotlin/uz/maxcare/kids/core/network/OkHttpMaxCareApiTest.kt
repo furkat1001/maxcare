@@ -128,6 +128,32 @@ class OkHttpMaxCareApiTest {
     }
 
     @Test
+    fun `locations are sent as a batch with the device token`() = runTest {
+        server.enqueue(MockResponse.Builder().code(200).body("""{"accepted":2}""").build())
+
+        val result = api().uploadLocations(
+            "device-token",
+            listOf(
+                OutgoingLocation("l-1", 41.1, 69.2, 12.5, "2026-10-09T10:00:00Z"),
+                OutgoingLocation("l-2", 41.2, 69.3, null, "2026-10-09T10:05:00Z")
+            )
+        )
+
+        assertEquals(ApiResult.Ok(Unit), result)
+        val request = server.takeRequest()
+        assertEquals("/v1/device/locations", request.url.encodedPath)
+        assertEquals("Bearer device-token", request.headers["Authorization"])
+        assertEquals(
+            """{"locations":[""" +
+                """{"id":"l-1","latitude":41.1,"longitude":69.2,""" +
+                """"accuracyMeters":12.5,"recordedAt":"2026-10-09T10:00:00Z"},""" +
+                """{"id":"l-2","latitude":41.2,"longitude":69.3,""" +
+                """"recordedAt":"2026-10-09T10:05:00Z"}]}""",
+            request.body?.utf8()
+        )
+    }
+
+    @Test
     fun `pairing is sent without a token`() = runTest {
         server.enqueue(pairedResponse())
 

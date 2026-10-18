@@ -11,9 +11,27 @@ interface MaxCareApi {
      */
     suspend fun uploadEvents(deviceToken: String, events: List<OutgoingEvent>): ApiResult<Unit>
 
+    /**
+     * Отправить геопозиции (до 100) с токеном устройства. Повторная отправка безопасна:
+     * сервер узнаёт точки по [OutgoingLocation.id].
+     */
+    suspend fun uploadLocations(
+        deviceToken: String,
+        locations: List<OutgoingLocation>
+    ): ApiResult<Unit>
+
     /** Настройка фильтра семьи: свои стоп-слова, разрешённые слова и уровень строгости. */
     suspend fun fetchFilterConfig(deviceToken: String): ApiResult<FilterConfig>
 }
+
+/** @param recordedAt время фикса по часам телефона в формате ISO-8601. */
+class OutgoingLocation(
+    val id: String,
+    val latitude: Double,
+    val longitude: Double,
+    val accuracyMeters: Double?,
+    val recordedAt: String
+)
 
 /**
  * @param block свои стоп-слова родителя (добавляются к базовому словарю).

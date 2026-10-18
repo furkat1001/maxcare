@@ -7,6 +7,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingCall
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import java.util.Base64
 import java.util.UUID
@@ -37,6 +38,15 @@ data class PairResponse(val deviceId: String, val deviceToken: String, val recov
 @Serializable
 data class RecoveryCodeResponse(val code: String, val validUntil: String)
 
+@Serializable
+data class DeviceSummaryDto(
+    val id: String,
+    val name: String,
+    val childName: String? = null,
+    val platform: String,
+    val lastSeenAt: String? = null
+)
+
 fun Route.deviceRoutes(devices: DeviceService, rateLimiter: RateLimiter) {
     // Телефон ребёнка ещё не имеет токена: защита от подбора кода — только лимит по адресу.
     post("/v1/devices/pair") {
@@ -66,6 +76,11 @@ fun Route.deviceRoutes(devices: DeviceService, rateLimiter: RateLimiter) {
     }
 
     authenticate(PARENT_AUTH) {
+        get("/v1/devices") {
+            val parent = call.parent()
+            call.respond(devices.listDevices(parent.familyId).map(::toDeviceSummaryDto))
+        }
+
         post("/v1/pairing-codes") {
             val parent = call.parent()
             rateLimiter.check("pairing-code:${parent.parentId}", limit = 20, window = 1.hours)
@@ -101,5 +116,13 @@ fun Route.deviceRoutes(devices: DeviceService, rateLimiter: RateLimiter) {
 private fun RoutingCall.parent(): ParentPrincipal = requireNotNull(principal<ParentPrincipal>()) {
     "Route must be inside authenticate(PARENT_AUTH)"
 }
+
+private fun toDeviceSummaryDto(device: DeviceSummary) = DeviceSummaryDto(
+    id = device.id.toString(),
+    name = device.name,
+    childName = device.childName,
+    platform = device.platform,
+    lastSeenAt = device.lastSeenAt?.toString()
+)
 
 private const val MAX_NAME_LENGTH = 64

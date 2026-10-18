@@ -1,7 +1,9 @@
 package uz.maxcare.kids.setup.ui
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -64,6 +66,12 @@ private fun KidsApp(viewModel: KidsViewModel) {
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
             viewModel.onNotificationPermissionResult()
         }
+    val locationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        viewModel.onLocationPermissionResult()
+    }
+    val context = LocalContext.current
     val settingsLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             viewModel.refresh()
@@ -85,6 +93,7 @@ private fun KidsApp(viewModel: KidsViewModel) {
         openNotificationSettings = {
             settingsLauncher.launch(notificationSettingsIntent(packageName))
         },
+        requestLocation = { requestLocation(context, locationLauncher::launch) },
         openAppSettings = { settingsLauncher.launch(appSettingsIntent(packageName)) }
     )
 
@@ -101,6 +110,29 @@ private fun KidsApp(viewModel: KidsViewModel) {
         KidsScreen.RecoverPassword -> RecoverPasswordScreen(state, viewModel)
 
         KidsScreen.Disabled -> DisabledScreen(state)
+    }
+}
+
+/**
+ * Геолокация выдаётся в два шага: сначала доступ к местоположению обычным диалогом, затем, с
+ * Android 10, фоновое «Разрешить всегда» — его система в диалоге не показывает, поэтому для него
+ * шаг предлагает «Открыть настройки». Здесь запрашиваем диалогом то, что можно.
+ */
+private fun requestLocation(context: Context, launch: (Array<String>) -> Unit) {
+    val foreground = arrayOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+    val hasForeground = foreground.any {
+        context.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED
+    }
+    val needsBackground = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+        context.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) !=
+        PackageManager.PERMISSION_GRANTED
+    when {
+        !hasForeground -> launch(foreground)
+        needsBackground -> launch(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION))
+        else -> launch(foreground)
     }
 }
 

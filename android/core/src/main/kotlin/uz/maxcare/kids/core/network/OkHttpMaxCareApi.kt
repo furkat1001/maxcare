@@ -44,6 +44,19 @@ internal class OkHttpMaxCareApi(
         bearerToken = deviceToken
     ) { _: EventBatchResponse -> }
 
+    override suspend fun uploadLocations(
+        deviceToken: String,
+        locations: List<OutgoingLocation>
+    ): ApiResult<Unit> = post(
+        "v1/device/locations",
+        LocationBatchRequest(
+            locations.map {
+                LocationDto(it.id, it.latitude, it.longitude, it.accuracyMeters, it.recordedAt)
+            }
+        ),
+        bearerToken = deviceToken
+    ) { _: LocationBatchResponse -> }
+
     override suspend fun fetchFilterConfig(deviceToken: String): ApiResult<FilterConfig> =
         get("v1/device/filter-config", deviceToken) { response: FilterConfigResponse ->
             FilterConfig(response.block, response.allow, response.strictness)
@@ -127,6 +140,21 @@ internal class OkHttpMaxCareApi(
 
     @Serializable
     private data class EventBatchResponse(val accepted: Int)
+
+    @Serializable
+    private data class LocationDto(
+        val id: String,
+        val latitude: Double,
+        val longitude: Double,
+        val accuracyMeters: Double? = null,
+        val recordedAt: String
+    )
+
+    @Serializable
+    private data class LocationBatchRequest(val locations: List<LocationDto>)
+
+    @Serializable
+    private data class LocationBatchResponse(val accepted: Int)
 
     @Serializable
     private data class FilterConfigResponse(

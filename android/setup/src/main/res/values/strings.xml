@@ -28,6 +28,10 @@
     <string name="notifications_body">MaxCare Kids always shows a notification that protection is on, so the child knows about it. Allow notifications to continue.</string>
     <string name="notifications_allow">Allow</string>
 
+    <string name="location_title">Location</string>
+    <string name="location_body">MaxCare Kids sends this phone\'s location to you — periodically and in the background, even when the app is closed — so you can see where your child is. Tap “Allow location”, then choose “Allow all the time”.</string>
+    <string name="location_allow">Allow location</string>
+
     <string name="background_title">Working in the background</string>
     <string name="background_body">On this phone the system may stop MaxCare Kids in the background. In the app settings, allow autostart and turn off battery restrictions for MaxCare Kids.</string>
     <string name="background_done">Done</string>

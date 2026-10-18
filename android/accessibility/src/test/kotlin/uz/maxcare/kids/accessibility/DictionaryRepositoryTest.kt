@@ -32,6 +32,11 @@ class DictionaryRepositoryTest {
         override suspend fun uploadEvents(deviceToken: String, events: List<OutgoingEvent>) =
             error("unused")
 
+        override suspend fun uploadLocations(
+            deviceToken: String,
+            locations: List<uz.maxcare.kids.core.network.OutgoingLocation>
+        ) = error("unused")
+
         override suspend fun fetchFilterConfig(deviceToken: String) = config
     }
 

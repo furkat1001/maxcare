@@ -251,6 +251,11 @@ private class FakeApi : MaxCareApi {
         return result
     }
 
+    override suspend fun uploadLocations(
+        deviceToken: String,
+        locations: List<uz.maxcare.kids.core.network.OutgoingLocation>
+    ): ApiResult<Unit> = error("Not used")
+
     override suspend fun fetchFilterConfig(deviceToken: String) = error("Not used")
 }
 

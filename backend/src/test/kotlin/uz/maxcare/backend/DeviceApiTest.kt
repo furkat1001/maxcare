@@ -10,6 +10,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import uz.maxcare.backend.db.queryOne
+import uz.maxcare.backend.devices.DeviceSummaryDto
 import uz.maxcare.backend.devices.PairingCodeResponse
 import uz.maxcare.backend.devices.RecoveryCodeResponse
 import uz.maxcare.backend.http.ApiError
@@ -132,6 +133,36 @@ class DeviceApiTest : ApiTestBase() {
         )
 
         assertEquals(HttpStatusCode.NotFound, response.status)
+    }
+
+    @Test
+    fun `device list needs a parent session`() = apiTest { client ->
+        assertEquals(HttpStatusCode.Unauthorized, client.getJson("/v1/devices").status)
+    }
+
+    @Test
+    fun `device list shows the family's paired devices`() = apiTest { client ->
+        val token = client.registerAndLogin()
+        val device = client.pairedDevice(token)
+
+        val devices = client.getJson("/v1/devices", token).body<List<DeviceSummaryDto>>()
+
+        assertEquals(1, devices.size)
+        assertEquals(device.deviceId, devices.single().id)
+        assertEquals("Test phone", devices.single().name)
+        assertEquals("Test child", devices.single().childName)
+        assertEquals("android", devices.single().platform)
+        assertEquals(null, devices.single().lastSeenAt)
+    }
+
+    @Test
+    fun `device list is scoped to the parent's family`() = apiTest { client ->
+        client.pairedDevice(client.registerAndLogin())
+        val otherParent = client.registerAndLogin()
+
+        val devices = client.getJson("/v1/devices", otherParent).body<List<DeviceSummaryDto>>()
+
+        assertTrue(devices.isEmpty())
     }
 
     @Test

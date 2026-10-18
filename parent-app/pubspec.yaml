@@ -1,0 +1,35 @@
+name: parent
+description: "MaxCare — приложение родителя."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  # Управление состоянием
+  flutter_riverpod: ^2.6.1
+  # Сетевой клиент к backend/
+  dio: ^5.11.1
+  # Токен сессии родителя — в системном защищённом хранилище (Keychain/Keystore)
+  flutter_secure_storage: ^11.2.0
+  # Форматирование дат в журнале событий
+  intl: any
+  # Карта «где ребёнок»: OpenStreetMap, без ключа и платных SDK (лицензия BSD-3)
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  generate: true

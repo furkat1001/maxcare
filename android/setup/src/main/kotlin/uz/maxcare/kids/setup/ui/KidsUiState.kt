@@ -10,6 +10,7 @@ enum class SetupStep {
     DEVICE_ADMIN,
     WEB_FILTER,
     NOTIFICATIONS,
+    LOCATION,
 
     /** Только на прошивках, которые агрессивно закрывают фоновые приложения. */
     BACKGROUND_WORK
