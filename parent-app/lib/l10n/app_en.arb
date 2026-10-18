@@ -78,6 +78,12 @@
   "eventPrivateDnsOn": "Private DNS turned on (bypasses the filter)",
   "eventSiteBlockedFiltered": "Blocked an adult or dangerous site",
   "eventSiteBlockedGambling": "Blocked a betting or gambling site",
+  "eventSearchBlocked": "Cleared a dangerous search",
+  "eventTextFlaggedMessenger": "Dangerous text in a messenger",
+  "eventImageBlockedNudity": "Blocked a nude image",
+  "eventImageBlockedViolence": "Blocked a violent image",
+  "eventUninstallAttemptBlocked": "Blocked an attempt to remove the app",
+  "eventAccessibilityOff": "Content filter turned off",
   "eventSiteWithAddress": "{event}: {site}",
   "@eventSiteWithAddress": {
     "placeholders": {

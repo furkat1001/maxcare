@@ -111,7 +111,13 @@ bool _dangerous(String type) => switch (type) {
       'vpn_off' ||
       'private_dns_on' ||
       'site_blocked_filtered' ||
-      'site_blocked_gambling' =>
+      'site_blocked_gambling' ||
+      'search_blocked' ||
+      'text_flagged_messenger' ||
+      'image_blocked_nudity' ||
+      'image_blocked_violence' ||
+      'uninstall_attempt_blocked' ||
+      'accessibility_off' =>
         true,
       _ => false,
     };
@@ -125,5 +131,10 @@ IconData _icon(String type) => switch (type) {
       'device_shutdown' => Icons.power_off,
       'vpn_off' || 'private_dns_on' => Icons.vpn_key_off,
       'site_blocked_filtered' || 'site_blocked_gambling' => Icons.block,
+      'search_blocked' => Icons.search_off,
+      'text_flagged_messenger' => Icons.chat_bubble_outline,
+      'image_blocked_nudity' || 'image_blocked_violence' => Icons.image_not_supported,
+      'uninstall_attempt_blocked' => Icons.delete_forever,
+      'accessibility_off' => Icons.visibility_off,
       _ => Icons.info_outline,
     };
