@@ -6,8 +6,11 @@ import 'device_repository.dart';
 String eventLabel(AppLocalizations t, DeviceEvent event) {
   final base = _base(t, event.type);
   final site = event.detail;
-  final isSite = event.type == 'site_blocked_filtered' || event.type == 'site_blocked_gambling';
-  if (isSite && site != null && site.isNotEmpty) {
+  // Для сайта detail — адрес, для ограничения времени — пакет приложения.
+  final withDetail = event.type == 'site_blocked_filtered' ||
+      event.type == 'site_blocked_gambling' ||
+      event.type == 'app_limit_reached';
+  if (withDetail && site != null && site.isNotEmpty) {
     return t.eventSiteWithAddress(base, site);
   }
   return base;
@@ -49,6 +52,8 @@ String _base(AppLocalizations t, String type) {
       return t.eventUninstallAttemptBlocked;
     case 'accessibility_off':
       return t.eventAccessibilityOff;
+    case 'app_limit_reached':
+      return t.eventAppLimitReached;
   }
   // Неизвестный серверу/приложению тип не роняет экран: показываем сам код.
   return type;
