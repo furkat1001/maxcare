@@ -83,10 +83,17 @@ class AppLimitEnforcer @Inject constructor(
     /**
      * Цикл службы, пока она подключена.
      * @param isInteractive включён ли экран; при выключенном время не идёт.
+     * @param activeWindow пакет активного окна — чтобы знать, что на экране, сразу после запуска
+     *   службы, а не только после следующей смены окна.
      * @param onVerdict предупреждение или блокировка для приложения на экране.
      */
-    suspend fun run(isInteractive: () -> Boolean, onVerdict: (String, LimitVerdict) -> Unit) {
+    suspend fun run(
+        isInteractive: () -> Boolean,
+        activeWindow: () -> String?,
+        onVerdict: (String, LimitVerdict) -> Unit
+    ) {
         start()
+        if (current == null) current = activeWindow()?.takeIf { it !in transient }
         var second = 0L
         while (currentCoroutineContext().isActive) {
             val pkg = current?.takeIf { isInteractive() }
@@ -95,7 +102,8 @@ class AppLimitEnforcer @Inject constructor(
             second++
             if (second % SAVE_EVERY_S == 0L) save()
             if (second % BASELINE_EVERY_S == 0L) applyBaseline()
-            if (second % REFRESH_EVERY_S == 0L) refresh()
+            // Правила родителя — раз в минуту, но только при включённом экране: во сне сеть не трогаем.
+            if (second % REFRESH_EVERY_S == 0L && isInteractive()) refresh()
             delay(TICK_MS)
         }
     }
@@ -182,6 +190,6 @@ class AppLimitEnforcer @Inject constructor(
         const val TICK_MS = 1_000L
         const val SAVE_EVERY_S = 30L
         const val BASELINE_EVERY_S = 5 * 60L
-        const val REFRESH_EVERY_S = 15 * 60L
+        const val REFRESH_EVERY_S = 60L
     }
 }

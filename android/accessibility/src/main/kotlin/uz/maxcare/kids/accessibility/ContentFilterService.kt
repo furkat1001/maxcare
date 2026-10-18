@@ -82,7 +82,10 @@ class ContentFilterService : AccessibilityService() {
         super.onServiceConnected()
         dictionaryJob = appScope.launch { keepDictionaryFresh() }
         limitsJob = appScope.launch {
-            limits.run(isInteractive = limitActions::isScreenOn) { pkg, verdict ->
+            limits.run(
+                isInteractive = limitActions::isScreenOn,
+                activeWindow = { rootInActiveWindow?.packageName?.toString() }
+            ) { pkg, verdict ->
                 mainHandler.post { limitActions.handle(pkg, verdict) }
             }
         }
