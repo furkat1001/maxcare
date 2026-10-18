@@ -12,6 +12,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 import uz.maxcare.backend.db.Db
 import uz.maxcare.backend.devices.DeviceService
 import uz.maxcare.backend.events.EventService
+import uz.maxcare.backend.filterwords.FilterWordsService
 import uz.maxcare.backend.location.LocationService
 import uz.maxcare.backend.parents.ParentService
 import uz.maxcare.backend.ratelimit.RedisRateLimiter
@@ -50,6 +51,7 @@ object TestInfra {
             events = EventService(db, clock),
             locations = LocationService(db, clock),
             appUsage = AppUsageService(db, clock),
+            filterWords = FilterWordsService(db),
             rateLimiter = RedisRateLimiter(redis)
         )
     }

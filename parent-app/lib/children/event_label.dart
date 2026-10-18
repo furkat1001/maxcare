@@ -37,6 +37,18 @@ String _base(AppLocalizations t, String type) {
       return t.eventSiteBlockedFiltered;
     case 'site_blocked_gambling':
       return t.eventSiteBlockedGambling;
+    case 'search_blocked':
+      return t.eventSearchBlocked;
+    case 'text_flagged_messenger':
+      return t.eventTextFlaggedMessenger;
+    case 'image_blocked_nudity':
+      return t.eventImageBlockedNudity;
+    case 'image_blocked_violence':
+      return t.eventImageBlockedViolence;
+    case 'uninstall_attempt_blocked':
+      return t.eventUninstallAttemptBlocked;
+    case 'accessibility_off':
+      return t.eventAccessibilityOff;
   }
   // Неизвестный серверу/приложению тип не роняет экран: показываем сам код.
   return type;
