@@ -20,11 +20,7 @@ interface MaxCareApi {
  * @param allow разрешённые слова (убирают соответствующий корень из словаря).
  * @param strictness `standard` или `strict` (strict — ниже порог анализа картинок).
  */
-class FilterConfig(
-    val block: List<String>,
-    val allow: List<String>,
-    val strictness: String
-)
+class FilterConfig(val block: List<String>, val allow: List<String>, val strictness: String)
 
 /** @param occurredAt время по часам телефона в формате ISO-8601. */
 class OutgoingEvent(

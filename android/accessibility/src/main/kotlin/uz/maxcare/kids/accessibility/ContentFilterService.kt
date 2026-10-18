@@ -111,7 +111,8 @@ class ContentFilterService : AccessibilityService() {
     override fun onUnbind(intent: Intent?): Boolean {
         dictionaryJob?.cancel()
         captureJob?.cancel()
-        scanner?.shutdown()
+        // Сканер создаётся только на API 30+ (onServiceConnected).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) scanner?.shutdown()
         return super.onUnbind(intent)
     }
 

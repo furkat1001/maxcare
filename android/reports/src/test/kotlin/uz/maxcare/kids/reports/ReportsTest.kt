@@ -251,8 +251,7 @@ private class FakeApi : MaxCareApi {
         return result
     }
 
-    override suspend fun fetchFilterConfig(deviceToken: String) =
-        error("Not used")
+    override suspend fun fetchFilterConfig(deviceToken: String) = error("Not used")
 }
 
 private class CountingSync : EventSync {
