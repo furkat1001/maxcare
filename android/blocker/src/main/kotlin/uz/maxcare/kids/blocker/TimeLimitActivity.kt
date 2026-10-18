@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.Gravity
@@ -13,6 +14,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.window.OnBackInvokedDispatcher
 import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
 import dagger.hilt.EntryPoint
@@ -44,6 +46,25 @@ class TimeLimitActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(buildContent())
+        // Экран лежит поверх закрытого приложения: «назад» ведёт на главный экран, а не в него.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT
+            ) { goHome() }
+        }
+    }
+
+    @Deprecated("Android 12 и ниже; с API 33 — OnBackInvokedCallback в onCreate")
+    @Suppress("DEPRECATION")
+    override fun onBackPressed() = goHome()
+
+    private fun goHome() {
+        startActivity(
+            Intent(Intent.ACTION_MAIN)
+                .addCategory(Intent.CATEGORY_HOME)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
+        finish()
     }
 
     private fun buildContent(): LinearLayout {
@@ -83,15 +104,13 @@ class TimeLimitActivity : Activity() {
             if (pkg.isNotEmpty() && extension.canExtend(pkg)) {
                 addView(button(getString(R.string.limit_extend)) { extendAndReturn(pkg) })
             }
-            addView(button(getString(R.string.limit_ok)) { finish() })
+            addView(button(getString(R.string.limit_ok)) { goHome() })
         }
     }
 
+    /** Отсрочка дана — закрываемся, и под нами снова игра. Не дана — на главный экран. */
     private fun extendAndReturn(pkg: String) {
-        if (extension.extend(pkg)) {
-            packageManager.getLaunchIntentForPackage(pkg)?.let(::startActivity)
-        }
-        finish()
+        if (extension.extend(pkg)) finish() else goHome()
     }
 
     private fun labelOf(pkg: String): CharSequence = try {

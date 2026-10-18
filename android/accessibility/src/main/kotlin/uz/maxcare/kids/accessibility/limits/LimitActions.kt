@@ -11,7 +11,10 @@ import uz.maxcare.kids.core.events.EventType
 
 /**
  * Что служба доступности делает по вердикту [AppLimitEnforcer]: предупреждает уведомлением или
- * закрывает приложение — на главный экран и экран «время вышло». Вызывать на главном потоке.
+ * закрывает приложение экраном «время вышло» поверх него. Вызывать на главном потоке.
+ *
+ * «Домой» здесь не нажимаем: переход на главный экран завершался позже и перекрывал заглушку
+ * (проверено на Samsung S24 Ultra). На главный экран ведёт сама заглушка — кнопкой и «назад».
  */
 internal class LimitActions(
     private val service: AccessibilityService,
@@ -44,8 +47,6 @@ internal class LimitActions(
         val now = SystemClock.uptimeMillis()
         if (now - lastBlockUptime < DEBOUNCE_MS) return
         lastBlockUptime = now
-        // Сначала на главный экран — приложение уходит в фон, и «назад» к нему не вернёт.
-        service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)
         val reason = when (verdict.reason) {
             LimitReason.DAILY -> TimeLimitActivity.REASON_DAILY
             LimitReason.BREAK -> TimeLimitActivity.REASON_BREAK
