@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="accessibility_service_label">MaxCare Kids</string>
-    <string name="accessibility_service_description">MaxCare Kids проверяет текст на экране, чтобы ограждать ребёнка от опасного содержимого. Работает открыто: значок и уведомление MaxCare всегда видны.</string>
+    <string name="accessibility_service_description">MaxCare Kids проверяет текст на экране, чтобы ограждать ребёнка от опасного содержимого, и закрывает приложение, когда закончилось время, заданное родителем. Работает открыто: значок и уведомление MaxCare всегда видны.</string>
+    <string name="limit_channel_name">Ограничения времени</string>
+    <string name="limit_warning">%1$s: осталось %2$d мин</string>
+    <string name="limit_warning_body">Сохрани игру или досмотри видео.</string>
 </resources>

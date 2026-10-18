@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="accessibility_service_label">MaxCare Kids</string>
-    <string name="accessibility_service_description">MaxCare Kids болангизни зарарли контентдан ҳимоя қилиш учун экрандаги матнни текширади. Очиқ ишлайди: MaxCare белгиси ва билдиришномаси доим кўриниб туради.</string>
+    <string name="accessibility_service_description">MaxCare Kids болангизни зарарли контентдан ҳимоя қилиш учун экрандаги матнни текширади ва ота-она белгилаган вақт тугаганда иловани ёпади. Очиқ ишлайди: MaxCare белгиси ва билдиришномаси доим кўриниб туради.</string>
+    <string name="limit_channel_name">Вақт чекловлари</string>
+    <string name="limit_warning">%1$s: %2$d дақ қолди</string>
+    <string name="limit_warning_body">Ўйинни сақла ёки видеони охиригача кўр.</string>
 </resources>

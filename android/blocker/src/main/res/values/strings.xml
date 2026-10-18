@@ -3,4 +3,11 @@
     <string name="blocker_title">Blocked by MaxCare</string>
     <string name="blocker_message">This is not suitable for children. Ask a parent if you think this is a mistake.</string>
     <string name="blocker_open_app">Open MaxCare Kids</string>
+    <string name="limit_break_title">Break time</string>
+    <string name="limit_break_message">%1$s will open again at %2$s. Take a little rest!</string>
+    <string name="limit_daily_title">That’s all for today</string>
+    <string name="limit_daily_message">Your time in %1$s is up for today. You can use it again tomorrow.</string>
+    <string name="limit_set_by_parent">Your parent set this limit in MaxCare.</string>
+    <string name="limit_extend">Finish the game: 5 more minutes</string>
+    <string name="limit_ok">OK</string>
 </resources>

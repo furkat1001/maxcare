@@ -51,14 +51,18 @@ enum class EventType(val wireName: String) {
     UNINSTALL_ATTEMPT_BLOCKED("uninstall_attempt_blocked"),
 
     /** Служба доступности выключена — фильтр текста и картинок не работает. */
-    ACCESSIBILITY_OFF("accessibility_off")
+    ACCESSIBILITY_OFF("accessibility_off"),
+
+    /** Сработало ограничение времени родителя: перерыв или дневной лимит. Пакет — в detail. */
+    APP_LIMIT_REACHED("app_limit_reached")
 }
 
 /** Запись события в локальную очередь; отправка на сервер — отдельно и при первой возможности. */
 interface EventRecorder {
     /**
      * @param detail уточнение для родителя — только для того, что защита пометила как опасное
-     *   (сейчас — адрес заблокированного сайта). Адреса прочих сайтов не записываются (CLAUDE.md).
+     *   (сейчас — адрес заблокированного сайта) и пакет приложения, у которого сработал лимит
+     *   времени. Адреса прочих сайтов не записываются (CLAUDE.md).
      */
     suspend fun record(type: EventType, detail: String? = null)
 }

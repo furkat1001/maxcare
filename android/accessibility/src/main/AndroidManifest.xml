@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!--
+        Предупреждение «осталось 2 минуты» перед ограничением времени. То же разрешение уже
+        объявлено в protection (постоянное уведомление), нового разрешения у приложения нет.
+    -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!--
+        Ограничения времени: лаунчер не блокируется, а категория и название нужны только
+        запускаемым приложениям. Без QUERY_ALL_PACKAGES — как в модуле reports.
+    -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.HOME" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
     <application>
         <!--
             Служба доступности фильтра контента: читает текст на экране ребёнка.

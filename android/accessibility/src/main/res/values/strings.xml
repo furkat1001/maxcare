@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="accessibility_service_label">MaxCare Kids</string>
-    <string name="accessibility_service_description">MaxCare Kids checks on-screen text to shield your child from harmful content. It works openly: the MaxCare icon and notification are always visible.</string>
+    <string name="accessibility_service_description">MaxCare Kids checks on-screen text to shield your child from harmful content and closes an app when the time limit set by the parent is up. It works openly: the MaxCare icon and notification are always visible.</string>
+    <string name="limit_channel_name">Time limits</string>
+    <string name="limit_warning">%1$s: %2$d min left</string>
+    <string name="limit_warning_body">Save your game or finish the video.</string>
 </resources>
