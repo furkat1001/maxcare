@@ -13,6 +13,10 @@ String errorText(AppLocalizations t, Object error) {
         return t.errorEmailTaken;
       case ApiErrorKind.invalidCode:
         return t.errorServer;
+      // Лимит детей показывается прямо на экране «Добавить ребёнка»;
+      // здесь — лишь безопасный запасной текст.
+      case ApiErrorKind.childLimit:
+        return t.addChildLimit;
       case ApiErrorKind.tooManyRequests:
         return t.errorTooManyAttempts;
       case ApiErrorKind.invalidRequest:

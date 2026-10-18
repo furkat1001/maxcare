@@ -27,7 +27,7 @@ class MaxCareParentApp extends ConsumerWidget {
       home: switch (signedIn) {
         null => const _Splash(),
         false => const SignInScreen(),
-        true => const HomeScreen(),
+        true => const MainShell(),
       },
     );
   }

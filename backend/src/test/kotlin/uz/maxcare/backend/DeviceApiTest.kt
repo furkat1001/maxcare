@@ -38,6 +38,17 @@ class DeviceApiTest : ApiTestBase() {
     }
 
     @Test
+    fun `a family can add at most three children`() = apiTest { client ->
+        val token = client.registerAndLogin()
+        repeat(3) { client.pairedDevice(token) }
+
+        val response = client.postJson("/v1/pairing-codes", mapOf("childName" to "Fourth"), token)
+
+        assertEquals(HttpStatusCode.Conflict, response.status)
+        assertEquals("child_limit", response.body<ApiError>().error)
+    }
+
+    @Test
     fun `device pairs with a code and gets its own token and recovery secret`() =
         apiTest { client ->
             val device = client.pairedDevice(client.registerAndLogin())

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/auth_repository.dart';
 import '../children/device_repository.dart';
+import '../children/filter_words_repository.dart';
 import '../children/location_repository.dart';
 import '../children/pairing_repository.dart';
 import 'api_client.dart';
@@ -28,6 +29,21 @@ final deviceRepositoryProvider = Provider<DeviceRepository>(
   (ref) => DeviceRepository(ref.watch(apiClientProvider)),
 );
 
+final filterWordsRepositoryProvider = Provider<FilterWordsRepository>(
+  (ref) => FilterWordsRepository(ref.watch(apiClientProvider)),
+);
+
+/// Слова семьи по виду (block/allow); обновляется после добавления/удаления.
+final filterWordsProvider =
+    FutureProvider.autoDispose.family<List<String>, WordKind>(
+  (ref, kind) => ref.watch(filterWordsRepositoryProvider).list(kind),
+);
+
+/// Уровень строгости семьи.
+final strictnessProvider = FutureProvider.autoDispose<String>(
+  (ref) => ref.watch(filterWordsRepositoryProvider).strictness(),
+);
+
 /// Список телефонов детей. Обновляется pull-to-refresh и после привязки.
 final devicesProvider = FutureProvider.autoDispose<List<Device>>(
   (ref) => ref.watch(deviceRepositoryProvider).list(),
@@ -43,11 +59,20 @@ final locationRepositoryProvider = Provider<LocationRepository>(
   (ref) => LocationRepository(ref.watch(apiClientProvider)),
 );
 
-/// Трек устройства за последние сутки (для карты «где был ребёнок»).
+/// Трек устройства за последние 3 календарных дня (для карты «где был ребёнок»).
+/// Берём с локальной полуночи позавчера, чтобы попали сегодня, вчера и позавчера.
 final deviceTrackProvider =
     FutureProvider.autoDispose.family<List<DeviceLocation>, String>(
-  (ref, deviceId) => ref.watch(locationRepositoryProvider).history(deviceId),
+  (ref, deviceId) {
+    final now = DateTime.now();
+    final since = DateTime(now.year, now.month, now.day)
+        .subtract(const Duration(days: trackDays - 1));
+    return ref.watch(locationRepositoryProvider).history(deviceId, since: since);
+  },
 );
+
+/// Сколько календарных дней трека показываем на карте.
+const int trackDays = 3;
 
 /// Состояние сессии: null — ещё проверяем, true/false — вошли/нет.
 class SessionController extends StateNotifier<bool?> {
