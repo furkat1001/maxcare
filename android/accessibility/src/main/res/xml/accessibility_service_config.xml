@@ -2,12 +2,15 @@
 <!--
     Конфиг службы доступности. Читаем содержимое окна, чтобы находить опасный текст
     (поиск, ввод) и перехватывать экран удаления. canTakeScreenshot (API 30+) — для
-    анализа картинок по скриншотам.
+    анализа картинок по скриншотам; на API < 30 атрибут игнорируется, и функция
+    отключается (CLAUDE.md) — поэтому UnusedAttribute подавлен.
 -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:accessibilityEventTypes="typeViewTextChanged|typeViewScrolled|typeWindowContentChanged|typeWindowStateChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:canRetrieveWindowContent="true"
     android:canTakeScreenshot="true"
     android:description="@string/accessibility_service_description"
-    android:notificationTimeout="200" />
+    android:notificationTimeout="200"
+    tools:ignore="UnusedAttribute" />

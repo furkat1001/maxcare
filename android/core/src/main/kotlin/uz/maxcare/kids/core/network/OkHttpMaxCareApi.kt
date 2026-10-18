@@ -188,7 +188,7 @@ internal class OkHttpMaxCareApi(
     @Serializable
     private data class AppUsageResponse(val accepted: Int)
 
-@Serializable
+    @Serializable
     private data class FilterConfigResponse(
         val block: List<String>,
         val allow: List<String>,
