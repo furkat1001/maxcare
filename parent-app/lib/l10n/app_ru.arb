@@ -78,6 +78,12 @@
   "eventPrivateDnsOn": "Включён «Частный DNS» (обходит фильтр)",
   "eventSiteBlockedFiltered": "Заблокирован взрослый или опасный сайт",
   "eventSiteBlockedGambling": "Заблокирован сайт ставок или азартных игр",
+  "eventSearchBlocked": "Опасный поиск очищен",
+  "eventTextFlaggedMessenger": "Опасный текст в мессенджере",
+  "eventImageBlockedNudity": "Заблокировано изображение с наготой",
+  "eventImageBlockedViolence": "Заблокировано изображение с насилием",
+  "eventUninstallAttemptBlocked": "Пресечена попытка удалить приложение",
+  "eventAccessibilityOff": "Фильтр контента выключен",
   "eventSiteWithAddress": "{event}: {site}",
 
   "locationTitle": "Местоположение",

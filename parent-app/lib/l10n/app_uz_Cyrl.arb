@@ -78,6 +78,12 @@
   "eventPrivateDnsOn": "«Шахсий DNS» ёқилди (филтрни четлаб ўтади)",
   "eventSiteBlockedFiltered": "Катталар ёки хавфли сайт блокланди",
   "eventSiteBlockedGambling": "Гаров ёки қимор сайти блокланди",
+  "eventSearchBlocked": "Хавфли қидирув тозаланди",
+  "eventTextFlaggedMessenger": "Мессенжерда хавфли матн",
+  "eventImageBlockedNudity": "Яланғочлик тасвири блокланди",
+  "eventImageBlockedViolence": "Зўравонлик тасвири блокланди",
+  "eventUninstallAttemptBlocked": "Иловани ўчиришга уриниш тўхтатилди",
+  "eventAccessibilityOff": "Контент фильтри ўчирилди",
   "eventSiteWithAddress": "{event}: {site}",
 
   "locationTitle": "Жойлашув",
