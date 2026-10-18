@@ -1,5 +1,6 @@
 package uz.maxcare.kids.blocker
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -54,6 +55,9 @@ class TimeLimitActivity : Activity() {
         }
     }
 
+    // Только Android 12 и ниже: с API 33 жест «назад» ловит OnBackInvokedCallback из onCreate.
+    // AndroidX OnBackPressedDispatcher требует ComponentActivity — модулю он не нужен.
+    @SuppressLint("GestureBackNavigation")
     @Deprecated("Android 12 и ниже; с API 33 — OnBackInvokedCallback в onCreate")
     @Suppress("DEPRECATION")
     override fun onBackPressed() = goHome()
