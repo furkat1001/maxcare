@@ -22,6 +22,8 @@ import uz.maxcare.backend.devices.deviceRoutes
 import uz.maxcare.backend.events.DEVICE_AUTH
 import uz.maxcare.backend.events.EventService
 import uz.maxcare.backend.events.eventRoutes
+import uz.maxcare.backend.filterwords.FilterWordsService
+import uz.maxcare.backend.filterwords.filterWordsRoutes
 import uz.maxcare.backend.http.installErrorHandling
 import uz.maxcare.backend.location.LocationService
 import uz.maxcare.backend.location.locationRoutes
@@ -46,6 +48,7 @@ fun main() {
         events = EventService(db, clock),
         locations = LocationService(db, clock),
         appUsage = AppUsageService(db, clock),
+        filterWords = FilterWordsService(db),
         rateLimiter = RedisRateLimiter(redis)
     )
 
@@ -79,5 +82,6 @@ fun Application.maxcareModule(services: Services) {
         eventRoutes(services.events, services.rateLimiter)
         locationRoutes(services.locations, services.rateLimiter)
         appUsageRoutes(services.appUsage, services.rateLimiter)
+        filterWordsRoutes(services.filterWords, services.rateLimiter)
     }
 }

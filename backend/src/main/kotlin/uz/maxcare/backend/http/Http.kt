@@ -26,6 +26,7 @@ object ErrorCodes {
     const val RATE_LIMITED = "rate_limited"
     const val UNAUTHORIZED = "unauthorized"
     const val INTERNAL = "internal_error"
+    const val LIMIT_REACHED = "limit_reached"
 }
 
 suspend fun ApplicationCall.respondError(status: HttpStatusCode, code: String) =
