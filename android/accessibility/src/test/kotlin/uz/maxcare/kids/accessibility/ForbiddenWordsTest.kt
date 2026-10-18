@@ -9,6 +9,13 @@ class ForbiddenWordsTest {
     private val words = ForbiddenWords(listOf("порн", "porn", "секс", "наркот"))
 
     @Test
+    fun `stems that collapse to a letter or two are ignored`() {
+        val short = ForbiddenWords(listOf("xxx", "хх", "ab"))
+        assertFalse(short.matches("usage-test@example.test"))
+        assertFalse(short.matches("Xiaomi"))
+    }
+
+    @Test
     fun `matches a stem inside a word form`() {
         assertTrue(words.matches("порнуха"))
         assertTrue(words.matches("наркотики купить"))
