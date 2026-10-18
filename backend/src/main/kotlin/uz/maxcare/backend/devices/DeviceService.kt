@@ -19,6 +19,13 @@ import uz.maxcare.backend.security.Tokens
 
 data class PairingCode(val code: String, val expiresAt: Instant)
 
+sealed interface PairingCodeResult {
+    data class Created(val code: PairingCode) : PairingCodeResult
+
+    /** В семье уже [DeviceService.MAX_DEVICES_PER_FAMILY] детей. */
+    data object LimitReached : PairingCodeResult
+}
+
 sealed interface PairResult {
     /** [recoverySecret] уходит на телефон один раз; на сервере он хранится зашифрованным. */
     class Paired(val deviceId: UUID, val deviceToken: String, val recoverySecret: ByteArray) :
@@ -57,7 +64,11 @@ class DeviceService(
     private val clock: Clock,
     private val random: SecureRandom = SecureRandom()
 ) {
-    suspend fun createPairingCode(familyId: UUID, childName: String?): PairingCode {
+    suspend fun createPairingCode(familyId: UUID, childName: String?): PairingCodeResult {
+        // Один ребёнок — одно устройство; родитель может добавить не больше трёх.
+        // Проверка здесь даёт родителю понятный отказ до показа кода; гонка из двух
+        // одновременно живущих кодов возможна, но для пилота несущественна.
+        if (deviceCount(familyId) >= MAX_DEVICES_PER_FAMILY) return PairingCodeResult.LimitReached
         repeat(MAX_CODE_ATTEMPTS) {
             val code = random.nextInt(CODE_MODULO).toString().padStart(CODE_DIGITS, '0')
             val now = clock.instant()
@@ -79,9 +90,16 @@ class DeviceService(
                     expiresAt
                 )
             }
-            if (inserted == 1) return PairingCode(code, expiresAt)
+            if (inserted == 1) return PairingCodeResult.Created(PairingCode(code, expiresAt))
         }
         error("Could not allocate a unique pairing code")
+    }
+
+    /** Сколько телефонов уже привязано к семье. */
+    suspend fun deviceCount(familyId: UUID): Int = db.tx { c ->
+        c.queryOne("select count(*) as n from devices where family_id = ?", familyId) {
+            it.getInt("n")
+        } ?: 0
     }
 
     suspend fun pair(code: String, deviceName: String, platform: Platform): PairResult =
@@ -164,12 +182,14 @@ class DeviceService(
 
     private fun associatedData(deviceId: UUID) = deviceId.toString().encodeToByteArray()
 
-    private companion object {
-        const val CODE_DIGITS = 8
-        const val CODE_MODULO = 100_000_000
-        const val MAX_CODE_ATTEMPTS = 5
-        const val RECOVERY_SECRET_BYTES = 32
-        val PAIRING_CODE_TTL = 10.minutes.toJavaDuration()
-        val EXPIRED_CODE_RETENTION = 1.days.toJavaDuration()
+    companion object {
+        const val MAX_DEVICES_PER_FAMILY = 3
+
+        private const val CODE_DIGITS = 8
+        private const val CODE_MODULO = 100_000_000
+        private const val MAX_CODE_ATTEMPTS = 5
+        private const val RECOVERY_SECRET_BYTES = 32
+        private val PAIRING_CODE_TTL = 10.minutes.toJavaDuration()
+        private val EXPIRED_CODE_RETENTION = 1.days.toJavaDuration()
     }
 }

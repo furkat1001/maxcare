@@ -21,10 +21,12 @@ object ErrorCodes {
     const val EMAIL_TAKEN = "email_taken"
     const val INVALID_CREDENTIALS = "invalid_credentials"
     const val INVALID_CODE = "invalid_code"
+    const val CHILD_LIMIT = "child_limit"
     const val NOT_FOUND = "not_found"
     const val RATE_LIMITED = "rate_limited"
     const val UNAUTHORIZED = "unauthorized"
     const val INTERNAL = "internal_error"
+    const val LIMIT_REACHED = "limit_reached"
 }
 
 suspend fun ApplicationCall.respondError(status: HttpStatusCode, code: String) =

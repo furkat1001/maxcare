@@ -27,6 +27,26 @@
   "homeEmpty": "No phones connected yet. Tap “Add child” to connect one.",
   "homeAddChild": "Add child",
   "homeSignOut": "Sign out",
+  "navMain": "Home",
+  "navReports": "Reports",
+  "navSettings": "Settings",
+  "settingsFilter": "Filter and blocked words",
+  "reportRoute": "Movement route",
+  "reportRouteSubtitle": "Over the last 3 days",
+  "reportActivity": "Activity and blocks",
+  "reportActivitySubtitle": "Log of events and blocked content",
+  "filterWordsTitle": "Blocked words",
+  "filterWordsBody": "Words you add are blocked on your child's phone in addition to the built-in list.",
+  "filterWordsHint": "Word to block",
+  "filterWordsAdd": "Add",
+  "filterWordsRemove": "Remove",
+  "filterWordsEmpty": "No words added yet. The built-in list still applies.",
+  "filterWordsLimit": "The list is full. Remove a word to add a new one.",
+  "filterWordsBlockTab": "Blocked",
+  "filterWordsAllowTab": "Allowed",
+  "filterWordsAllowBody": "Allowed words are never blocked, even if they contain a word from the built-in list.",
+  "filterStrictTitle": "Strict image filtering",
+  "filterStrictBody": "Blocks more images, with more false alarms.",
 
   "addChildTitle": "Add child",
   "addChildBody": "Enter a name, get a code, and type it in MaxCare Kids on the child's phone within 10 minutes.",
@@ -38,6 +58,7 @@
     "placeholders": { "time": { "type": "String" } }
   },
   "addChildCodeHint": "Enter this code in MaxCare Kids on the child's phone.",
+  "addChildLimit": "You can add up to 3 children.",
 
   "deviceLastSeen": "Last seen: {time}",
   "@deviceLastSeen": {
@@ -78,6 +99,12 @@
   "eventPrivateDnsOn": "Private DNS turned on (bypasses the filter)",
   "eventSiteBlockedFiltered": "Blocked an adult or dangerous site",
   "eventSiteBlockedGambling": "Blocked a betting or gambling site",
+  "eventSearchBlocked": "Cleared a dangerous search",
+  "eventTextFlaggedMessenger": "Dangerous text in a messenger",
+  "eventImageBlockedNudity": "Blocked a nude image",
+  "eventImageBlockedViolence": "Blocked a violent image",
+  "eventUninstallAttemptBlocked": "Blocked an attempt to remove the app",
+  "eventAccessibilityOff": "Content filter turned off",
   "eventSiteWithAddress": "{event}: {site}",
   "@eventSiteWithAddress": {
     "placeholders": {
@@ -97,6 +124,12 @@
   "@locationAccuracy": {
     "placeholders": { "meters": { "type": "int" } }
   },
-  "locationTrackToday": "Today's route",
+  "locationTrackPoints": "{count, plural, one{{count} point} other{{count} points}}",
+  "@locationTrackPoints": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "locationDayToday": "Today",
+  "locationDayYesterday": "Yesterday",
+  "locationDayEmpty": "No route for this day.",
   "locationAttribution": "© OpenStreetMap"
 }

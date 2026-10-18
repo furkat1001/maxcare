@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../core/api_exception.dart';
 import '../core/error_text.dart';
 import '../core/providers.dart';
 import '../l10n/app_localizations.dart';
@@ -36,6 +37,10 @@ class _AddChildScreenState extends ConsumerState<AddChildScreen> {
     try {
       final code = await ref.read(pairingRepositoryProvider).createCode(childName: _name.text.trim());
       if (mounted) setState(() => _code = code);
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() => _error = e.kind == ApiErrorKind.childLimit ? t.addChildLimit : errorText(t, e));
+      }
     } catch (e) {
       if (mounted) setState(() => _error = errorText(t, e));
     } finally {

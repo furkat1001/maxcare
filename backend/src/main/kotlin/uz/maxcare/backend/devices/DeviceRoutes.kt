@@ -81,20 +81,7 @@ fun Route.deviceRoutes(devices: DeviceService, rateLimiter: RateLimiter) {
             call.respond(devices.listDevices(parent.familyId).map(::toDeviceSummaryDto))
         }
 
-        post("/v1/pairing-codes") {
-            val parent = call.parent()
-            rateLimiter.check("pairing-code:${parent.parentId}", limit = 20, window = 1.hours)
-            val request = call.receive<PairingCodeRequest>()
-            val childName = request.childName?.trim()?.takeIf { it.isNotEmpty() }
-            if (childName != null && childName.length > MAX_NAME_LENGTH) {
-                return@post call.respondError(HttpStatusCode.BadRequest, ErrorCodes.INVALID_REQUEST)
-            }
-            val code = devices.createPairingCode(parent.familyId, childName)
-            call.respond(
-                HttpStatusCode.Created,
-                PairingCodeResponse(code.code, code.expiresAt.toString())
-            )
-        }
+        post("/v1/pairing-codes") { createPairingCode(call, devices, rateLimiter) }
 
         post("/v1/devices/{deviceId}/recovery-code") {
             val parent = call.parent()
@@ -110,6 +97,31 @@ fun Route.deviceRoutes(devices: DeviceService, rateLimiter: RateLimiter) {
                 call.respond(RecoveryCodeResponse(code.code, code.validUntil.toString()))
             }
         }
+    }
+}
+
+private suspend fun createPairingCode(
+    call: RoutingCall,
+    devices: DeviceService,
+    rateLimiter: RateLimiter
+) {
+    val parent = call.parent()
+    rateLimiter.check("pairing-code:${parent.parentId}", limit = 20, window = 1.hours)
+    val request = call.receive<PairingCodeRequest>()
+    val childName = request.childName?.trim()?.takeIf { it.isNotEmpty() }
+    if (childName != null && childName.length > MAX_NAME_LENGTH) {
+        return call.respondError(HttpStatusCode.BadRequest, ErrorCodes.INVALID_REQUEST)
+    }
+    when (val result = devices.createPairingCode(parent.familyId, childName)) {
+        is PairingCodeResult.Created -> call.respond(
+            HttpStatusCode.Created,
+            PairingCodeResponse(result.code.code, result.code.expiresAt.toString())
+        )
+
+        PairingCodeResult.LimitReached -> call.respondError(
+            HttpStatusCode.Conflict,
+            ErrorCodes.CHILD_LIMIT
+        )
     }
 }
 

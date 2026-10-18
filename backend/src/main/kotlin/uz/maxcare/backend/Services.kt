@@ -2,6 +2,7 @@ package uz.maxcare.backend
 
 import uz.maxcare.backend.devices.DeviceService
 import uz.maxcare.backend.events.EventService
+import uz.maxcare.backend.filterwords.FilterWordsService
 import uz.maxcare.backend.location.LocationService
 import uz.maxcare.backend.parents.ParentService
 import uz.maxcare.backend.ratelimit.RateLimiter
@@ -12,5 +13,6 @@ class Services(
     val devices: DeviceService,
     val events: EventService,
     val locations: LocationService,
+    val filterWords: FilterWordsService,
     val rateLimiter: RateLimiter
 )
