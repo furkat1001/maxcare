@@ -114,6 +114,8 @@ class ApiDevicePairingTest {
             deviceToken: String,
             locations: List<uz.maxcare.kids.core.network.OutgoingLocation>
         ) = error("Not used")
+
+        override suspend fun fetchFilterConfig(deviceToken: String) = error("Not used")
     }
 
     private class InMemorySecureStore : SecureStore {

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="blocker_title">MaxCare томонидан блокланди</string>
+    <string name="blocker_message">Бу болалар учун мос эмас. Агар бу хато деб ҳисобласанг, ота-онангга айт.</string>
+    <string name="blocker_open_app">MaxCare Kids’ни очиш</string>
+</resources>

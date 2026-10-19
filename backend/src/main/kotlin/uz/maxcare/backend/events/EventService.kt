@@ -21,7 +21,13 @@ enum class EventType(val wireName: String) {
     VPN_OFF("vpn_off"),
     PRIVATE_DNS_ON("private_dns_on"),
     SITE_BLOCKED_FILTERED("site_blocked_filtered"),
-    SITE_BLOCKED_GAMBLING("site_blocked_gambling");
+    SITE_BLOCKED_GAMBLING("site_blocked_gambling"),
+    SEARCH_BLOCKED("search_blocked"),
+    TEXT_FLAGGED_MESSENGER("text_flagged_messenger"),
+    IMAGE_BLOCKED_NUDITY("image_blocked_nudity"),
+    IMAGE_BLOCKED_VIOLENCE("image_blocked_violence"),
+    UNINSTALL_ATTEMPT_BLOCKED("uninstall_attempt_blocked"),
+    ACCESSIBILITY_OFF("accessibility_off");
 
     companion object {
         fun parse(value: String) = entries.firstOrNull { it.wireName == value }

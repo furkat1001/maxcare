@@ -222,4 +222,6 @@ private class FakeApi : MaxCareApi {
         locationBatches += locations
         return result
     }
+
+    override suspend fun fetchFilterConfig(deviceToken: String) = error("Not used")
 }

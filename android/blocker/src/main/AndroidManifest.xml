@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!--
+            Экран-заглушка: показывается поверх, когда защита перекрыла действие.
+            Не в недавних задачах и без скрытия: прозрачность — требование Google Play.
+        -->
+        <activity
+            android:name=".BlockerActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:noHistory="true" />
+    </application>
+
+</manifest>
