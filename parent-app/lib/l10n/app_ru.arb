@@ -132,5 +132,8 @@
   "limitBreakLabel": "Перерыв",
   "limitWarningHint": "Ребёнок получит предупреждение за 2 минуты.",
   "limitGameHint": "В играх ребёнок может один раз доиграть: ещё 5 минут.",
-  "eventAppLimitReached": "Сработало ограничение времени"
+  "eventAppLimitReached": "Сработало ограничение времени",
+  "eventLocationOff": "Геолокация выключена",
+  "eventLocationDenied": "Доступ к геолокации отозван",
+  "eventLocationOn": "Геолокация снова включена"
 }

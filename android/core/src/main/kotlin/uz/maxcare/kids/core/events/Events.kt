@@ -54,7 +54,16 @@ enum class EventType(val wireName: String) {
     ACCESSIBILITY_OFF("accessibility_off"),
 
     /** Сработало ограничение времени родителя: перерыв или дневной лимит. Пакет — в detail. */
-    APP_LIMIT_REACHED("app_limit_reached")
+    APP_LIMIT_REACHED("app_limit_reached"),
+
+    /** Геолокация телефона выключена (переключатель в шторке или настройках) — трека нет. */
+    LOCATION_OFF("location_off"),
+
+    /** У MaxCare Kids отозван доступ к геолокации (в том числе «в фоне») — трека нет. */
+    LOCATION_DENIED("location_denied"),
+
+    /** Геолокация снова работает после [LOCATION_OFF] или [LOCATION_DENIED]. */
+    LOCATION_ON("location_on")
 }
 
 /** Запись события в локальную очередь; отправка на сервер — отдельно и при первой возможности. */

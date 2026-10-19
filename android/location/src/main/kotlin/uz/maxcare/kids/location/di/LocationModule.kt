@@ -8,7 +8,11 @@ import uz.maxcare.kids.core.location.LocationCollector
 import uz.maxcare.kids.core.location.LocationProvider
 import uz.maxcare.kids.core.location.LocationScheduler
 import uz.maxcare.kids.core.location.LocationSync
+import uz.maxcare.kids.location.AndroidLocationAccessProbe
+import uz.maxcare.kids.location.AndroidLocationNotice
+import uz.maxcare.kids.location.LocationAccessProbe
 import uz.maxcare.kids.location.LocationManagerLocationProvider
+import uz.maxcare.kids.location.LocationNotice
 import uz.maxcare.kids.location.LocationUploader
 import uz.maxcare.kids.location.PeriodicLocationCollector
 import uz.maxcare.kids.location.WorkManagerLocationScheduler
@@ -27,4 +31,10 @@ internal abstract class LocationModule {
 
     @Binds
     abstract fun bindLocationScheduler(impl: WorkManagerLocationScheduler): LocationScheduler
+
+    @Binds
+    abstract fun bindLocationAccessProbe(impl: AndroidLocationAccessProbe): LocationAccessProbe
+
+    @Binds
+    abstract fun bindLocationNotice(impl: AndroidLocationNotice): LocationNotice
 }

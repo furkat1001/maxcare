@@ -54,6 +54,12 @@ String _base(AppLocalizations t, String type) {
       return t.eventAccessibilityOff;
     case 'app_limit_reached':
       return t.eventAppLimitReached;
+    case 'location_off':
+      return t.eventLocationOff;
+    case 'location_denied':
+      return t.eventLocationDenied;
+    case 'location_on':
+      return t.eventLocationOn;
   }
   // Неизвестный серверу/приложению тип не роняет экран: показываем сам код.
   return type;

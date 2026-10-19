@@ -189,5 +189,8 @@
   "limitBreakLabel": "Break",
   "limitWarningHint": "Your child gets a warning 2 minutes before.",
   "limitGameHint": "In games, your child can finish the match once: 5 more minutes.",
-  "eventAppLimitReached": "Time limit reached"
+  "eventAppLimitReached": "Time limit reached",
+  "eventLocationOff": "Location turned off",
+  "eventLocationDenied": "Location access revoked",
+  "eventLocationOn": "Location is back on"
 }

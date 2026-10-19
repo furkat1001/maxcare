@@ -28,7 +28,10 @@ enum class EventType(val wireName: String) {
     IMAGE_BLOCKED_VIOLENCE("image_blocked_violence"),
     UNINSTALL_ATTEMPT_BLOCKED("uninstall_attempt_blocked"),
     ACCESSIBILITY_OFF("accessibility_off"),
-    APP_LIMIT_REACHED("app_limit_reached");
+    APP_LIMIT_REACHED("app_limit_reached"),
+    LOCATION_OFF("location_off"),
+    LOCATION_DENIED("location_denied"),
+    LOCATION_ON("location_on");
 
     companion object {
         fun parse(value: String) = entries.firstOrNull { it.wireName == value }
