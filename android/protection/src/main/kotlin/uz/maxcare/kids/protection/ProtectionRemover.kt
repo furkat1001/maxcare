@@ -30,6 +30,7 @@ internal class ProtectionRemover @Inject constructor(
             gateway.isDeviceOwner() -> {
                 // Пока права владельца есть — снимаем политики, затем сам режим.
                 DEVICE_OWNER_RESTRICTIONS.forEach(gateway::clearUserRestriction)
+                gateway.setLocationLocked(false)
                 gateway.setAlwaysOnVpn(false)
                 gateway.setOwnUninstallBlocked(false)
                 gateway.clearDeviceOwner()

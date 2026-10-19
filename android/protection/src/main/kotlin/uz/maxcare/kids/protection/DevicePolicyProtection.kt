@@ -1,5 +1,6 @@
 package uz.maxcare.kids.protection
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.UserManager
 import javax.inject.Inject
@@ -16,15 +17,24 @@ import uz.maxcare.kids.core.protection.ProtectionMode
 import uz.maxcare.kids.protection.service.NotificationStateMonitor
 import uz.maxcare.kids.protection.service.ProtectionServiceStarter
 
-/** Ограничения пользователя, которые ставятся в режиме Device Owner. */
-internal val DEVICE_OWNER_RESTRICTIONS = buildList {
+/**
+ * Ограничения пользователя, которые ставятся в режиме Device Owner. Версия — параметром,
+ * чтобы проверять список на JVM; вызывается с реальным `Build.VERSION.SDK_INT`.
+ */
+// Константы новых версий ограждены параметром sdkInt; это обычные строки, безопасны везде.
+@SuppressLint("InlinedApi")
+internal fun deviceOwnerRestrictions(sdkInt: Int) = buildList {
     // Безопасный режим отключает сторонние приложения — главный способ обхода.
     add(UserManager.DISALLOW_SAFE_BOOT)
     add(UserManager.DISALLOW_FACTORY_RESET)
     // Фильтр сайтов: нельзя сменить VPN и включить «Частный DNS» мимо фильтра.
     add(UserManager.DISALLOW_CONFIG_VPN)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) add(UserManager.DISALLOW_CONFIG_PRIVATE_DNS)
+    if (sdkInt >= Build.VERSION_CODES.Q) add(UserManager.DISALLOW_CONFIG_PRIVATE_DNS)
+    // Геолокацию нельзя выключить ни в шторке, ни в настройках: родитель видит маршрут.
+    if (sdkInt >= Build.VERSION_CODES.P) add(UserManager.DISALLOW_CONFIG_LOCATION)
 }
+
+internal val DEVICE_OWNER_RESTRICTIONS = deviceOwnerRestrictions(Build.VERSION.SDK_INT)
 
 @Singleton
 internal class DevicePolicyProtection @Inject constructor(
@@ -46,6 +56,10 @@ internal class DevicePolicyProtection @Inject constructor(
         }
         if (current == ProtectionMode.DEVICE_OWNER) {
             gateway.setOwnUninstallBlocked(true)
+            // Геолокация — до запрета её менять: не полагаемся на то, что прошивка пропустит
+            // вызов владельца сквозь DISALLOW_CONFIG_LOCATION. При каждом применении:
+            // если её всё же выключили, она включится снова.
+            gateway.setLocationLocked(true)
             DEVICE_OWNER_RESTRICTIONS.forEach(gateway::addUserRestriction)
             // До запуска службы: иначе на Android 13+ уведомление может не показаться.
             gateway.lockNotificationPermissionGranted()

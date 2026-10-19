@@ -68,6 +68,57 @@ class DevicePolicyProtectionTest {
     }
 
     @Test
+    fun `device owner turns location on and locks location access`() = testScope.runTest {
+        val gateway = FakeDevicePolicyGateway(deviceOwner = true)
+
+        protection(gateway).applyPolicies()
+
+        assertTrue(gateway.locationEnabled)
+        assertTrue(gateway.locationPermissionsLocked)
+        // Геолокация включается до запрета менять настройки.
+        assertEquals(
+            listOf("locationLocked:true"),
+            gateway.calls.takeWhile { !it.startsWith("restrict:") }
+        )
+    }
+
+    @Test
+    fun `location switched off by any means is turned on again on the next apply`() =
+        testScope.runTest {
+            val gateway = FakeDevicePolicyGateway(deviceOwner = true)
+            val protection = protection(gateway)
+            protection.applyPolicies()
+
+            gateway.locationEnabled = false
+            protection.applyPolicies()
+
+            assertTrue(gateway.locationEnabled)
+        }
+
+    @Test
+    fun `device admin does not touch location`() = testScope.runTest {
+        val gateway = FakeDevicePolicyGateway(adminActive = true)
+
+        protection(gateway).applyPolicies()
+
+        assertFalse(gateway.locationEnabled)
+        assertFalse(gateway.locationPermissionsLocked)
+    }
+
+    @Test
+    fun `location switch is locked from Android 9`() {
+        assertFalse(UserManager.DISALLOW_CONFIG_LOCATION in deviceOwnerRestrictions(27))
+        assertTrue(UserManager.DISALLOW_CONFIG_LOCATION in deviceOwnerRestrictions(28))
+        assertTrue(UserManager.DISALLOW_CONFIG_LOCATION in deviceOwnerRestrictions(36))
+    }
+
+    @Test
+    fun `private dns is locked from Android 10`() {
+        assertFalse(UserManager.DISALLOW_CONFIG_PRIVATE_DNS in deviceOwnerRestrictions(28))
+        assertTrue(UserManager.DISALLOW_CONFIG_PRIVATE_DNS in deviceOwnerRestrictions(29))
+    }
+
+    @Test
     fun `device owner locks notification permission and shows the notification`() =
         testScope.runTest {
             val gateway = FakeDevicePolicyGateway(deviceOwner = true)

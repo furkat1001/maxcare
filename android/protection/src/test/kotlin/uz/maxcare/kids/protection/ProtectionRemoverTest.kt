@@ -33,6 +33,8 @@ class ProtectionRemoverTest {
 
         assertFalse(gateway.uninstallBlocked)
         assertTrue(gateway.restrictions.isEmpty())
+        // Доступ к геолокации снова за пользователем; саму геолокацию не выключаем.
+        assertFalse(gateway.locationPermissionsLocked)
         assertFalse(gateway.isDeviceOwner())
         assertFalse(gateway.isAdminActive())
         assertFalse(service.running)

@@ -13,6 +13,12 @@ internal class FakeDevicePolicyGateway(
         private set
     var policyCalls = 0
         private set
+    var locationPermissionsLocked = false
+        private set
+    var locationEnabled = false
+
+    /** Порядок вызовов политик геолокации — геолокация должна включаться до запрета её менять. */
+    val calls = mutableListOf<String>()
 
     override fun isAdminActive() = adminActive || deviceOwner
 
@@ -25,6 +31,7 @@ internal class FakeDevicePolicyGateway(
 
     override fun addUserRestriction(restriction: String) {
         requireOwner()
+        calls += "restrict:$restriction"
         restrictions += restriction
     }
 
@@ -54,6 +61,13 @@ internal class FakeDevicePolicyGateway(
     override fun lockNotificationPermissionGranted() {
         requireOwner()
         notificationPermissionLocked = true
+    }
+
+    override fun setLocationLocked(locked: Boolean) {
+        requireOwner()
+        calls += "locationLocked:$locked"
+        locationPermissionsLocked = locked
+        if (locked) locationEnabled = true
     }
 
     // Как и настоящий DevicePolicyManager, без прав владельца бросает SecurityException.
