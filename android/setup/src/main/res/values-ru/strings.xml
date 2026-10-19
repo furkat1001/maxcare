@@ -79,4 +79,9 @@
     <string name="filter_body">MaxCare Kids включает локальный VPN для фильтрации сайтов. Он видит только названия сайтов, которые открывает телефон, но не сами страницы.\n\n• Названия сайтов в зашифрованном виде отправляются семейному DNS-сервису Cloudflare for Families, который блокирует сайты для взрослых и опасные сайты.\n• Поиск Google, Bing, Яндекс и DuckDuckGo и YouTube переводятся в безопасный режим.\n• Сайты ставок и азартных игр блокируются.\n• Родитель видит адрес и категорию каждого заблокированного сайта. Адреса остальных сайтов в MaxCare не передаются.\n\nAndroid попросит разрешение на VPN-подключение.</string>
     <string name="filter_submit">Включить фильтр</string>
     <string name="error_filter_not_allowed">Фильтр не включён. Нажмите «Включить фильтр» и разрешите VPN-подключение.</string>
+    <string name="unpair">Отвязать от родителя</string>
+    <string name="unpair_confirm_title">Отвязать телефон?</string>
+    <string name="unpair_confirm_body">Ребёнок и всё, что собрано об этом телефоне, — события, маршрут, время в приложениях и ограничения — удалятся из приложения родителя. Данные MaxCare Kids на телефоне будут стёрты, приложение закроется.</string>
+    <string name="unpair_confirm">Отвязать</string>
+    <string name="unpair_cancel">Отмена</string>
 </resources>

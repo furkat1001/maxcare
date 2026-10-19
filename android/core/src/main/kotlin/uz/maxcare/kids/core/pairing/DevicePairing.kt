@@ -6,6 +6,23 @@ interface DevicePairing {
 
     /** @param code код из 8 цифр; пробелы и дефисы, которые родитель мог ввести для удобства, допустимы. */
     suspend fun pair(code: String): PairingResult
+
+    /**
+     * Удалить телефон у родителя на сервере. Вызывается только после отключения защиты паролем
+     * родителя; локальные данные стирает вызывающий (весь набор данных приложения).
+     */
+    suspend fun unpair(): UnpairResult
+}
+
+sealed interface UnpairResult {
+    /** Сервер удалил устройство или уже не знал его (токен устарел) — можно стирать данные. */
+    data object Unpaired : UnpairResult
+
+    data object NoConnection : UnpairResult
+
+    data object InsecureConnection : UnpairResult
+
+    data object ServerError : UnpairResult
 }
 
 sealed interface PairingResult {

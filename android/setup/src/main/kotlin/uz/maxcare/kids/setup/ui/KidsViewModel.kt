@@ -15,6 +15,7 @@ import uz.maxcare.kids.core.filter.NetworkFilter
 import uz.maxcare.kids.core.location.LocationScheduler
 import uz.maxcare.kids.core.pairing.DevicePairing
 import uz.maxcare.kids.core.pairing.PairingResult
+import uz.maxcare.kids.core.pairing.UnpairResult
 import uz.maxcare.kids.core.protection.DeviceAdminActivation
 import uz.maxcare.kids.core.protection.DeviceProtection
 import uz.maxcare.kids.core.protection.DisableProtectionResult
@@ -30,6 +31,7 @@ import uz.maxcare.kids.core.storage.SecureStoreException
 import uz.maxcare.kids.core.storage.readString
 import uz.maxcare.kids.core.storage.writeString
 import uz.maxcare.kids.core.usage.AppUsageScheduler
+import uz.maxcare.kids.setup.pairing.AppDataReset
 
 /**
  * Экраны приложения ребёнка. Шаг настройки не хранится отдельно, а вычисляется заново по
@@ -52,7 +54,8 @@ class KidsViewModel @Inject internal constructor(
     private val locationScheduler: LocationScheduler,
     private val appUsageScheduler: AppUsageScheduler,
     private val store: SecureStore,
-    private val environment: SetupEnvironment
+    private val environment: SetupEnvironment,
+    private val appDataReset: AppDataReset
 ) : ViewModel() {
     private val _state = MutableStateFlow(KidsUiState())
     val state: StateFlow<KidsUiState> = _state.asStateFlow()
@@ -144,6 +147,22 @@ class KidsViewModel @Inject internal constructor(
             DisableProtectionResult.Disabled -> show(KidsScreen.Disabled)
             DisableProtectionResult.NotActive -> showNextScreen()
             is DisableProtectionResult.Rejected -> showMessage(passwordMessage(result.check))
+        }
+    }
+
+    /**
+     * Отвязать телефон от родителя. Только с экрана «Защита отключена», то есть сразу после ввода
+     * пароля родителя, и только если защита действительно снята — иначе это был бы обход.
+     * При успехе данные приложения стираются, процесс завершается.
+     */
+    fun unpair() = launchAction {
+        if (_state.value.screen != KidsScreen.Disabled) return@launchAction
+        if (protection.applyPolicies() != ProtectionMode.NONE) return@launchAction
+        when (pairing.unpair()) {
+            UnpairResult.Unpaired -> appDataReset.reset()
+            UnpairResult.NoConnection -> showMessage(UiMessage.NoConnection)
+            UnpairResult.InsecureConnection -> showMessage(UiMessage.InsecureConnection)
+            UnpairResult.ServerError -> showMessage(UiMessage.ServerError)
         }
     }
 

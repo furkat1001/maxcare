@@ -1,6 +1,9 @@
 package uz.maxcare.kids.setup.ui
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -79,10 +82,31 @@ internal fun RecoverPasswordScreen(state: KidsUiState, viewModel: KidsViewModel)
 }
 
 @Composable
-internal fun DisabledScreen(state: KidsUiState) {
+internal fun DisabledScreen(state: KidsUiState, viewModel: KidsViewModel) {
+    var confirming by remember { mutableStateOf(false) }
     ScreenLayout(
         title = stringResource(R.string.disabled_title),
         body = stringResource(R.string.disabled_body),
         state = state
-    ) {}
+    ) {
+        SecondaryButton(stringResource(R.string.unpair), !state.busy) { confirming = true }
+    }
+    if (confirming) {
+        AlertDialog(
+            onDismissRequest = { confirming = false },
+            title = { Text(stringResource(R.string.unpair_confirm_title)) },
+            text = { Text(stringResource(R.string.unpair_confirm_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirming = false
+                    viewModel.unpair()
+                }) { Text(stringResource(R.string.unpair_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirming = false }) {
+                    Text(stringResource(R.string.unpair_cancel))
+                }
+            }
+        )
+    }
 }

@@ -15,6 +15,7 @@ import uz.maxcare.kids.core.network.MaxCareApi
 import uz.maxcare.kids.core.network.OutgoingEvent
 import uz.maxcare.kids.core.network.PairedDevice
 import uz.maxcare.kids.core.pairing.PairingResult
+import uz.maxcare.kids.core.pairing.UnpairResult
 import uz.maxcare.kids.core.storage.SecureKeys
 import uz.maxcare.kids.core.storage.SecureStore
 import uz.maxcare.kids.core.storage.SecureStoreException
@@ -88,6 +89,42 @@ class ApiDevicePairingTest {
         assertFalse(pairing.isPaired())
     }
 
+    @Test
+    fun `unpair asks the server with the device token`() = runTest {
+        pairing.pair("12345678")
+
+        assertEquals(UnpairResult.Unpaired, pairing.unpair())
+        assertEquals("token-1", api.unpairToken)
+    }
+
+    @Test
+    fun `phone without a token has nothing to unpair on the server`() = runTest {
+        assertEquals(UnpairResult.Unpaired, pairing.unpair())
+        assertNull(api.unpairToken)
+    }
+
+    @Test
+    fun `unknown token counts as already unpaired`() = runTest {
+        pairing.pair("12345678")
+        api.unpairResult = ApiResult.HttpError(401, "unauthorized")
+
+        assertEquals(UnpairResult.Unpaired, pairing.unpair())
+    }
+
+    @Test
+    fun `unpair failures are reported, not treated as success`() = runTest {
+        pairing.pair("12345678")
+        mapOf(
+            ApiResult.NoConnection to UnpairResult.NoConnection,
+            ApiResult.InsecureConnection to UnpairResult.InsecureConnection,
+            ApiResult.HttpError(500, null) to UnpairResult.ServerError,
+            ApiResult.BadResponse to UnpairResult.ServerError
+        ).forEach { (apiResult, expected) ->
+            api.unpairResult = apiResult
+            assertEquals(expected, pairing.unpair())
+        }
+    }
+
     private class CountingSync : EventSync {
         var calls = 0
 
@@ -123,6 +160,14 @@ class ApiDevicePairingTest {
         override suspend fun fetchFilterConfig(deviceToken: String) = error("Not used")
 
         override suspend fun fetchAppLimits(deviceToken: String) = error("Not used")
+
+        var unpairResult: ApiResult<Unit> = ApiResult.Ok(Unit)
+        var unpairToken: String? = null
+
+        override suspend fun unpairDevice(deviceToken: String): ApiResult<Unit> {
+            unpairToken = deviceToken
+            return unpairResult
+        }
     }
 
     private class InMemorySecureStore : SecureStore {

@@ -79,4 +79,9 @@
     <string name="filter_body">MaxCare Kids сайтларни филтрлаш учун маҳаллий VPN’ни ёқади. У телефон очаётган сайтларнинг фақат номларини кўради, саҳифаларнинг ўзини эмас.\n\n• Сайт номлари шифрланган ҳолда Cloudflare for Families оилавий DNS хизматига юборилади, у катталар учун мўлжалланган ва хавфли сайтларни блоклайди.\n• Google, Bing, Yandex ва DuckDuckGo қидируви ҳамда YouTube хавфсиз режимга ўтказилади.\n• Гаров ва қимор сайтлари блокланади.\n• Ота-она ҳар бир блокланган сайтнинг манзили ва тоифасини кўради. Бошқа сайтларнинг манзиллари MaxCare’га юборилмайди.\n\nAndroid VPN уланишига рухсат сўрайди.</string>
     <string name="filter_submit">Фильтрни ёқиш</string>
     <string name="error_filter_not_allowed">Фильтр ёқилмади. «Фильтрни ёқиш» тугмасини босинг ва VPN уланишига рухсат беринг.</string>
+    <string name="unpair">Ота-онадан узиш</string>
+    <string name="unpair_confirm_title">Телефон узилсинми?</string>
+    <string name="unpair_confirm_body">Бола ва бу телефон ҳақида тўпланган ҳамма нарса — ҳодисалар, маршрут, иловалардаги вақт ва чекловлар — ота-она иловасидан ўчирилади. Телефондаги MaxCare Kids маълумотлари ўчирилади, илова ёпилади.</string>
+    <string name="unpair_confirm">Узиш</string>
+    <string name="unpair_cancel">Бекор қилиш</string>
 </resources>

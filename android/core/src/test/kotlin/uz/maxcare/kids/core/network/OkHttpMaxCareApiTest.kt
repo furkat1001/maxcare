@@ -203,6 +203,27 @@ class OkHttpMaxCareApiTest {
     }
 
     @Test
+    fun `unpair is a delete with the device token and an empty answer`() = runTest {
+        server.enqueue(MockResponse.Builder().code(204).build())
+
+        assertEquals(ApiResult.Ok(Unit), api().unpairDevice("device-token"))
+
+        val request = server.takeRequest()
+        assertEquals("DELETE", request.method)
+        assertEquals("/v1/device", request.url.encodedPath)
+        assertEquals("Bearer device-token", request.headers["Authorization"])
+    }
+
+    @Test
+    fun `unpair with an unknown token is an http error`() = runTest {
+        server.enqueue(
+            MockResponse.Builder().code(401).body("""{"error":"unauthorized"}""").build()
+        )
+
+        assertEquals(ApiResult.HttpError(401, "unauthorized"), api().unpairDevice("old-token"))
+    }
+
+    @Test
     fun `pairing is sent without a token`() = runTest {
         server.enqueue(pairedResponse())
 

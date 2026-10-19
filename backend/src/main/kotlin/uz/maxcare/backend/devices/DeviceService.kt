@@ -163,6 +163,15 @@ class DeviceService(
         }
     }
 
+    /**
+     * Отвязка с телефона (родитель уже ввёл на нём пароль). Удаляется устройство и всё, что о нём
+     * собрано: события, маршрут, время в приложениях, ограничения — каскадом в БД. Место в лимите
+     * детей семьи освобождается.
+     */
+    suspend fun unpair(deviceId: UUID) = db.tx { c ->
+        c.update("delete from devices where id = ?", deviceId)
+    }
+
     /** @return null, если устройства нет или оно принадлежит другой семье. */
     suspend fun recoveryCode(familyId: UUID, deviceId: UUID): RecoveryCode? {
         val encrypted = db.tx { c ->

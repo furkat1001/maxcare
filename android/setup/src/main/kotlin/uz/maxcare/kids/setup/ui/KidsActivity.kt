@@ -66,7 +66,7 @@ private fun KidsApp(viewModel: KidsViewModel) {
 
         KidsScreen.RecoverPassword -> RecoverPasswordScreen(state, viewModel)
 
-        KidsScreen.Disabled -> DisabledScreen(state)
+        KidsScreen.Disabled -> DisabledScreen(state, viewModel)
     }
 }
 
