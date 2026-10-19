@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="blocker_title">Blocked by MaxCare</string>
+    <string name="blocker_message">This is not suitable for children. Ask a parent if you think this is a mistake.</string>
+    <string name="blocker_open_app">Open MaxCare Kids</string>
+</resources>

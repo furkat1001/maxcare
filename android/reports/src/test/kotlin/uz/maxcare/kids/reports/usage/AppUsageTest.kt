@@ -266,4 +266,6 @@ private class FakeApi : MaxCareApi {
         uploads += days
         return result
     }
+
+    override suspend fun fetchFilterConfig(deviceToken: String) = error("Not used")
 }

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_service_label">MaxCare Kids</string>
+    <string name="accessibility_service_description">MaxCare Kids bolangizni zararli kontentdan himoya qilish uchun ekrandagi matnni tekshiradi. Ochiq ishlaydi: MaxCare belgisi va bildirishnomasi doim ko‘rinib turadi.</string>
+</resources>

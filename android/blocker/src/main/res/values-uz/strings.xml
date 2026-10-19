@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="blocker_title">MaxCare tomonidan bloklandi</string>
+    <string name="blocker_message">Bu bolalar uchun mos emas. Agar bu xato deb hisoblasang, ota-onangga ayt.</string>
+    <string name="blocker_open_app">MaxCare Kids’ni ochish</string>
+</resources>

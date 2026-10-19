@@ -33,7 +33,25 @@ enum class EventType(val wireName: String) {
     SITE_BLOCKED_FILTERED("site_blocked_filtered"),
 
     /** Сайт азартных игр или ставок заблокирован. Адрес — в detail. */
-    SITE_BLOCKED_GAMBLING("site_blocked_gambling")
+    SITE_BLOCKED_GAMBLING("site_blocked_gambling"),
+
+    /** Опасный поисковый запрос очищен службой доступности. */
+    SEARCH_BLOCKED("search_blocked"),
+
+    /** В мессенджере замечен опасный текст. Содержимое не записывается (CLAUDE.md). */
+    TEXT_FLAGGED_MESSENGER("text_flagged_messenger"),
+
+    /** ИИ пометил кадр экрана как наготу — размыт или заблокирован. */
+    IMAGE_BLOCKED_NUDITY("image_blocked_nudity"),
+
+    /** ИИ пометил кадр экрана как насилие — размыт или заблокирован. */
+    IMAGE_BLOCKED_VIOLENCE("image_blocked_violence"),
+
+    /** Перехвачена попытка удалить приложение (экран снятия администратора). */
+    UNINSTALL_ATTEMPT_BLOCKED("uninstall_attempt_blocked"),
+
+    /** Служба доступности выключена — фильтр текста и картинок не работает. */
+    ACCESSIBILITY_OFF("accessibility_off")
 }
 
 /** Запись события в локальную очередь; отправка на сервер — отдельно и при первой возможности. */
