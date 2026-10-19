@@ -33,6 +33,9 @@ interface MaxCareApi {
 
     /** Ограничения времени в приложениях для этого телефона. */
     suspend fun fetchAppLimits(deviceToken: String): ApiResult<AppLimitsConfig>
+
+    /** Отвязать телефон: сервер удаляет устройство и всё, что о нём собрано. */
+    suspend fun unpairDevice(deviceToken: String): ApiResult<Unit>
 }
 
 /** @param date календарный день по местному времени телефона, `2026-10-15`. */

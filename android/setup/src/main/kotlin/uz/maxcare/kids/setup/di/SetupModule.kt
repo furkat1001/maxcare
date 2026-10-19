@@ -6,8 +6,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import uz.maxcare.kids.core.pairing.DevicePairing
 import uz.maxcare.kids.setup.pairing.ApiDevicePairing
+import uz.maxcare.kids.setup.pairing.AppDataReset
 import uz.maxcare.kids.setup.pairing.BuildDeviceNameSource
 import uz.maxcare.kids.setup.pairing.DeviceNameSource
+import uz.maxcare.kids.setup.pairing.SystemAppDataReset
 import uz.maxcare.kids.setup.ui.AndroidSetupEnvironment
 import uz.maxcare.kids.setup.ui.SetupEnvironment
 
@@ -22,4 +24,7 @@ internal abstract class SetupModule {
 
     @Binds
     abstract fun bindSetupEnvironment(impl: AndroidSetupEnvironment): SetupEnvironment
+
+    @Binds
+    abstract fun bindAppDataReset(impl: SystemAppDataReset): AppDataReset
 }

@@ -7,6 +7,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingCall
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import java.util.Base64
@@ -14,6 +15,7 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.serialization.Serializable
+import uz.maxcare.backend.events.DEVICE_AUTH
 import uz.maxcare.backend.http.ErrorCodes
 import uz.maxcare.backend.http.clientIp
 import uz.maxcare.backend.http.respondError
@@ -72,6 +74,14 @@ fun Route.deviceRoutes(devices: DeviceService, rateLimiter: RateLimiter) {
                 HttpStatusCode.BadRequest,
                 ErrorCodes.INVALID_CODE
             )
+        }
+    }
+
+    authenticate(DEVICE_AUTH) {
+        delete("/v1/device") {
+            val device = requireNotNull(call.principal<DevicePrincipal>())
+            devices.unpair(device.deviceId)
+            call.respond(HttpStatusCode.NoContent)
         }
     }
 

@@ -80,4 +80,9 @@
     <string name="filter_body">MaxCare Kids turns on a local VPN to filter websites. It sees only the names of sites the phone opens, not the pages themselves.\n\n• Site names are sent, encrypted, to the family DNS service Cloudflare for Families, which blocks adult and dangerous sites.\n• Google, Bing, Yandex and DuckDuckGo search and YouTube are switched to safe mode.\n• Betting and gambling sites are blocked.\n• The parent sees the address and category of each blocked site. Addresses of other sites are not sent to MaxCare.\n\nAndroid will ask for permission to set up a VPN connection.</string>
     <string name="filter_submit">Turn on the filter</string>
     <string name="error_filter_not_allowed">The filter is not on. Tap “Turn on the filter” and allow the VPN connection.</string>
+    <string name="unpair">Unpair from parent</string>
+    <string name="unpair_confirm_title">Unpair this phone?</string>
+    <string name="unpair_confirm_body">The child and everything collected about this phone — events, route, app time and limits — will be deleted from the parent’s app. MaxCare Kids data on this phone will be erased and the app will close.</string>
+    <string name="unpair_confirm">Unpair</string>
+    <string name="unpair_cancel">Cancel</string>
 </resources>

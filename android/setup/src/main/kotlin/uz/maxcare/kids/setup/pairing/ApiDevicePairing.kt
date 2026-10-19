@@ -7,9 +7,11 @@ import uz.maxcare.kids.core.network.ApiResult
 import uz.maxcare.kids.core.network.MaxCareApi
 import uz.maxcare.kids.core.pairing.DevicePairing
 import uz.maxcare.kids.core.pairing.PairingResult
+import uz.maxcare.kids.core.pairing.UnpairResult
 import uz.maxcare.kids.core.storage.SecureKeys
 import uz.maxcare.kids.core.storage.SecureStore
 import uz.maxcare.kids.core.storage.SecureStoreException
+import uz.maxcare.kids.core.storage.readString
 import uz.maxcare.kids.core.storage.writeString
 
 /** Название телефона, которое родитель увидит в своём приложении. */
@@ -72,6 +74,26 @@ internal class ApiDevicePairing @Inject constructor(
         }
     }
 
+    override suspend fun unpair(): UnpairResult {
+        // Токена нет — на сервере удалять нечего.
+        val token = store.readString(SecureKeys.DEVICE_TOKEN) ?: return UnpairResult.Unpaired
+        return when (val result = api.unpairDevice(token)) {
+            is ApiResult.Ok -> UnpairResult.Unpaired
+
+            // Сервер токен не знает (устройство уже удалено, база сменилась) — отвязывать нечего.
+            is ApiResult.HttpError -> when (result.status) {
+                HTTP_UNAUTHORIZED -> UnpairResult.Unpaired
+                else -> UnpairResult.ServerError
+            }
+
+            ApiResult.NoConnection -> UnpairResult.NoConnection
+
+            ApiResult.InsecureConnection -> UnpairResult.InsecureConnection
+
+            ApiResult.BadResponse -> UnpairResult.ServerError
+        }
+    }
+
     private fun httpError(error: ApiResult.HttpError) = when {
         error.code == "invalid_code" -> PairingResult.InvalidCode
         error.status == HTTP_TOO_MANY_REQUESTS -> PairingResult.TooManyAttempts
@@ -82,5 +104,6 @@ internal class ApiDevicePairing @Inject constructor(
         // Только ASCII-цифры: \d в Kotlin пропустил бы и цифры других письменностей.
         val CODE_PATTERN = Regex("[0-9]{8}")
         const val HTTP_TOO_MANY_REQUESTS = 429
+        const val HTTP_UNAUTHORIZED = 401
     }
 }

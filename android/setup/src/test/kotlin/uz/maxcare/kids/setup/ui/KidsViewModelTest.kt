@@ -22,6 +22,7 @@ import uz.maxcare.kids.core.filter.NetworkFilter
 import uz.maxcare.kids.core.location.LocationScheduler
 import uz.maxcare.kids.core.pairing.DevicePairing
 import uz.maxcare.kids.core.pairing.PairingResult
+import uz.maxcare.kids.core.pairing.UnpairResult
 import uz.maxcare.kids.core.protection.ChangePasswordResult
 import uz.maxcare.kids.core.protection.DeviceAdminActivation
 import uz.maxcare.kids.core.protection.DeviceProtection
@@ -49,6 +50,7 @@ class KidsViewModelTest {
     private val filter = FakeFilter()
     private val scheduler = FakeScheduler()
     private val usageScheduler = FakeUsageScheduler()
+    private var resets = 0
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -68,7 +70,7 @@ class KidsViewModelTest {
         usageScheduler,
         store,
         environment
-    ).also { it.refresh() }
+    ) { resets++ }.also { it.refresh() }
 
     private val KidsViewModel.screen get() = state.value.screen
     private val KidsViewModel.message get() = state.value.message
@@ -368,6 +370,57 @@ class KidsViewModelTest {
         assertEquals(KidsScreen.Disabled, vm.screen)
     }
 
+    private fun disabledByParent(): KidsViewModel {
+        val vm = setUpFully()
+        vm.openDisableProtection()
+        vm.submitDisable("secret-1")
+        protection.activeMode = ProtectionMode.NONE
+        return vm
+    }
+
+    @Test
+    fun `unpair after disabling protection removes the phone and wipes the app`() {
+        val vm = disabledByParent()
+
+        vm.unpair()
+
+        assertEquals(1, pairing.unpairCalls)
+        assertEquals(1, resets)
+    }
+
+    @Test
+    fun `unpair is ignored outside the disabled screen`() {
+        val vm = setUpFully()
+
+        vm.unpair()
+
+        assertEquals(0, pairing.unpairCalls)
+        assertEquals(0, resets)
+    }
+
+    @Test
+    fun `unpair is ignored while protection is still active`() {
+        val vm = disabledByParent()
+        protection.activeMode = ProtectionMode.DEVICE_ADMIN
+
+        vm.unpair()
+
+        assertEquals(0, pairing.unpairCalls)
+        assertEquals(0, resets)
+    }
+
+    @Test
+    fun `failed unpair keeps the data and explains why`() {
+        val vm = disabledByParent()
+        pairing.unpairResult = UnpairResult.NoConnection
+
+        vm.unpair()
+
+        assertEquals(0, resets)
+        assertEquals(UiMessage.NoConnection, vm.message)
+        assertEquals(KidsScreen.Disabled, vm.screen)
+    }
+
     @Test
     fun `refresh does not interrupt password entry`() {
         val vm = setUpFully()
@@ -433,6 +486,14 @@ class KidsViewModelTest {
         override suspend fun pair(code: String): PairingResult {
             if (result == PairingResult.Paired) paired = true
             return result
+        }
+
+        var unpairResult: UnpairResult = UnpairResult.Unpaired
+        var unpairCalls = 0
+
+        override suspend fun unpair(): UnpairResult {
+            unpairCalls++
+            return unpairResult
         }
     }
 

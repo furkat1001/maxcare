@@ -100,6 +100,17 @@ internal class OkHttpMaxCareApi(
             FilterConfig(response.block, response.allow, response.strictness)
         }
 
+    override suspend fun unpairDevice(deviceToken: String): ApiResult<Unit> =
+        withContext(ioDispatcher) {
+            val httpRequest = Request.Builder()
+                .url(baseUrl.resolve("v1/device") ?: error("Bad API path: v1/device"))
+                .delete()
+                .header("Authorization", "Bearer $deviceToken")
+                .build()
+            // Ответ 204 без тела: разбирать нечего.
+            call(httpRequest) { }
+        }
+
     private suspend inline fun <reified Res, T> get(
         path: String,
         bearerToken: String,
@@ -110,7 +121,7 @@ internal class OkHttpMaxCareApi(
             .get()
             .header("Authorization", "Bearer $bearerToken")
             .build()
-        execute(httpRequest, map)
+        call(httpRequest) { body -> map(json.decodeFromString<Res>(body)) }
     }
 
     private suspend inline fun <reified Req, reified Res, T> post(
@@ -124,30 +135,28 @@ internal class OkHttpMaxCareApi(
             .post(json.encodeToString(request).toRequestBody(JSON_TYPE))
             .apply { bearerToken?.let { header("Authorization", "Bearer $it") } }
             .build()
-        execute(httpRequest, map)
+        call(httpRequest) { body -> map(json.decodeFromString<Res>(body)) }
     }
 
-    private inline fun <reified Res, T> execute(
-        httpRequest: Request,
-        map: (Res) -> T
-    ): ApiResult<T> = try {
-        client.newCall(httpRequest).execute().use { response ->
-            val body = response.body.string()
-            if (response.isSuccessful) {
-                ApiResult.Ok(map(json.decodeFromString<Res>(body)))
-            } else {
-                ApiResult.HttpError(response.code, errorCode(body))
+    private inline fun <T> call(httpRequest: Request, onSuccess: (String) -> T): ApiResult<T> =
+        try {
+            client.newCall(httpRequest).execute().use { response ->
+                val body = response.body.string()
+                if (response.isSuccessful) {
+                    ApiResult.Ok(onSuccess(body))
+                } else {
+                    ApiResult.HttpError(response.code, errorCode(body))
+                }
             }
+        } catch (ignored: SSLException) {
+            // Раньше IOException: SSLException — её подкласс, но означает другое.
+            ApiResult.InsecureConnection
+        } catch (ignored: IOException) {
+            ApiResult.NoConnection
+        } catch (ignored: IllegalArgumentException) {
+            // SerializationException и ошибки Base64 — подклассы IllegalArgumentException.
+            ApiResult.BadResponse
         }
-    } catch (ignored: SSLException) {
-        // Раньше IOException: SSLException — её подкласс, но означает другое.
-        ApiResult.InsecureConnection
-    } catch (ignored: IOException) {
-        ApiResult.NoConnection
-    } catch (ignored: IllegalArgumentException) {
-        // SerializationException и ошибки Base64 — подклассы IllegalArgumentException.
-        ApiResult.BadResponse
-    }
 
     private fun errorCode(body: String): String? =
         runCatching { json.decodeFromString<ErrorResponse>(body).error }.getOrNull()
