@@ -18,6 +18,7 @@ import uz.maxcare.backend.parents.ParentService
 import uz.maxcare.backend.ratelimit.RedisRateLimiter
 import uz.maxcare.backend.security.Argon2Hasher
 import uz.maxcare.backend.security.SecretBox
+import uz.maxcare.backend.usage.AppUsageService
 
 /**
  * Настоящие PostgreSQL и Redis в Docker — один раз на весь прогон тестов.
@@ -49,6 +50,7 @@ object TestInfra {
             devices = DeviceService(db, SecretBox(secretKey), clock),
             events = EventService(db, clock),
             locations = LocationService(db, clock),
+            appUsage = AppUsageService(db, clock),
             filterWords = FilterWordsService(db),
             rateLimiter = RedisRateLimiter(redis)
         )

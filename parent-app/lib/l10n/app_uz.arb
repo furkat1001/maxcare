@@ -95,5 +95,13 @@
   "locationDayToday": "Bugun",
   "locationDayYesterday": "Kecha",
   "locationDayEmpty": "Bu kun uchun marshrut yo‘q.",
-  "locationAttribution": "© OpenStreetMap"
+  "locationAttribution": "© OpenStreetMap",
+  "reportUsage": "Ilovalardagi vaqt",
+  "reportUsageSubtitle": "Har bir ilovada necha daqiqa",
+  "usageTotal": "Kun bo‘yi jami: {time}",
+  "usageUpdated": "{time} da yangilandi",
+  "usageDayEmpty": "Bu kun uchun ma’lumot yo‘q. Agar shunday qolsa, bola telefonida foydalanish tarixiga ruxsat yoqilganini tekshiring.",
+  "usageDayUnused": "Bu kuni telefondan foydalanilmagan.",
+  "usageHoursMinutes": "{hours} soat {minutes} daq",
+  "usageMinutes": "{minutes} daq"
 }

@@ -7,5 +7,7 @@ internal class SystemActions(
     val requestNotifications: () -> Unit,
     val openNotificationSettings: () -> Unit,
     val requestLocation: () -> Unit,
+    /** Особый доступ: системного диалога нет, только экран настроек со списком приложений. */
+    val openUsageAccessSettings: () -> Unit,
     val openAppSettings: () -> Unit
 )

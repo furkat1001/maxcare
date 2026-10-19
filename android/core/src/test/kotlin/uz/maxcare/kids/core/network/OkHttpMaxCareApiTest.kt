@@ -154,6 +154,32 @@ class OkHttpMaxCareApiTest {
     }
 
     @Test
+    fun `app usage is sent by day with the device token`() = runTest {
+        server.enqueue(MockResponse.Builder().code(200).body("""{"accepted":1}""").build())
+
+        val result = api().uploadAppUsage(
+            "device-token",
+            listOf(
+                OutgoingDayUsage(
+                    "2026-10-15",
+                    listOf(OutgoingAppUsage("com.google.android.youtube", "YouTube", 2_400_000))
+                )
+            )
+        )
+
+        assertEquals(ApiResult.Ok(Unit), result)
+        val request = server.takeRequest()
+        assertEquals("/v1/device/app-usage", request.url.encodedPath)
+        assertEquals("Bearer device-token", request.headers["Authorization"])
+        assertEquals(
+            """{"days":[{"date":"2026-10-15","apps":[""" +
+                """{"packageName":"com.google.android.youtube","label":"YouTube",""" +
+                """"foregroundMs":2400000}]}]}""",
+            request.body?.utf8()
+        )
+    }
+
+    @Test
     fun `pairing is sent without a token`() = runTest {
         server.enqueue(pairedResponse())
 

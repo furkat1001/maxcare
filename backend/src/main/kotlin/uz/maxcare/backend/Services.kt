@@ -6,6 +6,7 @@ import uz.maxcare.backend.filterwords.FilterWordsService
 import uz.maxcare.backend.location.LocationService
 import uz.maxcare.backend.parents.ParentService
 import uz.maxcare.backend.ratelimit.RateLimiter
+import uz.maxcare.backend.usage.AppUsageService
 
 /** Все зависимости сервера: в тестах собираются с тестовыми базой, часами и параметрами Argon2. */
 class Services(
@@ -13,6 +14,7 @@ class Services(
     val devices: DeviceService,
     val events: EventService,
     val locations: LocationService,
+    val appUsage: AppUsageService,
     val filterWords: FilterWordsService,
     val rateLimiter: RateLimiter
 )

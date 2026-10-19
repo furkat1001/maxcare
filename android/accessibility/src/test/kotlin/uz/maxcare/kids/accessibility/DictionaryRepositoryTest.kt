@@ -37,6 +37,11 @@ class DictionaryRepositoryTest {
             locations: List<uz.maxcare.kids.core.network.OutgoingLocation>
         ) = error("unused")
 
+        override suspend fun uploadAppUsage(
+            deviceToken: String,
+            days: List<uz.maxcare.kids.core.network.OutgoingDayUsage>
+        ) = error("unused")
+
         override suspend fun fetchFilterConfig(deviceToken: String) = config
     }
 

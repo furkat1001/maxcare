@@ -115,6 +115,11 @@ class ApiDevicePairingTest {
             locations: List<uz.maxcare.kids.core.network.OutgoingLocation>
         ) = error("Not used")
 
+        override suspend fun uploadAppUsage(
+            deviceToken: String,
+            days: List<uz.maxcare.kids.core.network.OutgoingDayUsage>
+        ) = error("Not used")
+
         override suspend fun fetchFilterConfig(deviceToken: String) = error("Not used")
     }
 

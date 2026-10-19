@@ -29,6 +29,7 @@ import uz.maxcare.kids.core.storage.SecureStore
 import uz.maxcare.kids.core.storage.SecureStoreException
 import uz.maxcare.kids.core.storage.readString
 import uz.maxcare.kids.core.storage.writeString
+import uz.maxcare.kids.core.usage.AppUsageScheduler
 
 /**
  * Экраны приложения ребёнка. Шаг настройки не хранится отдельно, а вычисляется заново по
@@ -49,6 +50,7 @@ class KidsViewModel @Inject internal constructor(
     private val adminActivation: DeviceAdminActivation,
     private val networkFilter: NetworkFilter,
     private val locationScheduler: LocationScheduler,
+    private val appUsageScheduler: AppUsageScheduler,
     private val store: SecureStore,
     private val environment: SetupEnvironment
 ) : ViewModel() {
@@ -115,6 +117,15 @@ class KidsViewModel @Inject internal constructor(
     fun onLocationPermissionResult() = launchAction {
         showNextScreen()
         if (currentStep() != SetupStep.LOCATION) locationScheduler.schedulePeriodic()
+    }
+
+    /**
+     * После возврата из настроек «Доступ к истории использования». Сообщение об отказе не
+     * показываем: шаг остаётся, пока доступ не выдан; как только выдали — запускаем отправку.
+     */
+    fun onUsageAccessResult() = launchAction {
+        showNextScreen()
+        if (currentStep() != SetupStep.USAGE_ACCESS) appUsageScheduler.schedulePeriodic()
     }
 
     fun confirmBackgroundWork() = launchAction {
@@ -185,6 +196,8 @@ class KidsViewModel @Inject internal constructor(
         !environment.notificationsAllowed() -> SetupStep.NOTIFICATIONS
 
         !environment.locationAllowed() -> SetupStep.LOCATION
+
+        !environment.usageAccessAllowed() -> SetupStep.USAGE_ACCESS
 
         environment.needsBackgroundHint() && !isFlagSet(BACKGROUND_HINT_SHOWN_KEY) ->
             SetupStep.BACKGROUND_WORK

@@ -6,7 +6,7 @@
 
     <!-- Заметное раскрытие (политика Google Play). Обновлять вместе с каждой новой функцией сбора данных. -->
     <string name="disclosure_title">Before you start</string>
-    <string name="disclosure_body">MaxCare Kids is parental control. A parent installs it, and the child always sees that it is working.\n\nWhat the app does now:\n• protection can be turned off in the app only with the parent password;\n• it shows a permanent notification that protection is on;\n• it connects this phone to the parent’s account. The phone name and model are sent to the MaxCare server;\n• it sends protection events to the MaxCare server: device admin turned off, parent password locked or reset, notifications turned off, phone turned on and off, blocked sites with their address — only what happened and when;\n• it filters websites: site names (not page contents) are checked, encrypted, by the family DNS service Cloudflare for Families.\n\nThe app does not hide, does not read messages and does not send photos or screen contents.\n\nContinue only if you are the parent or guardian of this child.</string>
+    <string name="disclosure_body">MaxCare Kids is parental control. A parent installs it, and the child always sees that it is working.\n\nWhat the app does now:\n• protection can be turned off in the app only with the parent password;\n• it shows a permanent notification that protection is on;\n• it connects this phone to the parent’s account. The phone name and model are sent to the MaxCare server;\n• it sends protection events to the MaxCare server: device admin turned off, parent password locked or reset, notifications turned off, phone turned on and off, blocked sites with their address — only what happened and when;\n• it sends to the MaxCare server how long each app was on screen each day — only the app name and minutes, not what was done in it;\n• it filters websites: site names (not page contents) are checked, encrypted, by the family DNS service Cloudflare for Families.\n\nThe app does not hide, does not read messages and does not send photos or screen contents.\n\nContinue only if you are the parent or guardian of this child.</string>
     <string name="disclosure_accept">I am the parent, continue</string>
 
     <string name="pairing_title">Connect to the parent</string>
@@ -31,6 +31,9 @@
     <string name="location_title">Location</string>
     <string name="location_body">MaxCare Kids sends this phone\'s location to you — periodically and in the background, even when the app is closed — so you can see where your child is. Tap “Allow location”, then choose “Allow all the time”.</string>
     <string name="location_allow">Allow location</string>
+    <string name="usage_title">App usage time</string>
+    <string name="usage_body">MaxCare Kids sends you how long each app was on this phone’s screen each day — every 15 minutes, in the background. Only the app name and minutes are sent: not what your child watched, wrote or searched in it. Tap “Open access”, find MaxCare Kids in the list and turn on usage access.</string>
+    <string name="usage_allow">Open access</string>
 
     <string name="background_title">Working in the background</string>
     <string name="background_body">On this phone the system may stop MaxCare Kids in the background. In the app settings, allow autostart and turn off battery restrictions for MaxCare Kids.</string>

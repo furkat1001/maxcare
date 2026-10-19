@@ -65,6 +65,16 @@ internal fun SetupStepScreen(
             turnOff = turnOff
         )
 
+        // Раскрытие о доступе к истории использования: что собирается и что нет.
+        SetupStep.USAGE_ACCESS -> ActionStep(
+            R.string.usage_title,
+            R.string.usage_body,
+            state,
+            caption,
+            R.string.usage_allow to system.openUsageAccessSettings,
+            turnOff = turnOff
+        )
+
         SetupStep.BACKGROUND_WORK -> ActionStep(
             R.string.background_title,
             R.string.background_body,
