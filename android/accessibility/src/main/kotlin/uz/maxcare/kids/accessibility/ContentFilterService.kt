@@ -17,6 +17,8 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import uz.maxcare.kids.accessibility.limits.AppLimitEnforcer
+import uz.maxcare.kids.accessibility.limits.LimitActions
 import uz.maxcare.kids.blocker.BlockerActivity
 import uz.maxcare.kids.core.di.ApplicationScope
 import uz.maxcare.kids.core.events.EventRecorder
@@ -32,6 +34,8 @@ import uz.maxcare.kids.core.ml.ImageVerdict
  * - Защита от удаления: активный админ + экран Настроек с именем приложения → HOME + заглушка.
  * - Картинки: скриншот окон браузеров/мессенджеров → [ImageClassifier] → при опасном вердикте
  *   заглушка. Без файла модели классификатор возвращает SAFE — пайплайн вхолостую (PR 4a).
+ * - Ограничения времени родителя: [AppLimitEnforcer] решает, служба предупреждает и закрывает
+ *   приложение (на главный экран + экран «время вышло»).
  *
  * Текст и кадры анализируются только в памяти: не на диск, не в логи, не в аналитику (CLAUDE.md).
  */
@@ -48,8 +52,15 @@ class ContentFilterService : AccessibilityService() {
     lateinit var classifier: ImageClassifier
 
     @Inject
+    lateinit var limits: AppLimitEnforcer
+
+    @Inject
     @ApplicationScope
     lateinit var appScope: CoroutineScope
+
+    private val limitActions by lazy { LimitActions(this, events, limits, appScope) }
+
+    private var limitsJob: Job? = null
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -70,6 +81,14 @@ class ContentFilterService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         dictionaryJob = appScope.launch { keepDictionaryFresh() }
+        limitsJob = appScope.launch {
+            limits.run(
+                isInteractive = limitActions::isScreenOn,
+                activeWindow = { rootInActiveWindow?.packageName?.toString() }
+            ) { pkg, verdict ->
+                mainHandler.post { limitActions.handle(pkg, verdict) }
+            }
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val screenshotScanner = ScreenshotScanner(
                 this,
@@ -100,7 +119,10 @@ class ContentFilterService : AccessibilityService() {
         event ?: return
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             val pkg = event.packageName?.toString()
-            if (pkg != null && pkg != packageName) foregroundPackage = pkg
+            if (pkg != null && pkg != packageName) {
+                foregroundPackage = pkg
+                limitActions.handle(pkg, limits.onWindow(pkg))
+            }
         }
         when {
             uninstall.handle(event) -> Unit
@@ -110,6 +132,8 @@ class ContentFilterService : AccessibilityService() {
 
     override fun onUnbind(intent: Intent?): Boolean {
         dictionaryJob?.cancel()
+        limitsJob?.cancel()
+        appScope.launch { limits.save() }
         captureJob?.cancel()
         // Сканер создаётся только на API 30+ (onServiceConnected).
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) scanner?.shutdown()

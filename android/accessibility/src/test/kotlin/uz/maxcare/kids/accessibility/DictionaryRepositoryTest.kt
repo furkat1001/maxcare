@@ -43,6 +43,8 @@ class DictionaryRepositoryTest {
         ) = error("unused")
 
         override suspend fun fetchFilterConfig(deviceToken: String) = config
+
+        override suspend fun fetchAppLimits(deviceToken: String) = error("unused")
     }
 
     private fun config(

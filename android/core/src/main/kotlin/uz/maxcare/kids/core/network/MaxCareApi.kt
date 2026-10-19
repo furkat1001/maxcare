@@ -1,5 +1,7 @@
 package uz.maxcare.kids.core.network
 
+import uz.maxcare.kids.core.limits.AppLimitsConfig
+
 /** Запросы телефона ребёнка к серверу MaxCare. Описание API — `docs/backend-api.md`. */
 interface MaxCareApi {
     /** Обменять одноразовый код от родителя на токен устройства и секрет восстановления. */
@@ -28,6 +30,9 @@ interface MaxCareApi {
 
     /** Настройка фильтра семьи: свои стоп-слова, разрешённые слова и уровень строгости. */
     suspend fun fetchFilterConfig(deviceToken: String): ApiResult<FilterConfig>
+
+    /** Ограничения времени в приложениях для этого телефона. */
+    suspend fun fetchAppLimits(deviceToken: String): ApiResult<AppLimitsConfig>
 }
 
 /** @param date календарный день по местному времени телефона, `2026-10-15`. */

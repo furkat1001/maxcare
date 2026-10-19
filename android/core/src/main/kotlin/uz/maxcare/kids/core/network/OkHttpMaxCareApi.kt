@@ -12,6 +12,9 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import uz.maxcare.kids.core.limits.AppLimitRule
+import uz.maxcare.kids.core.limits.AppLimitsConfig
+import uz.maxcare.kids.core.limits.LimitKind
 
 /**
  * Привязка сертификата задаётся не здесь, а в Network Security Config приложения:
@@ -72,6 +75,25 @@ internal class OkHttpMaxCareApi(
         ),
         bearerToken = deviceToken
     ) { _: AppUsageResponse -> }
+
+    override suspend fun fetchAppLimits(deviceToken: String): ApiResult<AppLimitsConfig> =
+        get("v1/device/app-limits", deviceToken) { response: AppLimitsResponse ->
+            AppLimitsConfig(
+                // Неизвестный вид правила (из будущей версии сервера) пропускаем, а не падаем.
+                rules = response.rules.mapNotNull { rule ->
+                    LimitKind.parse(rule.kind)?.let {
+                        AppLimitRule(
+                            it,
+                            rule.target,
+                            rule.dailyLimitMin,
+                            rule.sessionMin,
+                            rule.breakMin
+                        )
+                    }
+                },
+                alwaysAllowed = response.alwaysAllowed.toSet()
+            )
+        }
 
     override suspend fun fetchFilterConfig(deviceToken: String): ApiResult<FilterConfig> =
         get("v1/device/filter-config", deviceToken) { response: FilterConfigResponse ->
@@ -193,6 +215,21 @@ internal class OkHttpMaxCareApi(
         val block: List<String>,
         val allow: List<String>,
         val strictness: String
+    )
+
+    @Serializable
+    private data class LimitRuleDto(
+        val kind: String,
+        val target: String,
+        val dailyLimitMin: Int? = null,
+        val sessionMin: Int? = null,
+        val breakMin: Int? = null
+    )
+
+    @Serializable
+    private data class AppLimitsResponse(
+        val rules: List<LimitRuleDto> = emptyList(),
+        val alwaysAllowed: List<String> = emptyList()
     )
 
     private companion object {

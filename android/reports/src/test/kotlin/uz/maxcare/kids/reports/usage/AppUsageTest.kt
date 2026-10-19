@@ -216,12 +216,44 @@ class AppUsageUploaderTest {
     }
 }
 
+class TodayUsageTest {
+
+    private val history = FakeHistory()
+
+    // 10:00 по Ташкенту.
+    private val clock = Clock.fixed(at("2026-10-15T10:00"), ZoneOffset.UTC)
+
+    private fun todayUsage() = UsageStatsTodayUsage(history, clock, Dispatchers.Unconfined)
+
+    @Test
+    fun `only today's time counts`() {
+        history.screen = listOf(
+            resumed("2026-10-15T08:00", YOUTUBE),
+            paused("2026-10-15T08:20", YOUTUBE),
+            resumed("2026-10-15T09:50", CHROME)
+        )
+
+        val today = todayUsage().today(TASHKENT)
+
+        assertEquals(mapOf(YOUTUBE to 20 * MINUTE, CHROME to 10 * MINUTE), today)
+    }
+
+    @Test
+    fun `without usage access nothing is known`() = runTest {
+        history.access = false
+        history.screen = listOf(resumed("2026-10-15T08:00", YOUTUBE))
+        assertTrue(todayUsage().foregroundToday().isEmpty())
+    }
+}
+
 private class FakeHistory : UsageHistory {
     var access = true
+    var screen: List<ScreenEvent> = emptyList()
 
     override fun hasAccess() = access
 
-    override fun events(from: Instant, to: Instant): List<ScreenEvent> = emptyList()
+    override fun events(from: Instant, to: Instant): List<ScreenEvent> =
+        screen.filter { it.at in from..to }
 
     override fun launchableApps(): Map<String, String> = mapOf(YOUTUBE to "YouTube")
 }
@@ -268,4 +300,6 @@ private class FakeApi : MaxCareApi {
     }
 
     override suspend fun fetchFilterConfig(deviceToken: String) = error("Not used")
+
+    override suspend fun fetchAppLimits(deviceToken: String) = error("Not used")
 }

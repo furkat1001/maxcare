@@ -151,5 +151,43 @@
   "usageMinutes": "{minutes} min",
   "@usageMinutes": {
     "placeholders": { "minutes": { "type": "int" } }
-  }
+  },
+  "reportLimits": "Time limits",
+  "reportLimitsSubtitle": "Daily limit and breaks in apps",
+  "limitsEmpty": "No limits yet. Add a rule for a group (videos, games) or for a single app.",
+  "limitsAdd": "Add rule",
+  "limitsDelete": "Delete",
+  "limitsSave": "Save",
+  "limitsNeverBlocked": "Calls, SMS and MaxCare Kids are never blocked. Messengers are not part of any group.",
+  "limitGroupVideo": "Videos",
+  "limitGroupSocial": "Social media",
+  "limitGroupGame": "Games",
+  "limitGroupAudio": "Music",
+  "limitDaily": "{minutes} min a day",
+  "@limitDaily": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "limitCycle": "{session} min, then a {pause} min break",
+  "@limitCycle": {
+    "placeholders": { "session": { "type": "int" }, "pause": { "type": "int" } }
+  },
+  "limitEditTitle": "Time limit",
+  "limitWhat": "What to limit",
+  "limitOneApp": "Or one app",
+  "limitAppsHint": "Apps your child used in the last 3 days.",
+  "limitNoApps": "No apps yet: usage time has not arrived from the phone.",
+  "limitPresets": "Suggested by age",
+  "limitPresetAge": "{ages} years",
+  "@limitPresetAge": {
+    "placeholders": { "ages": { "type": "String" } }
+  },
+  "limitDailyToggle": "Daily limit",
+  "limitDailyHint": "After it the app is closed until tomorrow.",
+  "limitCycleToggle": "Session and break",
+  "limitCycleHint": "The app works for a while, then takes a break.",
+  "limitSessionLabel": "Session",
+  "limitBreakLabel": "Break",
+  "limitWarningHint": "Your child gets a warning 2 minutes before.",
+  "limitGameHint": "In games, your child can finish the match once: 5 more minutes.",
+  "eventAppLimitReached": "Time limit reached"
 }

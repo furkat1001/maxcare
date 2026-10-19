@@ -3,4 +3,11 @@
     <string name="blocker_title">Заблокировано MaxCare</string>
     <string name="blocker_message">Это не подходит детям. Если это ошибка, обратись к родителю.</string>
     <string name="blocker_open_app">Открыть MaxCare Kids</string>
+    <string name="limit_break_title">Перерыв</string>
+    <string name="limit_break_message">%1$s снова откроется в %2$s. Отдохни немного!</string>
+    <string name="limit_daily_title">На сегодня всё</string>
+    <string name="limit_daily_message">Время в %1$s на сегодня закончилось. Можно снова завтра.</string>
+    <string name="limit_set_by_parent">Это ограничение задал родитель в MaxCare.</string>
+    <string name="limit_extend">Доиграть: ещё 5 минут</string>
+    <string name="limit_ok">Понятно</string>
 </resources>

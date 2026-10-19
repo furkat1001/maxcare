@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../children/app_limits_repository.dart';
 import '../children/app_usage_repository.dart';
 import '../auth/auth_repository.dart';
 import '../children/device_repository.dart';
@@ -88,6 +89,24 @@ final appUsageProvider =
   (ref, request) => ref
       .watch(appUsageRepositoryProvider)
       .day(request.deviceId, DateTime.parse(request.date)),
+);
+
+final appLimitsRepositoryProvider = Provider<AppLimitsRepository>(
+  (ref) => AppLimitsRepository(
+    ref.watch(apiClientProvider),
+    ref.watch(appUsageRepositoryProvider),
+  ),
+);
+
+/// Ограничения времени одного телефона.
+final appLimitsProvider = FutureProvider.autoDispose.family<AppLimits, String>(
+  (ref, deviceId) => ref.watch(appLimitsRepositoryProvider).get(deviceId),
+);
+
+/// Приложения ребёнка за последние [trackDays] дня — для выбора в правиле: пакет → название.
+final recentAppsProvider = FutureProvider.autoDispose.family<Map<String, String>, String>(
+  (ref, deviceId) =>
+      ref.watch(appLimitsRepositoryProvider).recentApps(deviceId, days: trackDays),
 );
 
 /// Состояние сессии: null — ещё проверяем, true/false — вошли/нет.

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import 'app_limits_screen.dart';
 import 'app_usage_screen.dart';
 import 'child_location_screen.dart';
 import 'device_events_screen.dart';
 
-/// Хаб отчёта по одному ребёнку: маршрут, время в приложениях, журнал событий и блокировок.
+/// Хаб отчёта по одному ребёнку: маршрут, время и ограничения в приложениях, журнал событий.
 /// Дальнейшие разделы (удалённые звонки/смс) добавятся сюда.
 class ReportHubScreen extends StatelessWidget {
   const ReportHubScreen({required this.deviceId, required this.title, super.key});
@@ -40,6 +41,18 @@ class ReportHubScreen extends StatelessWidget {
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (_) => AppUsageScreen(deviceId: deviceId, title: title),
+              ),
+            ),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.timer_outlined),
+            title: Text(t.reportLimits),
+            subtitle: Text(t.reportLimitsSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => AppLimitsScreen(deviceId: deviceId, title: title),
               ),
             ),
           ),

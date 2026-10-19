@@ -12,6 +12,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import uz.maxcare.kids.core.limits.AppLimitRule
+import uz.maxcare.kids.core.limits.AppLimitsConfig
+import uz.maxcare.kids.core.limits.LimitKind
 
 class OkHttpMaxCareApiTest {
     private val server = MockWebServer()
@@ -177,6 +180,26 @@ class OkHttpMaxCareApiTest {
                 """"foregroundMs":2400000}]}]}""",
             request.body?.utf8()
         )
+    }
+
+    @Test
+    fun `app limits are read and unknown kinds skipped`() = runTest {
+        // Синтетические правила — не настройки настоящей семьи.
+        val body = """{"rules":[{"kind":"group","target":"video","dailyLimitMin":60,""" +
+            """"sessionMin":15,"breakMin":15},{"kind":"site","target":"x"}],""" +
+            """"alwaysAllowed":["com.example.school"]}"""
+        server.enqueue(MockResponse.Builder().code(200).body(body).build())
+
+        val result = api().fetchAppLimits("device-token")
+
+        val expected = AppLimitsConfig(
+            rules = listOf(AppLimitRule(LimitKind.GROUP, "video", 60, 15, 15)),
+            alwaysAllowed = setOf("com.example.school")
+        )
+        assertEquals(ApiResult.Ok(expected), result)
+        val request = server.takeRequest()
+        assertEquals("/v1/device/app-limits", request.url.encodedPath)
+        assertEquals("Bearer device-token", request.headers["Authorization"])
     }
 
     @Test

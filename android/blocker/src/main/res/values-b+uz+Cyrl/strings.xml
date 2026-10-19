@@ -3,4 +3,11 @@
     <string name="blocker_title">MaxCare томонидан блокланди</string>
     <string name="blocker_message">Бу болалар учун мос эмас. Агар бу хато деб ҳисобласанг, ота-онангга айт.</string>
     <string name="blocker_open_app">MaxCare Kids’ни очиш</string>
+    <string name="limit_break_title">Танаффус</string>
+    <string name="limit_break_message">%1$s соат %2$s да яна очилади. Бироз дам ол!</string>
+    <string name="limit_daily_title">Бугун учун шу</string>
+    <string name="limit_daily_message">%1$s учун бугунги вақт тугади. Эртага яна фойдаланиш мумкин.</string>
+    <string name="limit_set_by_parent">Бу чекловни ота-онанг MaxCare’да ўрнатган.</string>
+    <string name="limit_extend">Ўйинни тугатиш: яна 5 дақиқа</string>
+    <string name="limit_ok">Тушунарли</string>
 </resources>
