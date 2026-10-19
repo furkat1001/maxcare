@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_channel_name">Location</string>
+    <string name="location_off_title">Location is turned off</string>
+    <string name="location_denied_title">MaxCare Kids can’t access location</string>
+    <string name="location_notice_body">Your parent can’t see where you are. Tap to turn it on.</string>
+</resources>

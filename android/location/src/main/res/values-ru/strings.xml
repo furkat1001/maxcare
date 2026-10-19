@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_channel_name">Геолокация</string>
+    <string name="location_off_title">Геолокация выключена</string>
+    <string name="location_denied_title">У MaxCare Kids нет доступа к геолокации</string>
+    <string name="location_notice_body">Родитель не видит, где ты. Нажми, чтобы включить.</string>
+</resources>

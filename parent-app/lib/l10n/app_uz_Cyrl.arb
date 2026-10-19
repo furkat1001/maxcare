@@ -132,5 +132,8 @@
   "limitBreakLabel": "Танаффус",
   "limitWarningHint": "Бола 2 дақиқа олдин огоҳлантирилади.",
   "limitGameHint": "Ўйинларда бола бир марта ўйинни тугатиши мумкин: яна 5 дақиқа.",
-  "eventAppLimitReached": "Вақт чеклови ишлади"
+  "eventAppLimitReached": "Вақт чеклови ишлади",
+  "eventLocationOff": "Геолокация ўчирилди",
+  "eventLocationDenied": "Геолокацияга рухсат олиб қўйилди",
+  "eventLocationOn": "Геолокация қайта ёқилди"
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_channel_name">Геолокация</string>
+    <string name="location_off_title">Геолокация ўчирилган</string>
+    <string name="location_denied_title">MaxCare Kids’да геолокацияга рухсат йўқ</string>
+    <string name="location_notice_body">Ота-онанг қаердалигингни кўрмаяпти. Ёқиш учун бос.</string>
+</resources>

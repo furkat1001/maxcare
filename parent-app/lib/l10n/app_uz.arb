@@ -132,5 +132,8 @@
   "limitBreakLabel": "Tanaffus",
   "limitWarningHint": "Bola 2 daqiqa oldin ogohlantiriladi.",
   "limitGameHint": "O‘yinlarda bola bir marta o‘yinni tugatishi mumkin: yana 5 daqiqa.",
-  "eventAppLimitReached": "Vaqt cheklovi ishladi"
+  "eventAppLimitReached": "Vaqt cheklovi ishladi",
+  "eventLocationOff": "Geolokatsiya o‘chirildi",
+  "eventLocationDenied": "Geolokatsiyaga ruxsat olib qo‘yildi",
+  "eventLocationOn": "Geolokatsiya qayta yoqildi"
 }

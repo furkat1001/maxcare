@@ -10,6 +10,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import uz.maxcare.kids.core.events.EventType
 import uz.maxcare.kids.core.events.SyncResult
 import uz.maxcare.kids.core.location.LocationFix
 import uz.maxcare.kids.core.location.LocationProvider
@@ -137,7 +138,10 @@ class PeriodicLocationCollectorTest {
     private val queue = SecureLocationQueue(store)
     private val provider = FakeProvider()
     private val clock = Clock.fixed(Instant.parse("2026-10-09T10:15:30Z"), ZoneOffset.UTC)
-    private val collector = PeriodicLocationCollector(provider, queue, clock)
+    private val probe = FakeProbe()
+    private val events = FakeEventRecorder()
+    private val monitor = LocationStateMonitor(store, events, probe, FakeNotice())
+    private val collector = PeriodicLocationCollector(provider, queue, clock, monitor)
 
     @Test
     fun `a fix is queued with coordinates, accuracy and the clock time`() = runTest {
@@ -158,6 +162,15 @@ class PeriodicLocationCollectorTest {
 
         assertFalse(collector.collect())
         assertTrue(queue.peek(10).isEmpty())
+    }
+
+    @Test
+    fun `every collection checks whether location still works`() = runTest {
+        collector.collect()
+        probe.access = LocationAccess.SWITCHED_OFF
+        collector.collect()
+
+        assertEquals(listOf(EventType.LOCATION_OFF), events.recorded)
     }
 
     @Test
@@ -183,7 +196,7 @@ private class FakeProvider : LocationProvider {
     override suspend fun current(): LocationFix? = fix
 }
 
-private class InMemoryStore : SecureStore {
+internal class InMemoryStore : SecureStore {
     val values = mutableMapOf<String, ByteArray>()
     var failWrites = false
 

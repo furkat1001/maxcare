@@ -117,7 +117,9 @@ bool _dangerous(String type) => switch (type) {
       'image_blocked_nudity' ||
       'image_blocked_violence' ||
       'uninstall_attempt_blocked' ||
-      'accessibility_off' =>
+      'accessibility_off' ||
+      'location_off' ||
+      'location_denied' =>
         true,
       _ => false,
     };
@@ -136,5 +138,7 @@ IconData _icon(String type) => switch (type) {
       'image_blocked_nudity' || 'image_blocked_violence' => Icons.image_not_supported,
       'uninstall_attempt_blocked' => Icons.delete_forever,
       'accessibility_off' => Icons.visibility_off,
+      'location_off' || 'location_denied' => Icons.location_off,
+      'location_on' => Icons.location_on,
       _ => Icons.info_outline,
     };
