@@ -38,12 +38,25 @@ data class BucketState(
     var dayExtended: Boolean = false,
     var dailyReported: Boolean = false,
     /** Самый маленький порог предупреждения (в минутах), который уже показан. */
-    var warnedAt: Int? = null
+    var warnedAt: Int? = null,
+    /**
+     * Сколько по системной истории набралось сегодня до того, как правило появилось: в день
+     * создания правила это время не засчитывается. На следующий день — ноль, считается весь день.
+     */
+    var beforeRuleMs: Long = 0
 )
 
-/** @param day календарный день `2026-10-18`, к которому относятся [buckets]. */
+/**
+ * @param day календарный день `2026-10-18`, к которому относятся [buckets].
+ * @param knownRules ключи правил, которые телефон уже видел; переживают смену дня. null —
+ *   состояние сохранено до появления этого поля.
+ */
 @Serializable
-data class LimiterState(val day: String, val buckets: Map<String, BucketState> = emptyMap())
+data class LimiterState(
+    val day: String,
+    val buckets: Map<String, BucketState> = emptyMap(),
+    val knownRules: Set<String>? = null
+)
 
 /**
  * Ограничение времени в приложениях — без Android, чтобы проверять тестами.
@@ -72,14 +85,19 @@ class AppTimeLimiter(
     private var lastTickAt: Long? = null
     private var lastPackage: String? = null
 
+    // null — восстановлено состояние старого формата (см. applyBaseline).
+    private var knownRules: MutableSet<String>? = mutableSetOf()
+
     fun restore(saved: LimiterState) {
         day = saved.day
         buckets.clear()
         saved.buckets.forEach { (key, state) -> buckets[key] = state.copy() }
+        knownRules = saved.knownRules?.toMutableSet()
         rollDayIfNeeded(now())
     }
 
-    fun snapshot(): LimiterState = LimiterState(day, buckets.mapValues { it.value.copy() })
+    fun snapshot(): LimiterState =
+        LimiterState(day, buckets.mapValues { it.value.copy() }, knownRules?.toSet())
 
     /** @param packageName приложение на экране или null — экран выключен или неизвестно. */
     fun tick(packageName: String?): LimitVerdict {
@@ -93,7 +111,11 @@ class AppTimeLimiter(
 
     /**
      * Сверить с системной историей: потраченное сегодня не может быть меньше. Так дневной лимит
-     * переживает перезапуск и очистку данных MaxCare Kids.
+     * переживает перезапуск MaxCare Kids.
+     *
+     * Новое правило в день создания считает только время после своего появления: иначе
+     * родитель вечером ставит лимит, и приложение сразу закрывается «до завтра» без
+     * предупреждения. Изменение существующего правила (те же цели) счёт не сбрасывает.
      */
     fun applyBaseline(foregroundToday: Map<String, Long>) {
         rollDayIfNeeded(now())
@@ -101,10 +123,18 @@ class AppTimeLimiter(
         foregroundToday.forEach { (pkg, ms) ->
             rulesFor(pkg).forEach { rule -> totals[rule] = (totals[rule] ?: 0) + ms }
         }
-        totals.forEach { (rule, total) ->
+        val keys = config.rules.map { it.key }.toSet()
+        // Состояние старого формата: правила уже действовали, сегодняшний счёт не обнуляем.
+        val known = knownRules ?: keys.toMutableSet()
+        config.rules.forEach { rule ->
+            val total = totals[rule] ?: 0
             val bucket = buckets.of(rule)
-            bucket.usedTodayMs = maxOf(bucket.usedTodayMs, total)
+            if (known.add(rule.key)) bucket.beforeRuleMs = total
+            bucket.usedTodayMs = maxOf(bucket.usedTodayMs, total - bucket.beforeRuleMs)
         }
+        // Удалённое правило, добавленное снова, снова считается новым.
+        known.retainAll(keys)
+        knownRules = known
     }
 
     /** «Доиграть матч» — только для игр и один раз: за сессию для перерыва, за день для лимита. */
