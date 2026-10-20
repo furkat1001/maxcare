@@ -6,9 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.net.Uri
 import android.os.Build
-import android.provider.Settings
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -91,14 +89,18 @@ internal class AndroidLocationNotice @Inject constructor(
         NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID)
     }
 
+    /**
+     * Выключено — экран переключателя через [OpenLocationSettingsActivity] (окно доверия).
+     * Нет доступа — сам MaxCare Kids: шаг мастера запросит разрешение системным диалогом.
+     * Карточку приложения не открываем: в ней «Деактивировать и удалить», а защита от удаления
+     * должна закрывать её всегда, когда её открыл не родитель.
+     */
     private fun settingsIntent(denied: Boolean): PendingIntent {
         val intent = if (denied) {
-            Intent(
-                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                Uri.fromParts("package", context.packageName, null)
-            )
+            context.packageManager.getLaunchIntentForPackage(context.packageName)
+                ?: Intent(Intent.ACTION_MAIN).setPackage(context.packageName)
         } else {
-            Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            Intent(context, OpenLocationSettingsActivity::class.java)
         }.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         return PendingIntent.getActivity(
             context,

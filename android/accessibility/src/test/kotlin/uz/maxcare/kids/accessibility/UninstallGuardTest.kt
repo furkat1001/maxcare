@@ -66,4 +66,17 @@ class UninstallGuardTest {
             )
         )
     }
+
+    @Test
+    fun `does not block a settings screen that MaxCare itself just opened`() {
+        assertFalse(
+            UninstallGuard.shouldBlock(
+                isWindowEvent = true,
+                packageName = "com.android.settings",
+                adminActive = true,
+                appLabelOnScreen = true,
+                openedByMaxCare = true
+            )
+        )
+    }
 }
