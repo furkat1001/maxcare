@@ -23,6 +23,19 @@ class AuthRepository {
       '/v1/sessions',
       body: {'email': email.trim(), 'password': password},
     );
+    await _saveSession(response);
+  }
+
+  /// Вход через Google: ID-токен проверяет сервер и выдаёт обычную сессию MaxCare.
+  Future<void> signInWithGoogle(String idToken) async {
+    final response = await _api.post(
+      '/v1/sessions/google',
+      body: {'idToken': idToken},
+    );
+    await _saveSession(response);
+  }
+
+  Future<void> _saveSession(Map<String, dynamic> response) async {
     final token = response['token'] as String?;
     if (token == null || token.isEmpty) {
       throw StateError('Session response has no token');

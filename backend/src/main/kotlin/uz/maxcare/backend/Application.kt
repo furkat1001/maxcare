@@ -33,6 +33,8 @@ import uz.maxcare.backend.parents.ParentService
 import uz.maxcare.backend.parents.parentRoutes
 import uz.maxcare.backend.ratelimit.RedisRateLimiter
 import uz.maxcare.backend.security.Argon2Hasher
+import uz.maxcare.backend.security.IdentityProvider
+import uz.maxcare.backend.security.JwtIdTokenVerifier
 import uz.maxcare.backend.security.SecretBox
 import uz.maxcare.backend.usage.AppUsageService
 import uz.maxcare.backend.usage.appUsageRoutes
@@ -52,7 +54,10 @@ fun main() {
         appUsage = AppUsageService(db, clock),
         filterWords = FilterWordsService(db),
         appLimits = AppLimitsService(db),
-        rateLimiter = RedisRateLimiter(redis)
+        rateLimiter = RedisRateLimiter(redis),
+        idTokens = mapOf(
+            IdentityProvider.GOOGLE to JwtIdTokenVerifier.google(config.googleClientIds)
+        )
     )
 
     embeddedServer(Netty, port = config.port) {
@@ -80,7 +85,7 @@ fun Application.maxcareModule(services: Services) {
     }
     routing {
         get("/health") { call.respondText("ok") }
-        parentRoutes(services.parents, services.rateLimiter)
+        parentRoutes(services.parents, services.idTokens, services.rateLimiter)
         deviceRoutes(services.devices, services.rateLimiter)
         eventRoutes(services.events, services.rateLimiter)
         locationRoutes(services.locations, services.rateLimiter)

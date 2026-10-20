@@ -135,5 +135,8 @@
   "eventAppLimitReached": "Vaqt cheklovi ishladi",
   "eventLocationOff": "Geolokatsiya o‘chirildi",
   "eventLocationDenied": "Geolokatsiyaga ruxsat olib qo‘yildi",
-  "eventLocationOn": "Geolokatsiya qayta yoqildi"
+  "eventLocationOn": "Geolokatsiya qayta yoqildi",
+  "authWithGoogle": "Google orqali kirish",
+  "authOr": "yoki",
+  "authGoogleFailed": "Google orqali kirib bo‘lmadi. Qayta urinib ko‘ring."
 }

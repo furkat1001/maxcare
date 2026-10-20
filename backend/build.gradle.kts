@@ -33,6 +33,7 @@ dependencies {
     implementation(libs.flyway.postgresql)
     implementation(libs.lettuce)
     implementation(libs.bouncycastle)
+    implementation(libs.nimbus.jose.jwt)
     implementation(libs.logback)
 
     testImplementation(platform(libs.junit.bom))

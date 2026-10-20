@@ -40,4 +40,25 @@ class AppConfigTest {
         assertFalse(config.toString().contains("db-secret-value"))
         assertFalse(config.toString().contains(key))
     }
+
+    @Test
+    fun `google sign in is off by default and takes a comma separated list`() {
+        assertEquals(
+            emptySet(),
+            AppConfig.fromEnv(mapOf("MAXCARE_SECRET_KEY" to key)).googleClientIds
+        )
+
+        val config = AppConfig.fromEnv(
+            mapOf(
+                "MAXCARE_SECRET_KEY" to key,
+                "MAXCARE_GOOGLE_CLIENT_IDS" to
+                    " web.apps.googleusercontent.com, ,ios.apps.googleusercontent.com"
+            )
+        )
+
+        assertEquals(
+            setOf("web.apps.googleusercontent.com", "ios.apps.googleusercontent.com"),
+            config.googleClientIds
+        )
+    }
 }

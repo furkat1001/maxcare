@@ -26,6 +26,30 @@
 Дальше передаётся в заголовке `Authorization: Bearer <токен>`.
 Лимит: 10 попыток за 15 минут на пару «адрес + e-mail».
 
+### `POST /v1/sessions/google` — вход через Google
+```json
+{"idToken": "<ID-токен от Google Sign-In>"}
+```
+→ `201 {"token": "<токен сессии>"}` — та же сессия, что и при входе по паролю.
+
+Сервер сам проверяет токен по открытым ключам Google: подпись RS256, срок, издатель
+(`accounts.google.com`) и получатель — один из ID клиентов в `MAXCARE_GOOGLE_CLIENT_IDS`
+(через запятую; пусто — вход через Google выключен и всегда `401`). Дальше:
+
+1. Этот пользователь Google (`sub`) уже входил — тот же аккаунт, даже если сменился e-mail.
+2. Иначе есть аккаунт с тем же e-mail и Google подтвердил адрес (`email_verified`) — Google
+   связывается с ним; пароль продолжает работать.
+3. Иначе создаётся новый аккаунт без пароля (войти по паролю в него нельзя).
+
+| Ответ | Когда |
+| --- | --- |
+| `401 invalid_credentials` | Токен поддельный, просрочен, выдан другому приложению или вход не настроен |
+| `409 email_taken` | Адрес занят аккаунтом с паролем, а Google его не подтвердил |
+| `400 invalid_request` | В токене нет e-mail — новый аккаунт не создать |
+| `404 not_found` | Неизвестный провайдер (`/v1/sessions/apple` — пока тоже) |
+
+Лимит: 20 попыток за 15 минут с одного адреса.
+
 ## Привязка телефона ребёнка
 
 ### `POST /v1/pairing-codes` — код привязки (родитель)
@@ -187,4 +211,5 @@ docker compose up -d          # PostgreSQL и Redis
 ```
 
 В рабочем окружении обязательны переменные `MAXCARE_SECRET_KEY` (base64 от 32 случайных байт),
-`MAXCARE_DB_URL`, `MAXCARE_DB_USER`, `MAXCARE_DB_PASSWORD`, `MAXCARE_REDIS_URL`.
+`MAXCARE_DB_URL`, `MAXCARE_DB_USER`, `MAXCARE_DB_PASSWORD`, `MAXCARE_REDIS_URL`; для входа через
+Google — `MAXCARE_GOOGLE_CLIENT_IDS`.
