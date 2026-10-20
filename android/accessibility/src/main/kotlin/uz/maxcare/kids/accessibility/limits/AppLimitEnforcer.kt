@@ -97,6 +97,11 @@ class AppLimitEnforcer @Inject constructor(
         if (current == null) current = activeWindow()?.takeIf { it !in transient }
         var second = 0L
         while (currentCoroutineContext().isActive) {
+            // События смены окна бывают ложными: на Samsung лаунчер присылает его поверх
+            // открытого YouTube, и время переставало идти. Сверяемся с активным окном сами.
+            if (second % WINDOW_CHECK_EVERY_S == 0L && isInteractive()) {
+                activeWindow()?.takeIf { it !in transient }?.let { current = it }
+            }
             val pkg = current?.takeIf { isInteractive() }
             val verdict = synchronized(lock) { limiter.tick(pkg) }
             if (pkg != null && verdict != LimitVerdict.Free) onVerdict(pkg, verdict)
@@ -204,5 +209,6 @@ class AppLimitEnforcer @Inject constructor(
         const val SAVE_EVERY_S = 30L
         const val BASELINE_EVERY_S = 5 * 60L
         const val REFRESH_EVERY_S = 60L
+        const val WINDOW_CHECK_EVERY_S = 5L
     }
 }
