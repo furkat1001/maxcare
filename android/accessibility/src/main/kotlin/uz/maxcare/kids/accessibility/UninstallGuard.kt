@@ -9,6 +9,9 @@ package uz.maxcare.kids.accessibility
  * опора на устойчивые признаки: окно Настроек/установщика + на экране есть имя нашего приложения
  * (бренд не локализуется) + наш администратор сейчас активен. Иначе легальное удаление после
  * отключения защиты родителем (администратор уже снят) блокировать нельзя.
+ *
+ * Исключение — экран, который только что открыл сам MaxCare Kids (шаг мастера, уведомление):
+ * иначе мастер упирается в заглушку на «Доступе к истории использования» и подобных экранах.
  */
 internal object UninstallGuard {
 
@@ -26,9 +29,11 @@ internal object UninstallGuard {
         isWindowEvent: Boolean,
         packageName: String?,
         adminActive: Boolean,
-        appLabelOnScreen: Boolean
+        appLabelOnScreen: Boolean,
+        openedByMaxCare: Boolean = false
     ): Boolean = isWindowEvent &&
         packageName in SCREEN_PACKAGES &&
         adminActive &&
-        appLabelOnScreen
+        appLabelOnScreen &&
+        !openedByMaxCare
 }

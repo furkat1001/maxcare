@@ -13,6 +13,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.material3.Surface
@@ -112,17 +113,23 @@ private fun rememberSystemActions(viewModel: KidsViewModel): SystemActions {
                 notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             } else {
                 // До Android 13 разрешения нет: уведомления включаются только в настройках.
-                settingsLauncher.launch(notificationSettingsIntent(packageName))
+                settingsLauncher.launchTrusted(viewModel, notificationSettingsIntent(packageName))
             }
         },
         openNotificationSettings = {
-            settingsLauncher.launch(notificationSettingsIntent(packageName))
+            settingsLauncher.launchTrusted(viewModel, notificationSettingsIntent(packageName))
         },
-        requestLocation = { requestLocation(context, locationLauncher::launch) },
+        requestLocation = {
+            // Разрешение «всегда» система может показать экраном Настроек.
+            viewModel.beforeSettingsScreen()
+            requestLocation(context, locationLauncher::launch)
+        },
         openUsageAccessSettings = {
-            usageAccessLauncher.launch(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+            usageAccessLauncher.launchTrusted(viewModel, usageAccessIntent())
         },
-        openAppSettings = { settingsLauncher.launch(appSettingsIntent(packageName)) }
+        openAppSettings = {
+            settingsLauncher.launchTrusted(viewModel, appSettingsIntent(packageName))
+        }
     )
 }
 
@@ -149,6 +156,8 @@ private fun requestLocation(context: Context, launch: (Array<String>) -> Unit) {
     }
 }
 
+private fun usageAccessIntent() = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+
 private fun notificationSettingsIntent(packageName: String): Intent = Intent(
     Settings.ACTION_APP_NOTIFICATION_SETTINGS
 ).putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
@@ -158,3 +167,9 @@ private fun appSettingsIntent(packageName: String): Intent = Intent(
     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
     Uri.fromParts("package", packageName, null)
 )
+
+/** Экран Настроек для шага мастера — с окном доверия для защиты от удаления. */
+private fun ActivityResultLauncher<Intent>.launchTrusted(viewModel: KidsViewModel, intent: Intent) {
+    viewModel.beforeSettingsScreen()
+    launch(intent)
+}

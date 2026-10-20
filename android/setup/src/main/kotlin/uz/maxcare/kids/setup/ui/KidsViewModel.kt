@@ -26,6 +26,7 @@ import uz.maxcare.kids.core.protection.ProtectionMode
 import uz.maxcare.kids.core.protection.ProtectionShutdown
 import uz.maxcare.kids.core.protection.RecoveryResult
 import uz.maxcare.kids.core.protection.SetPasswordResult
+import uz.maxcare.kids.core.protection.TrustedSettingsWindow
 import uz.maxcare.kids.core.storage.SecureStore
 import uz.maxcare.kids.core.storage.SecureStoreException
 import uz.maxcare.kids.core.storage.readString
@@ -55,13 +56,22 @@ class KidsViewModel @Inject internal constructor(
     private val appUsageScheduler: AppUsageScheduler,
     private val store: SecureStore,
     private val environment: SetupEnvironment,
-    private val appDataReset: AppDataReset
+    private val appDataReset: AppDataReset,
+    private val trustedSettings: TrustedSettingsWindow
 ) : ViewModel() {
     private val _state = MutableStateFlow(KidsUiState())
     val state: StateFlow<KidsUiState> = _state.asStateFlow()
 
+    /**
+     * Перед экраном Настроек для шага мастера: защита от удаления пропустит его (иначе на
+     * экране есть название приложения, и он закрывается заглушкой).
+     */
+    fun beforeSettingsScreen() = trustedSettings.open()
+
     /** Пересчитать шаг: при открытии и при возврате из системных настроек. */
     fun refresh() {
+        // Вернулись в приложение — всё дальнейшее в Настройках снова под защитой.
+        trustedSettings.close()
         // На экранах отключения и восстановления пользователь вводит данные — не сбиваем его.
         val screen = _state.value.screen
         if (screen is KidsScreen.DisableProtection || screen is KidsScreen.RecoverPassword) return
@@ -108,6 +118,7 @@ class KidsViewModel @Inject internal constructor(
     }
 
     fun onNotificationPermissionResult() = launchAction {
+        trustedSettings.close()
         showNextScreen()
         if (currentStep() == SetupStep.NOTIFICATIONS) showMessage(UiMessage.NotificationsDenied)
     }
@@ -118,6 +129,7 @@ class KidsViewModel @Inject internal constructor(
      * пока не выдадут оба; как только выдали — сразу запускаем периодический сбор.
      */
     fun onLocationPermissionResult() = launchAction {
+        trustedSettings.close()
         showNextScreen()
         if (currentStep() != SetupStep.LOCATION) locationScheduler.schedulePeriodic()
     }
@@ -127,6 +139,7 @@ class KidsViewModel @Inject internal constructor(
      * показываем: шаг остаётся, пока доступ не выдан; как только выдали — запускаем отправку.
      */
     fun onUsageAccessResult() = launchAction {
+        trustedSettings.close()
         showNextScreen()
         if (currentStep() != SetupStep.USAGE_ACCESS) appUsageScheduler.schedulePeriodic()
     }

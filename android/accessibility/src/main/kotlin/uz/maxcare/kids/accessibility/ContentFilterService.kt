@@ -26,6 +26,7 @@ import uz.maxcare.kids.core.events.EventType
 import uz.maxcare.kids.core.ml.ImageCategory
 import uz.maxcare.kids.core.ml.ImageClassifier
 import uz.maxcare.kids.core.ml.ImageVerdict
+import uz.maxcare.kids.core.protection.TrustedSettingsWindow
 
 /**
  * Служба доступности фильтра контента.
@@ -58,13 +59,19 @@ class ContentFilterService : AccessibilityService() {
     @ApplicationScope
     lateinit var appScope: CoroutineScope
 
+    @Inject
+    lateinit var trustedSettings: TrustedSettingsWindow
+
     private val limitActions by lazy { LimitActions(this, events, limits, appScope) }
 
     private var limitsJob: Job? = null
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    private val uninstall = UninstallInterceptor(this) { trigger(it) }
+    // lazy: поля @Inject заполняются в onCreate, после инициализации свойств.
+    private val uninstall by lazy {
+        UninstallInterceptor(this, { trustedSettings.isOpen() }) { trigger(it) }
+    }
 
     private var scanner: ScreenshotScanner? = null
 

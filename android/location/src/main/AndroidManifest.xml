@@ -12,4 +12,14 @@
     <!-- Уведомление ребёнку «геолокация выключена». Уже есть в приложении (accessibility/). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <application>
+        <!-- Открывается только из нашего уведомления. -->
+        <activity
+            android:name=".OpenLocationSettingsActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.NoDisplay" />
+    </application>
+
 </manifest>

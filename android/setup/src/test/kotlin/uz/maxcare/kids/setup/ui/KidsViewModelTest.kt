@@ -34,6 +34,7 @@ import uz.maxcare.kids.core.protection.ProtectionMode
 import uz.maxcare.kids.core.protection.ProtectionShutdown
 import uz.maxcare.kids.core.protection.RecoveryResult
 import uz.maxcare.kids.core.protection.SetPasswordResult
+import uz.maxcare.kids.core.protection.TimedTrustedSettingsWindow
 import uz.maxcare.kids.core.storage.SecureStore
 import uz.maxcare.kids.core.storage.SecureStoreException
 import uz.maxcare.kids.core.usage.AppUsageScheduler
@@ -51,6 +52,8 @@ class KidsViewModelTest {
     private val scheduler = FakeScheduler()
     private val usageScheduler = FakeUsageScheduler()
     private var resets = 0
+    private var now = 0L
+    private val trustedSettings = TimedTrustedSettingsWindow { now }
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -69,8 +72,10 @@ class KidsViewModelTest {
         scheduler,
         usageScheduler,
         store,
-        environment
-    ) { resets++ }.also { it.refresh() }
+        environment,
+        { resets++ },
+        trustedSettings
+    ).also { it.refresh() }
 
     private val KidsViewModel.screen get() = state.value.screen
     private val KidsViewModel.message get() = state.value.message
@@ -368,6 +373,27 @@ class KidsViewModelTest {
         vm.refresh()
 
         assertEquals(KidsScreen.Disabled, vm.screen)
+    }
+
+    @Test
+    fun `settings opened by the wizard are trusted until the user comes back`() {
+        val vm = setUpFully()
+
+        vm.beforeSettingsScreen()
+        assertTrue(trustedSettings.isOpen())
+
+        vm.onUsageAccessResult()
+        assertFalse(trustedSettings.isOpen())
+    }
+
+    @Test
+    fun `coming back to the app closes the trusted window`() {
+        val vm = setUpFully()
+        vm.beforeSettingsScreen()
+
+        vm.refresh()
+
+        assertFalse(trustedSettings.isOpen())
     }
 
     private fun disabledByParent(): KidsViewModel {

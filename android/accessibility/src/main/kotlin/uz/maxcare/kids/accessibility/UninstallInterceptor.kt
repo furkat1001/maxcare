@@ -12,6 +12,7 @@ import uz.maxcare.kids.core.events.EventType
  */
 internal class UninstallInterceptor(
     private val service: AccessibilityService,
+    private val openedByMaxCare: () -> Boolean,
     private val onBlocked: (EventType) -> Unit
 ) {
 
@@ -31,7 +32,13 @@ internal class UninstallInterceptor(
         val pkg = event.packageName?.toString()
         // Дешёвые проверки сначала; активный админ и обход дерева считаем только для нужного окна.
         if (!(windowEvent && pkg in UninstallGuard.SCREEN_PACKAGES)) return false
-        return UninstallGuard.shouldBlock(windowEvent, pkg, adminActive(), appLabelOnScreen())
+        return UninstallGuard.shouldBlock(
+            windowEvent,
+            pkg,
+            adminActive(),
+            appLabelOnScreen(),
+            openedByMaxCare()
+        )
     }
 
     private fun adminActive(): Boolean {
