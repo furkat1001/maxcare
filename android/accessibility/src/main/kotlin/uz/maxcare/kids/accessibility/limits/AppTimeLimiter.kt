@@ -133,8 +133,10 @@ class AppTimeLimiter(
             val bucket = buckets.of(rule)
             bucket.usedTodayMs = maxOf(bucket.usedTodayMs, total - bucket.beforeRuleMs)
         }
-        // Удалённое правило, добавленное снова, снова считается новым.
+        // Удалённое правило забываем вместе с его счётчиком и перерывом: добавленное снова
+        // считается новым.
         known.retainAll(keys)
+        buckets.keys.retainAll(keys)
         knownRules = known
     }
 

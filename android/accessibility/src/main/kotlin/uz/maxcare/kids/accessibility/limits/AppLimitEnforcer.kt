@@ -67,8 +67,9 @@ class AppLimitEnforcer @Inject constructor(
     }
 
     /** Время ещё не засчитано, но сохранить его стоит, например перед блокировкой. */
+    // Сохраняем и без правил: иначе после перезапуска вернулось бы старое состояние, где
+    // удалённое правило ещё «известно».
     suspend fun save() {
-        if (repository.current().rules.isEmpty()) return
         val state = synchronized(lock) { limiter.snapshot() }
         try {
             store.writeString(
@@ -142,7 +143,14 @@ class AppLimitEnforcer @Inject constructor(
         } catch (ignored: SecureStoreException) {
             return
         }
-        synchronized(lock) { limiter.config = repository.current() }
+        val changed = synchronized(lock) {
+            val before = limiter.config.rules.map { it.key }.toSet()
+            limiter.config = repository.current()
+            limiter.config.rules.map { it.key }.toSet() != before
+        }
+        // Правило добавили или убрали — сверить сразу, а не через BASELINE_EVERY_S: иначе новое
+        // правило несколько минут работает со старым счётчиком.
+        if (changed) applyBaseline()
     }
 
     private suspend fun applyBaseline() {

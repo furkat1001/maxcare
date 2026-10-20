@@ -283,6 +283,18 @@ class AppTimeLimiterTest {
     }
 
     @Test
+    fun `removing a rule ends its break at once`() {
+        val limiter = limiter(video(session = 10, pause = 15))
+        limiter.applyBaseline(emptyMap())
+        assertTrue(limiter.use(VIDEO_A, 10.5) is LimitVerdict.Blocked)
+
+        limiter.config = AppLimitsConfig()
+        limiter.applyBaseline(emptyMap())
+
+        assertEquals(LimitVerdict.Free, limiter.tick(VIDEO_A))
+    }
+
+    @Test
     fun `state saved before this change keeps counting the whole day`() {
         val limiter = limiter(video(daily = 30)).apply {
             restore(LimiterState(day = "2026-10-18", knownRules = null))
