@@ -135,5 +135,8 @@
   "eventAppLimitReached": "Сработало ограничение времени",
   "eventLocationOff": "Геолокация выключена",
   "eventLocationDenied": "Доступ к геолокации отозван",
-  "eventLocationOn": "Геолокация снова включена"
+  "eventLocationOn": "Геолокация снова включена",
+  "authWithGoogle": "Войти через Google",
+  "authOr": "или",
+  "authGoogleFailed": "Не удалось войти через Google. Попробуйте ещё раз."
 }

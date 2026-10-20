@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/api_exception.dart';
 import '../core/error_text.dart';
 import '../core/providers.dart';
 import '../l10n/app_localizations.dart';
@@ -52,6 +53,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    final google = ref.watch(googleIdTokenSourceProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(_register ? t.authSignUpTitle : t.authSignInTitle),
@@ -64,6 +66,26 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Google — основной способ; e-mail с паролем — запасной (телефоны без сервисов Google).
+                if (google.isAvailable) ...[
+                  OutlinedButton.icon(
+                    onPressed: _busy ? null : _signInWithGoogle,
+                    icon: const Icon(Icons.account_circle_outlined),
+                    label: Text(t.authWithGoogle),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      const Expanded(child: Divider()),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(t.authOr),
+                      ),
+                      const Expanded(child: Divider()),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 TextFormField(
                   controller: _email,
                   decoration: InputDecoration(labelText: t.commonEmail),
@@ -104,6 +126,27 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _signInWithGoogle() async {
+    final t = AppLocalizations.of(context);
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      final idToken = await ref.read(googleIdTokenSourceProvider).obtainIdToken();
+      if (idToken == null) return; // Отменил выбор аккаунта — не ошибка.
+      await ref.read(authRepositoryProvider).signInWithGoogle(idToken);
+      ref.read(sessionProvider.notifier).onSignedIn();
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = errorText(t, e));
+    } catch (_) {
+      // Ошибки самого Google Sign-In (настройка, сервисы Google на телефоне).
+      if (mounted) setState(() => _error = t.authGoogleFailed);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   bool _validEmail(String? v) {

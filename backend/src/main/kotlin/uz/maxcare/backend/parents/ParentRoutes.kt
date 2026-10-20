@@ -7,12 +7,16 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import uz.maxcare.backend.http.ErrorCodes
 import uz.maxcare.backend.http.clientIp
 import uz.maxcare.backend.http.respondError
 import uz.maxcare.backend.ratelimit.RateLimiter
 import uz.maxcare.backend.ratelimit.check
+import uz.maxcare.backend.security.IdTokenVerifier
+import uz.maxcare.backend.security.IdentityProvider
 
 @Serializable
 data class CredentialsRequest(val email: String, val password: String)
@@ -23,7 +27,15 @@ data class RegisterResponse(val parentId: String)
 @Serializable
 data class SessionResponse(val token: String)
 
-fun Route.parentRoutes(parents: ParentService, rateLimiter: RateLimiter) {
+@Serializable
+data class IdTokenRequest(val idToken: String)
+
+/** @param idTokens проверка ID-токенов по провайдерам; провайдера нет в карте — вход через него выключен. */
+fun Route.parentRoutes(
+    parents: ParentService,
+    idTokens: Map<IdentityProvider, IdTokenVerifier>,
+    rateLimiter: RateLimiter
+) {
     post("/v1/parents") {
         rateLimiter.check("register:${call.clientIp}", limit = 5, window = 1.hours)
         val request = call.receive<CredentialsRequest>()
@@ -56,6 +68,29 @@ fun Route.parentRoutes(parents: ParentService, rateLimiter: RateLimiter) {
             call.respondError(HttpStatusCode.Unauthorized, ErrorCodes.INVALID_CREDENTIALS)
         } else {
             call.respond(HttpStatusCode.Created, SessionResponse(token))
+        }
+    }
+
+    // Вход через Google / Apple: приложение присылает ID-токен провайдера, сервер проверяет его сам.
+    post("/v1/sessions/{provider}") {
+        rateLimiter.check("id-login:${call.clientIp}", limit = 20, window = 15.minutes)
+        val verifier = IdentityProvider.parse(call.parameters["provider"])?.let(idTokens::get)
+            ?: return@post call.respondError(HttpStatusCode.NotFound, ErrorCodes.NOT_FOUND)
+        val request = call.receive<IdTokenRequest>()
+        val identity = withContext(Dispatchers.IO) { verifier.verify(request.idToken) }
+            ?: return@post call.respondError(
+                HttpStatusCode.Unauthorized,
+                ErrorCodes.INVALID_CREDENTIALS
+            )
+        when (val result = parents.loginWithIdentity(identity)) {
+            is IdentityLoginResult.Session ->
+                call.respond(HttpStatusCode.Created, SessionResponse(result.token))
+
+            IdentityLoginResult.EmailTaken ->
+                call.respondError(HttpStatusCode.Conflict, ErrorCodes.EMAIL_TAKEN)
+
+            IdentityLoginResult.NoEmail ->
+                call.respondError(HttpStatusCode.BadRequest, ErrorCodes.INVALID_REQUEST)
         }
     }
 }

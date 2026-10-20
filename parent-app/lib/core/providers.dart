@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../children/app_limits_repository.dart';
 import '../children/app_usage_repository.dart';
 import '../auth/auth_repository.dart';
+import '../auth/google_id_token_source.dart';
 import '../children/device_repository.dart';
 import '../children/filter_words_repository.dart';
 import '../children/location_repository.dart';
@@ -21,6 +22,10 @@ final authRepositoryProvider = Provider<AuthRepository>(
     api: ref.watch(apiClientProvider),
     tokenStore: ref.watch(tokenStoreProvider),
   ),
+);
+
+final googleIdTokenSourceProvider = Provider<GoogleIdTokenSource>(
+  (ref) => PluginGoogleIdTokenSource(),
 );
 
 final pairingRepositoryProvider = Provider<PairingRepository>(
@@ -111,11 +116,12 @@ final recentAppsProvider = FutureProvider.autoDispose.family<Map<String, String>
 
 /// Состояние сессии: null — ещё проверяем, true/false — вошли/нет.
 class SessionController extends StateNotifier<bool?> {
-  SessionController(this._auth) : super(null) {
+  SessionController(this._auth, this._google) : super(null) {
     _restore();
   }
 
   final AuthRepository _auth;
+  final GoogleIdTokenSource _google;
 
   Future<void> _restore() async {
     state = await _auth.hasSession();
@@ -125,10 +131,19 @@ class SessionController extends StateNotifier<bool?> {
 
   Future<void> signOut() async {
     await _auth.signOut();
+    // Иначе следующий вход через Google молча возьмёт тот же аккаунт.
+    try {
+      await _google.signOut();
+    } catch (_) {
+      // Сессия MaxCare уже удалена — этого достаточно для выхода.
+    }
     state = false;
   }
 }
 
 final sessionProvider = StateNotifierProvider<SessionController, bool?>(
-  (ref) => SessionController(ref.watch(authRepositoryProvider)),
+  (ref) => SessionController(
+    ref.watch(authRepositoryProvider),
+    ref.watch(googleIdTokenSourceProvider),
+  ),
 );
