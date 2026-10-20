@@ -108,4 +108,15 @@ void main() {
     expect(activity.events[0].detail, 'bet.example.com');
     expect(activity.events[1].detail, isNull);
   });
+
+  test('recovery code is parsed and grouped for reading aloud', () async {
+    final code = await _repo({
+      'code': '62074247',
+      'validUntil': '2026-10-20T12:05:00Z',
+    }).recoveryCode('dev-1');
+
+    expect(code.code, '62074247');
+    expect(code.grouped, '6207 4247');
+    expect(code.validUntil, DateTime.utc(2026, 10, 20, 12, 5));
+  });
 }

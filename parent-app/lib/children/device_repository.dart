@@ -72,6 +72,23 @@ class DeviceActivity {
 DateTime? _parseTime(Object? value) =>
     value is String ? DateTime.tryParse(value) : null;
 
+/// Код для сброса пароля MaxCare Kids на телефоне ребёнка. Телефон проверяет его без сети.
+class RecoveryCode {
+  RecoveryCode({required this.code, required this.validUntil});
+
+  factory RecoveryCode.fromJson(Map<String, dynamic> json) => RecoveryCode(
+        code: json['code'] as String,
+        validUntil: DateTime.parse(json['validUntil'] as String),
+      );
+
+  final String code;
+  final DateTime validUntil;
+
+  /// «6207 4247» — так легче продиктовать и набрать.
+  String get grouped =>
+      code.length == 8 ? '${code.substring(0, 4)} ${code.substring(4)}' : code;
+}
+
 class DeviceRepository {
   DeviceRepository(this._api);
 
@@ -85,5 +102,11 @@ class DeviceRepository {
   Future<DeviceActivity> activity(String deviceId) async {
     final response = await _api.get('/v1/devices/$deviceId/events');
     return DeviceActivity.fromJson(response);
+  }
+
+  Future<RecoveryCode> recoveryCode(String deviceId) async {
+    final response =
+        await _api.post('/v1/devices/$deviceId/recovery-code', body: const {});
+    return RecoveryCode.fromJson(response);
   }
 }

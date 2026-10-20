@@ -139,6 +139,11 @@
   "authWithGoogle": "Войти через Google",
   "authOr": "или",
   "authGoogleFailed": "Не удалось войти через Google. Попробуйте ещё раз.",
+  "recoveryTitle": "Код восстановления пароля",
+  "recoverySubtitle": "Если забыли пароль MaxCare Kids на телефоне ребёнка",
+  "recoveryValidUntil": "Действует до {time}",
+  "recoveryHowTo": "На телефоне ребёнка: MaxCare Kids → «Отключить защиту» → «Забыли пароль?». Введите код и новый пароль. Интернет на телефоне ребёнка не нужен.",
+  "recoveryNewCode": "Получить новый код",
   "passwordShow": "Показать пароль",
   "passwordHide": "Скрыть пароль"
 }

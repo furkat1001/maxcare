@@ -139,6 +139,11 @@
   "authWithGoogle": "Google орқали кириш",
   "authOr": "ёки",
   "authGoogleFailed": "Google орқали кириб бўлмади. Қайта уриниб кўринг.",
+  "recoveryTitle": "Паролни тиклаш коди",
+  "recoverySubtitle": "Боланинг телефонидаги MaxCare Kids паролини унутган бўлсангиз",
+  "recoveryValidUntil": "{time} гача амал қилади",
+  "recoveryHowTo": "Боланинг телефонида: MaxCare Kids → «Ҳимояни ўчириш» → «Паролни унутдингизми?». Кодни ва янги паролни киритинг. Боланинг телефонида интернет керак эмас.",
+  "recoveryNewCode": "Янги код олиш",
   "passwordShow": "Паролни кўрсатиш",
   "passwordHide": "Паролни яшириш"
 }
