@@ -190,6 +190,8 @@ class AppTimeLimiterTest {
     @Test
     fun `system history raises the time already spent today`() {
         val limiter = limiter(video(daily = 30))
+        // Правило уже действует (телефон его видел), история за это время выросла.
+        limiter.applyBaseline(emptyMap())
 
         limiter.applyBaseline(
             mapOf(
@@ -200,6 +202,120 @@ class AppTimeLimiterTest {
         )
 
         assertTrue(limiter.use(VIDEO_A, 1.0) is LimitVerdict.Blocked)
+    }
+
+    @Test
+    fun `a new rule counts only the time after it appeared today`() {
+        val limiter = limiter(video(daily = 60))
+
+        // До правила YouTube смотрели 70 минут — это не засчитывается.
+        limiter.applyBaseline(mapOf(VIDEO_A to 70 * MINUTE_MS))
+        assertTrue(limiter.use(VIDEO_A, 50.0) !is LimitVerdict.Blocked)
+
+        // История растёт вместе с просмотром: 70 + 50 минут — по правилу всё ещё 50.
+        limiter.applyBaseline(mapOf(VIDEO_A to 120 * MINUTE_MS))
+        assertTrue(limiter.use(VIDEO_A, 9.0) !is LimitVerdict.Blocked)
+        assertTrue(limiter.use(VIDEO_A, 1.5) is LimitVerdict.Blocked)
+    }
+
+    @Test
+    fun `a new rule warns before blocking even late in the day`() {
+        val limiter = limiter(video(daily = 10))
+        limiter.applyBaseline(mapOf(VIDEO_A to 300 * MINUTE_MS))
+
+        val verdicts = limiter.verdicts(VIDEO_A, 10)
+
+        assertTrue(verdicts.any { it is LimitVerdict.Warn })
+        assertTrue(verdicts.last() is LimitVerdict.Blocked)
+    }
+
+    @Test
+    fun `from the next day the whole day counts`() {
+        val limiter = limiter(video(daily = 30))
+        limiter.applyBaseline(mapOf(VIDEO_A to 100 * MINUTE_MS))
+
+        clock += 24 * 60 * MINUTE_MS
+        limiter.applyBaseline(mapOf(VIDEO_A to 30 * MINUTE_MS))
+
+        assertTrue(limiter.use(VIDEO_A, 0.1) is LimitVerdict.Blocked)
+    }
+
+    @Test
+    fun `changing the minutes of a rule does not reset today`() {
+        val limiter = limiter(video(daily = 30))
+        limiter.applyBaseline(emptyMap())
+        limiter.use(VIDEO_A, 25.0)
+
+        limiter.config = AppLimitsConfig(listOf(video(daily = 20)))
+        limiter.applyBaseline(mapOf(VIDEO_A to 25 * MINUTE_MS))
+
+        assertTrue(limiter.tick(VIDEO_A) is LimitVerdict.Blocked)
+    }
+
+    @Test
+    fun `a removed and re-added rule counts from the moment it is back`() {
+        val limiter = limiter(video(daily = 30))
+        limiter.applyBaseline(mapOf(VIDEO_A to 10 * MINUTE_MS))
+        limiter.config = AppLimitsConfig()
+        limiter.applyBaseline(mapOf(VIDEO_A to 40 * MINUTE_MS))
+
+        limiter.config = AppLimitsConfig(listOf(video(daily = 30)))
+        limiter.applyBaseline(mapOf(VIDEO_A to 40 * MINUTE_MS))
+
+        assertTrue(limiter.use(VIDEO_A, 29.0) !is LimitVerdict.Blocked)
+    }
+
+    @Test
+    fun `an exhausted rule removed and added again starts from zero`() {
+        // Сценарий с телефона: лимит исчерпан, родитель удалил правило и добавил снова.
+        val limiter = limiter(video(daily = 60))
+        limiter.applyBaseline(emptyMap())
+        assertTrue(limiter.use(VIDEO_A, 61.0) is LimitVerdict.Blocked)
+
+        limiter.config = AppLimitsConfig()
+        limiter.applyBaseline(emptyMap())
+        limiter.config = AppLimitsConfig(listOf(video(daily = 60)))
+        limiter.applyBaseline(mapOf(VIDEO_A to 61 * MINUTE_MS))
+
+        assertEquals(LimitVerdict.Free, limiter.tick(VIDEO_A))
+        assertTrue(limiter.use(VIDEO_A, 57.0) !is LimitVerdict.Blocked)
+        assertTrue(limiter.use(VIDEO_A, 3.5) is LimitVerdict.Blocked)
+    }
+
+    @Test
+    fun `removing a rule ends its break at once`() {
+        val limiter = limiter(video(session = 10, pause = 15))
+        limiter.applyBaseline(emptyMap())
+        assertTrue(limiter.use(VIDEO_A, 10.5) is LimitVerdict.Blocked)
+
+        limiter.config = AppLimitsConfig()
+        limiter.applyBaseline(emptyMap())
+
+        assertEquals(LimitVerdict.Free, limiter.tick(VIDEO_A))
+    }
+
+    @Test
+    fun `state saved before this change keeps counting the whole day`() {
+        val limiter = limiter(video(daily = 30)).apply {
+            restore(LimiterState(day = "2026-10-18", knownRules = null))
+        }
+
+        limiter.applyBaseline(mapOf(VIDEO_A to 30 * MINUTE_MS))
+
+        assertTrue(limiter.tick(VIDEO_A) is LimitVerdict.Blocked)
+    }
+
+    @Test
+    fun `known rules survive a restart`() {
+        val first = limiter(video(daily = 30))
+        first.applyBaseline(mapOf(VIDEO_A to 50 * MINUTE_MS))
+
+        val second = limiter(video(daily = 30)).apply { restore(first.snapshot()) }
+        second.applyBaseline(mapOf(VIDEO_A to 60 * MINUTE_MS))
+
+        // После перезапуска правило не новое: 50 минут «до правила» остаются вычтенными.
+        assertTrue(second.use(VIDEO_A, 19.0) !is LimitVerdict.Blocked)
+        assertTrue(second.use(VIDEO_A, 1.5) is LimitVerdict.Blocked)
     }
 
     @Test
