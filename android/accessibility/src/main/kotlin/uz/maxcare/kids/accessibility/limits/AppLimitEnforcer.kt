@@ -146,8 +146,13 @@ class AppLimitEnforcer @Inject constructor(
     }
 
     private suspend fun applyBaseline() {
-        if (repository.current().rules.isEmpty()) return
-        val today = todayUsage.foregroundToday()
+        // Без правил историю не читаем, но ограничитель вызываем: он «забывает» удалённые
+        // правила, и добавленное снова считается новым.
+        val today = if (repository.current().rules.isEmpty()) {
+            emptyMap()
+        } else {
+            todayUsage.foregroundToday()
+        }
         synchronized(lock) { limiter.applyBaseline(today) }
     }
 

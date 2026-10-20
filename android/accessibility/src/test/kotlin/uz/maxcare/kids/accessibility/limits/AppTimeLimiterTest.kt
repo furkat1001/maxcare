@@ -266,6 +266,23 @@ class AppTimeLimiterTest {
     }
 
     @Test
+    fun `an exhausted rule removed and added again starts from zero`() {
+        // Сценарий с телефона: лимит исчерпан, родитель удалил правило и добавил снова.
+        val limiter = limiter(video(daily = 60))
+        limiter.applyBaseline(emptyMap())
+        assertTrue(limiter.use(VIDEO_A, 61.0) is LimitVerdict.Blocked)
+
+        limiter.config = AppLimitsConfig()
+        limiter.applyBaseline(emptyMap())
+        limiter.config = AppLimitsConfig(listOf(video(daily = 60)))
+        limiter.applyBaseline(mapOf(VIDEO_A to 61 * MINUTE_MS))
+
+        assertEquals(LimitVerdict.Free, limiter.tick(VIDEO_A))
+        assertTrue(limiter.use(VIDEO_A, 57.0) !is LimitVerdict.Blocked)
+        assertTrue(limiter.use(VIDEO_A, 3.5) is LimitVerdict.Blocked)
+    }
+
+    @Test
     fun `state saved before this change keeps counting the whole day`() {
         val limiter = limiter(video(daily = 30)).apply {
             restore(LimiterState(day = "2026-10-18", knownRules = null))

@@ -128,8 +128,9 @@ class AppTimeLimiter(
         val known = knownRules ?: keys.toMutableSet()
         config.rules.forEach { rule ->
             val total = totals[rule] ?: 0
+            // Новое правило (или удалённое и добавленное снова) — счёт с чистого листа.
+            if (known.add(rule.key)) buckets[rule.key] = BucketState(beforeRuleMs = total)
             val bucket = buckets.of(rule)
-            if (known.add(rule.key)) bucket.beforeRuleMs = total
             bucket.usedTodayMs = maxOf(bucket.usedTodayMs, total - bucket.beforeRuleMs)
         }
         // Удалённое правило, добавленное снова, снова считается новым.
