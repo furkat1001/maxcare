@@ -84,4 +84,6 @@
     <string name="unpair_confirm_body">Бола ва бу телефон ҳақида тўпланган ҳамма нарса — ҳодисалар, маршрут, иловалардаги вақт ва чекловлар — ота-она иловасидан ўчирилади. Телефондаги MaxCare Kids маълумотлари ўчирилади, илова ёпилади.</string>
     <string name="unpair_confirm">Узиш</string>
     <string name="unpair_cancel">Бекор қилиш</string>
+    <string name="password_show">Паролни кўрсатиш</string>
+    <string name="password_hide">Паролни яшириш</string>
 </resources>

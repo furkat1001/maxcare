@@ -201,5 +201,7 @@
   "recoveryValidUntil": "Valid until {time}",
   "@recoveryValidUntil": {"placeholders": {"time": {"type": "String"}}},
   "recoveryHowTo": "On the child’s phone: MaxCare Kids → “Turn off protection” → “Forgot the password?”. Enter the code and a new password. The child’s phone doesn’t need internet.",
-  "recoveryNewCode": "Get a new code"
+  "recoveryNewCode": "Get a new code",
+  "passwordShow": "Show password",
+  "passwordHide": "Hide password"
 }

@@ -143,5 +143,7 @@
   "recoverySubtitle": "Bolaning telefonidagi MaxCare Kids parolini unutgan bo‘lsangiz",
   "recoveryValidUntil": "{time} gacha amal qiladi",
   "recoveryHowTo": "Bolaning telefonida: MaxCare Kids → «Himoyani o‘chirish» → «Parolni unutdingizmi?». Kodni va yangi parolni kiriting. Bolaning telefonida internet kerak emas.",
-  "recoveryNewCode": "Yangi kod olish"
+  "recoveryNewCode": "Yangi kod olish",
+  "passwordShow": "Parolni ko‘rsatish",
+  "passwordHide": "Parolni yashirish"
 }
