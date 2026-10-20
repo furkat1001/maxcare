@@ -152,10 +152,13 @@ class ContentFilterService : AccessibilityService() {
     private fun dangerousInput(event: AccessibilityEvent): Hit? {
         if (event.eventType != AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED) return null
         val node = event.source
-        // Поле (как поиск Google) отдаёт текст через узел; где узел пуст (как omnibox Chrome) —
-        // пробуем текст самого события.
-        val text = node?.text?.toString()?.ifBlank { null } ?: event.text.joinToString(" ")
-        val dangerous = text.isNotBlank() && dictionary.current().matches(text)
+        val text = inputText(
+            eventIsPassword = event.isPassword,
+            nodeIsPassword = node?.isPassword == true,
+            nodeText = node?.text,
+            eventText = event.text
+        )
+        val dangerous = text != null && dictionary.current().matches(text)
         return if (dangerous) Hit(node, node?.isEditable == true) else null
     }
 

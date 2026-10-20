@@ -84,4 +84,6 @@
     <string name="unpair_confirm_body">Ребёнок и всё, что собрано об этом телефоне, — события, маршрут, время в приложениях и ограничения — удалятся из приложения родителя. Данные MaxCare Kids на телефоне будут стёрты, приложение закроется.</string>
     <string name="unpair_confirm">Отвязать</string>
     <string name="unpair_cancel">Отмена</string>
+    <string name="password_show">Показать пароль</string>
+    <string name="password_hide">Скрыть пароль</string>
 </resources>

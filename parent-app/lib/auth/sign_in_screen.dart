@@ -19,6 +19,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _password = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _register = false;
+  bool _showPassword = false;
   bool _busy = false;
   String? _error;
 
@@ -99,8 +100,15 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   decoration: InputDecoration(
                     labelText: t.commonPassword,
                     helperText: _register ? t.authPasswordHint : null,
+                    suffixIcon: IconButton(
+                      icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility),
+                      tooltip: _showPassword ? t.passwordHide : t.passwordShow,
+                      onPressed: () => setState(() => _showPassword = !_showPassword),
+                    ),
                   ),
-                  obscureText: true,
+                  obscureText: !_showPassword,
+                  autocorrect: false,
+                  enableSuggestions: false,
                   validator: (v) =>
                       (v != null && v.length >= 8) ? null : t.errorPasswordShort,
                 ),
