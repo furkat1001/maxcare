@@ -1,5 +1,9 @@
 package uz.maxcare.backend
 
+import com.nimbusds.jose.jwk.JWKSet
+import com.nimbusds.jose.jwk.RSAKey
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import io.lettuce.core.RedisClient
 import io.lettuce.core.api.StatefulRedisConnection
 import java.time.Clock
@@ -18,6 +22,8 @@ import uz.maxcare.backend.location.LocationService
 import uz.maxcare.backend.parents.ParentService
 import uz.maxcare.backend.ratelimit.RedisRateLimiter
 import uz.maxcare.backend.security.Argon2Hasher
+import uz.maxcare.backend.security.IdentityProvider
+import uz.maxcare.backend.security.JwtIdTokenVerifier
 import uz.maxcare.backend.security.SecretBox
 import uz.maxcare.backend.usage.AppUsageService
 
@@ -43,6 +49,10 @@ object TestInfra {
 
     val secretKey = ByteArray(AppConfig.SECRET_KEY_BYTES) { it.toByte() }
 
+    /** Ключ, которым тесты подписывают «токены Google»: вместо настоящих ключей Google. */
+    val googleKey: RSAKey = RSAKeyGenerator(2048).keyID("test-google").generate()
+    const val GOOGLE_CLIENT_ID = "test-client.apps.googleusercontent.com"
+
     /** Быстрые параметры Argon2: в тестах проверяется логика, а не стойкость. */
     fun services(clock: Clock): Services {
         val db = Db(dataSource)
@@ -54,7 +64,15 @@ object TestInfra {
             appUsage = AppUsageService(db, clock),
             filterWords = FilterWordsService(db),
             appLimits = AppLimitsService(db),
-            rateLimiter = RedisRateLimiter(redis)
+            rateLimiter = RedisRateLimiter(redis),
+            idTokens = mapOf(
+                IdentityProvider.GOOGLE to JwtIdTokenVerifier(
+                    IdentityProvider.GOOGLE,
+                    ImmutableJWKSet(JWKSet(googleKey.toPublicJWK())),
+                    setOf("https://accounts.google.com", "accounts.google.com"),
+                    setOf(GOOGLE_CLIENT_ID)
+                )
+            )
         )
     }
 

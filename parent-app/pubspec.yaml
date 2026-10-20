@@ -19,6 +19,8 @@ dependencies:
   dio: ^5.11.1
   # Токен сессии родителя — в системном защищённом хранилище (Keychain/Keystore)
   flutter_secure_storage: ^11.2.0
+  # Вход через Google (BSD-3). ID-токен проверяет наш сервер.
+  google_sign_in: ^7.2.0
   # Форматирование дат в журнале событий
   intl: any
   # Карта «где ребёнок»: OpenStreetMap, без ключа и платных SDK (лицензия BSD-3)

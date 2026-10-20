@@ -192,5 +192,8 @@
   "eventAppLimitReached": "Time limit reached",
   "eventLocationOff": "Location turned off",
   "eventLocationDenied": "Location access revoked",
-  "eventLocationOn": "Location is back on"
+  "eventLocationOn": "Location is back on",
+  "authWithGoogle": "Sign in with Google",
+  "authOr": "or",
+  "authGoogleFailed": "Couldn’t sign in with Google. Try again."
 }

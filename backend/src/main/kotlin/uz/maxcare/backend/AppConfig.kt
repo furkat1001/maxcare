@@ -12,7 +12,9 @@ class AppConfig(
     val dbUser: String,
     val dbPassword: String,
     val redisUrl: String,
-    val secretKey: ByteArray
+    val secretKey: ByteArray,
+    /** ID OAuth-клиентов Google (через запятую в MAXCARE_GOOGLE_CLIENT_IDS); пусто — вход через Google выключен. */
+    val googleClientIds: Set<String> = emptySet()
 ) {
     // Пароль базы и ключ не попадают в логи и сообщения об ошибках.
     override fun toString() =
@@ -34,7 +36,12 @@ class AppConfig(
                 dbUser = env["MAXCARE_DB_USER"] ?: "maxcare",
                 dbPassword = env["MAXCARE_DB_PASSWORD"] ?: "maxcare-dev",
                 redisUrl = env["MAXCARE_REDIS_URL"] ?: "redis://localhost:6379",
-                secretKey = secretKey
+                secretKey = secretKey,
+                googleClientIds = env["MAXCARE_GOOGLE_CLIENT_IDS"].orEmpty()
+                    .split(',')
+                    .map { it.trim() }
+                    .filter { it.isNotEmpty() }
+                    .toSet()
             )
         }
 

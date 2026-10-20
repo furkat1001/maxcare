@@ -1,5 +1,6 @@
 package uz.maxcare.backend.parents
 
+import java.sql.Connection
 import java.sql.SQLException
 import java.time.Clock
 import java.util.UUID
@@ -13,6 +14,7 @@ import uz.maxcare.backend.db.update
 import uz.maxcare.backend.db.uuid
 import uz.maxcare.backend.security.Argon2Hasher
 import uz.maxcare.backend.security.Tokens
+import uz.maxcare.backend.security.VerifiedIdentity
 
 /** Родитель, вошедший по токену сессии. */
 data class ParentPrincipal(val parentId: UUID, val familyId: UUID)
@@ -21,6 +23,16 @@ sealed interface RegisterResult {
     data class Created(val parentId: UUID) : RegisterResult
     data object EmailTaken : RegisterResult
     data object Invalid : RegisterResult
+}
+
+sealed interface IdentityLoginResult {
+    data class Session(val token: String) : IdentityLoginResult
+
+    /** Адрес уже занят аккаунтом с паролем, а провайдер не подтвердил, что адрес принадлежит этому человеку. */
+    data object EmailTaken : IdentityLoginResult
+
+    /** Провайдер не сообщил e-mail: без него новый аккаунт не создать. */
+    data object NoEmail : IdentityLoginResult
 }
 
 class ParentService(
@@ -68,17 +80,82 @@ class ParentService(
                 it.uuid("id") to it.getString("password_hash")
             }
         }
+        // У родителя, вошедшего только через Google, пароля нет: такой вход всегда отклоняется,
+        // но Argon2 считается всё равно, чтобы время ответа не выдавало такие аккаунты.
+        val hash = parent?.second
         val matches = withContext(Dispatchers.Default) {
-            hasher.verify(password, parent?.second ?: dummyHash)
+            hasher.verify(password, hash ?: dummyHash)
         }
-        if (parent == null || !matches) return null
+        if (parent == null || hash == null || !matches) return null
+        return createSession(parent.first)
+    }
 
+    /**
+     * Вход через Google или Apple. Порядок: уже связанный аккаунт; иначе аккаунт с тем же
+     * e-mail, если провайдер подтвердил адрес (связываем); иначе новый аккаунт без пароля.
+     */
+    suspend fun loginWithIdentity(identity: VerifiedIdentity): IdentityLoginResult {
+        val outcome = try {
+            db.tx { c -> resolveIdentity(c, identity) }
+        } catch (e: SQLException) {
+            // Два первых входа одновременно: второй упрётся в уникальность — тогда аккаунт уже есть.
+            if (e.sqlState != UNIQUE_VIOLATION) throw e
+            db.tx { c -> resolveIdentity(c, identity) }
+        }
+        return when (outcome) {
+            is IdentityOutcome.Parent -> IdentityLoginResult.Session(createSession(outcome.id))
+            IdentityOutcome.EmailTaken -> IdentityLoginResult.EmailTaken
+            IdentityOutcome.NoEmail -> IdentityLoginResult.NoEmail
+        }
+    }
+
+    private fun resolveIdentity(c: Connection, identity: VerifiedIdentity): IdentityOutcome {
+        val linked = c.queryOne(
+            "select parent_id from parent_identities where provider = ? and subject = ?",
+            identity.provider.wire,
+            identity.subject
+        ) { it.uuid("parent_id") }
+        val email = identity.email?.let(::normalize)
+        return when {
+            linked != null -> IdentityOutcome.Parent(linked)
+            email == null -> IdentityOutcome.NoEmail
+            else -> linkOrCreate(c, identity, email)
+        }
+    }
+
+    private fun linkOrCreate(
+        c: Connection,
+        identity: VerifiedIdentity,
+        email: String
+    ): IdentityOutcome {
+        val existing = c.queryOne("select id from parents where email = ?", email) { it.uuid("id") }
+        if (existing != null && !identity.emailVerified) return IdentityOutcome.EmailTaken
+        val parentId = existing ?: UUID.randomUUID().also { id ->
+            val familyId = UUID.randomUUID()
+            c.update("insert into families (id) values (?)", familyId)
+            c.update(
+                "insert into parents (id, family_id, email) values (?, ?, ?)",
+                id,
+                familyId,
+                email
+            )
+        }
+        c.update(
+            "insert into parent_identities (provider, subject, parent_id) values (?, ?, ?)",
+            identity.provider.wire,
+            identity.subject,
+            parentId
+        )
+        return IdentityOutcome.Parent(parentId)
+    }
+
+    private suspend fun createSession(parentId: UUID): String {
         val token = Tokens.generate()
         db.tx { c ->
             c.update(
                 "insert into parent_sessions (token_hash, parent_id, expires_at) values (?, ?, ?)",
                 Tokens.hash(token),
-                parent.first,
+                parentId,
                 clock.instant().plus(SESSION_TTL)
             )
         }
@@ -109,4 +186,10 @@ class ParentService(
         val EMAIL_PATTERN = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
         val SESSION_TTL = 30.days.toJavaDuration()
     }
+}
+
+private sealed interface IdentityOutcome {
+    data class Parent(val id: UUID) : IdentityOutcome
+    data object EmailTaken : IdentityOutcome
+    data object NoEmail : IdentityOutcome
 }
