@@ -138,5 +138,7 @@
   "eventLocationOn": "Geolokatsiya qayta yoqildi",
   "authWithGoogle": "Google orqali kirish",
   "authOr": "yoki",
-  "authGoogleFailed": "Google orqali kirib bo‘lmadi. Qayta urinib ko‘ring."
+  "authGoogleFailed": "Google orqali kirib bo‘lmadi. Qayta urinib ko‘ring.",
+  "passwordShow": "Parolni ko‘rsatish",
+  "passwordHide": "Parolni yashirish"
 }

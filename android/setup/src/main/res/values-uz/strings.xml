@@ -84,4 +84,6 @@
     <string name="unpair_confirm_body">Bola va bu telefon haqida to‘plangan hamma narsa — hodisalar, marshrut, ilovalardagi vaqt va cheklovlar — ota-ona ilovasidan o‘chiriladi. Telefondagi MaxCare Kids ma’lumotlari o‘chiriladi, ilova yopiladi.</string>
     <string name="unpair_confirm">Uzish</string>
     <string name="unpair_cancel">Bekor qilish</string>
+    <string name="password_show">Parolni ko‘rsatish</string>
+    <string name="password_hide">Parolni yashirish</string>
 </resources>

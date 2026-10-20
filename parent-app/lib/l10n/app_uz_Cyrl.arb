@@ -138,5 +138,7 @@
   "eventLocationOn": "Геолокация қайта ёқилди",
   "authWithGoogle": "Google орқали кириш",
   "authOr": "ёки",
-  "authGoogleFailed": "Google орқали кириб бўлмади. Қайта уриниб кўринг."
+  "authGoogleFailed": "Google орқали кириб бўлмади. Қайта уриниб кўринг.",
+  "passwordShow": "Паролни кўрсатиш",
+  "passwordHide": "Паролни яшириш"
 }

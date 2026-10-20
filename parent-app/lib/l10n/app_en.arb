@@ -195,5 +195,7 @@
   "eventLocationOn": "Location is back on",
   "authWithGoogle": "Sign in with Google",
   "authOr": "or",
-  "authGoogleFailed": "Couldn’t sign in with Google. Try again."
+  "authGoogleFailed": "Couldn’t sign in with Google. Try again.",
+  "passwordShow": "Show password",
+  "passwordHide": "Hide password"
 }

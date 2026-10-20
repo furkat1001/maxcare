@@ -138,5 +138,7 @@
   "eventLocationOn": "Геолокация снова включена",
   "authWithGoogle": "Войти через Google",
   "authOr": "или",
-  "authGoogleFailed": "Не удалось войти через Google. Попробуйте ещё раз."
+  "authGoogleFailed": "Не удалось войти через Google. Попробуйте ещё раз.",
+  "passwordShow": "Показать пароль",
+  "passwordHide": "Скрыть пароль"
 }
