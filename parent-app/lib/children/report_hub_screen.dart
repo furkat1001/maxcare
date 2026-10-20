@@ -5,6 +5,7 @@ import 'app_limits_screen.dart';
 import 'app_usage_screen.dart';
 import 'child_location_screen.dart';
 import 'device_events_screen.dart';
+import 'recovery_code_screen.dart';
 
 /// Хаб отчёта по одному ребёнку: маршрут, время и ограничения в приложениях, журнал событий.
 /// Дальнейшие разделы (удалённые звонки/смс) добавятся сюда.
@@ -65,6 +66,18 @@ class ReportHubScreen extends StatelessWidget {
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (_) => DeviceEventsScreen(deviceId: deviceId, title: title),
+              ),
+            ),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.lock_reset),
+            title: Text(t.recoveryTitle),
+            subtitle: Text(t.recoverySubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => RecoveryCodeScreen(deviceId: deviceId, title: title),
               ),
             ),
           ),

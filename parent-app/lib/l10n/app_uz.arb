@@ -138,5 +138,10 @@
   "eventLocationOn": "Geolokatsiya qayta yoqildi",
   "authWithGoogle": "Google orqali kirish",
   "authOr": "yoki",
-  "authGoogleFailed": "Google orqali kirib bo‘lmadi. Qayta urinib ko‘ring."
+  "authGoogleFailed": "Google orqali kirib bo‘lmadi. Qayta urinib ko‘ring.",
+  "recoveryTitle": "Parolni tiklash kodi",
+  "recoverySubtitle": "Bolaning telefonidagi MaxCare Kids parolini unutgan bo‘lsangiz",
+  "recoveryValidUntil": "{time} gacha amal qiladi",
+  "recoveryHowTo": "Bolaning telefonida: MaxCare Kids → «Himoyani o‘chirish» → «Parolni unutdingizmi?». Kodni va yangi parolni kiriting. Bolaning telefonida internet kerak emas.",
+  "recoveryNewCode": "Yangi kod olish"
 }

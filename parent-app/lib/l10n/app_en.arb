@@ -195,5 +195,11 @@
   "eventLocationOn": "Location is back on",
   "authWithGoogle": "Sign in with Google",
   "authOr": "or",
-  "authGoogleFailed": "Couldn’t sign in with Google. Try again."
+  "authGoogleFailed": "Couldn’t sign in with Google. Try again.",
+  "recoveryTitle": "Password recovery code",
+  "recoverySubtitle": "If you forgot the MaxCare Kids password on the child’s phone",
+  "recoveryValidUntil": "Valid until {time}",
+  "@recoveryValidUntil": {"placeholders": {"time": {"type": "String"}}},
+  "recoveryHowTo": "On the child’s phone: MaxCare Kids → “Turn off protection” → “Forgot the password?”. Enter the code and a new password. The child’s phone doesn’t need internet.",
+  "recoveryNewCode": "Get a new code"
 }
