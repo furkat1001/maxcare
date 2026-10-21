@@ -90,14 +90,14 @@ class KidsViewModelTest {
 
     @Test
     fun `fresh install starts with the disclosure`() {
-        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 8), viewModel().screen)
+        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 9), viewModel().screen)
     }
 
     @Test
     fun `background hint adds a step on aggressive firmware`() {
         environment.backgroundHint = true
 
-        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 9), viewModel().screen)
+        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 10), viewModel().screen)
     }
 
     @Test
@@ -105,33 +105,33 @@ class KidsViewModelTest {
         val vm = viewModel()
 
         vm.acceptDisclosure()
-        assertEquals(KidsScreen.Setup(SetupStep.PAIRING, 2, 8), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.PAIRING, 2, 9), vm.screen)
 
         vm.submitPairingCode("12345678")
-        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 8), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 9), vm.screen)
 
         vm.submitNewPassword("secret-1", "secret-1")
-        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 8), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 9), vm.screen)
 
         protection.activeMode = ProtectionMode.DEVICE_ADMIN
         environment.notifications = false
         environment.location = false
         filter.permitted = false
         vm.onDeviceAdminResult()
-        assertEquals(KidsScreen.Setup(SetupStep.WEB_FILTER, 5, 8, canTurnOff = true), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.WEB_FILTER, 5, 9, canTurnOff = true), vm.screen)
 
         filter.permitted = true
         vm.onWebFilterResult()
-        assertEquals(KidsScreen.Setup(SetupStep.NOTIFICATIONS, 6, 8, canTurnOff = true), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.NOTIFICATIONS, 6, 9, canTurnOff = true), vm.screen)
 
         environment.notifications = true
         vm.onNotificationPermissionResult()
-        assertEquals(KidsScreen.Setup(SetupStep.LOCATION, 7, 8, canTurnOff = true), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.LOCATION, 7, 9, canTurnOff = true), vm.screen)
 
         environment.location = true
         environment.usageAccess = false
         vm.onLocationPermissionResult()
-        assertEquals(KidsScreen.Setup(SetupStep.USAGE_ACCESS, 8, 8, canTurnOff = true), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.USAGE_ACCESS, 8, 9, canTurnOff = true), vm.screen)
         assertEquals(1, scheduler.scheduled)
 
         environment.usageAccess = true
@@ -145,7 +145,7 @@ class KidsViewModelTest {
         store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
         pairing.paired = true
 
-        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 8), viewModel().screen)
+        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 9), viewModel().screen)
     }
 
     @Test
@@ -210,7 +210,7 @@ class KidsViewModelTest {
 
         vm.onDeviceAdminResult()
 
-        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 8), vm.screen)
+        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 9), vm.screen)
         assertEquals(UiMessage.AdminNotActivated, vm.message)
     }
 
@@ -394,6 +394,29 @@ class KidsViewModelTest {
         vm.refresh()
 
         assertFalse(trustedSettings.isOpen())
+    }
+
+    @Test
+    fun `accessibility service is the last step and stays until it is on`() {
+        environment.accessibility = false
+        val vm = setUpFully()
+        assertEquals(KidsScreen.Setup(SetupStep.ACCESSIBILITY, 9, 9, canTurnOff = true), vm.screen)
+
+        vm.onAccessibilityResult()
+        assertEquals(SetupStep.ACCESSIBILITY, (vm.screen as KidsScreen.Setup).step)
+
+        environment.accessibility = true
+        vm.onAccessibilityResult()
+        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_ADMIN), vm.screen)
+    }
+
+    @Test
+    fun `accessibility comes after usage access`() {
+        environment.accessibility = false
+        environment.usageAccess = false
+        val vm = setUpFully()
+
+        assertEquals(SetupStep.USAGE_ACCESS, (vm.screen as KidsScreen.Setup).step)
     }
 
     private fun disabledByParent(): KidsViewModel {
@@ -603,6 +626,7 @@ class KidsViewModelTest {
         var notifications = true
         var location = true
         var usageAccess = true
+        var accessibility = true
         var backgroundHint = false
 
         override fun notificationsAllowed() = notifications
@@ -610,6 +634,8 @@ class KidsViewModelTest {
         override fun locationAllowed() = location
 
         override fun usageAccessAllowed() = usageAccess
+
+        override fun accessibilityEnabled() = accessibility
 
         override fun needsBackgroundHint() = backgroundHint
     }

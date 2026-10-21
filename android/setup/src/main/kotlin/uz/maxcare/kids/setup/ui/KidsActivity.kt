@@ -72,6 +72,8 @@ private fun KidsApp(viewModel: KidsViewModel) {
 }
 
 /** Системные диалоги и экраны настроек для шагов мастера; результат возвращается во ViewModel. */
+// Лаунчеры результатов Compose создаются только внутри composable — дробить некуда.
+@Suppress("LongMethod")
 @Composable
 private fun rememberSystemActions(viewModel: KidsViewModel): SystemActions {
     val packageName = LocalContext.current.packageName
@@ -96,6 +98,10 @@ private fun rememberSystemActions(viewModel: KidsViewModel): SystemActions {
     val usageAccessLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             viewModel.onUsageAccessResult()
+        }
+    val accessibilityLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            viewModel.onAccessibilityResult()
         }
     val context = LocalContext.current
     val settingsLauncher =
@@ -127,6 +133,9 @@ private fun rememberSystemActions(viewModel: KidsViewModel): SystemActions {
         openUsageAccessSettings = {
             usageAccessLauncher.launchTrusted(viewModel, usageAccessIntent())
         },
+        openAccessibilitySettings = {
+            accessibilityLauncher.launchTrusted(viewModel, accessibilityIntent())
+        },
         openAppSettings = {
             settingsLauncher.launchTrusted(viewModel, appSettingsIntent(packageName))
         }
@@ -157,6 +166,8 @@ private fun requestLocation(context: Context, launch: (Array<String>) -> Unit) {
 }
 
 private fun usageAccessIntent() = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+
+private fun accessibilityIntent() = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
 
 private fun notificationSettingsIntent(packageName: String): Intent = Intent(
     Settings.ACTION_APP_NOTIFICATION_SETTINGS

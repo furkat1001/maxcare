@@ -144,6 +144,12 @@ class KidsViewModel @Inject internal constructor(
         if (currentStep() != SetupStep.USAGE_ACCESS) appUsageScheduler.schedulePeriodic()
     }
 
+    /** Вернулись из Настроек → Специальные возможности. Шаг остаётся, пока служба выключена. */
+    fun onAccessibilityResult() = launchAction {
+        trustedSettings.close()
+        showNextScreen()
+    }
+
     fun confirmBackgroundWork() = launchAction {
         store.writeString(BACKGROUND_HINT_SHOWN_KEY, FLAG_SET)
         showNextScreen()
@@ -230,6 +236,10 @@ class KidsViewModel @Inject internal constructor(
         !environment.locationAllowed() -> SetupStep.LOCATION
 
         !environment.usageAccessAllowed() -> SetupStep.USAGE_ACCESS
+
+        // Последним: пока служба включена, защита от удаления закрывает экраны Настроек
+        // с названием приложения — предыдущие шаги проходят раньше.
+        !environment.accessibilityEnabled() -> SetupStep.ACCESSIBILITY
 
         environment.needsBackgroundHint() && !isFlagSet(BACKGROUND_HINT_SHOWN_KEY) ->
             SetupStep.BACKGROUND_WORK

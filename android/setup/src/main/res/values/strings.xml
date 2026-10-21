@@ -87,4 +87,6 @@
     <string name="unpair_cancel">Cancel</string>
     <string name="password_show">Show password</string>
     <string name="password_hide">Hide password</string>
+    <string name="accessibility_title">Filter and time limits</string>
+    <string name="accessibility_body">MaxCare Kids uses an accessibility service. It reads text and images on the screen and in search fields to hide harmful content, sees which app is open to apply the time limits you set, and stops the app from being removed without your password. Text and images are checked only on this phone and are never sent anywhere; you only get an event: what was blocked and when. Tap “Open settings”, choose “Installed apps” → MaxCare Kids and turn the service on.</string>
 </resources>

@@ -10,6 +10,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import uz.maxcare.kids.setup.R
 
+// Один when по шагам мастера: каждая ветка — вызов шага с его текстами.
+@Suppress("LongMethod")
 @Composable
 internal fun SetupStepScreen(
     screen: KidsScreen.Setup,
@@ -72,6 +74,16 @@ internal fun SetupStepScreen(
             state,
             caption,
             R.string.usage_allow to system.openUsageAccessSettings,
+            turnOff = turnOff
+        )
+
+        // Заметное раскрытие о службе доступности (политика Google Play): что читается и зачем.
+        SetupStep.ACCESSIBILITY -> ActionStep(
+            R.string.accessibility_title,
+            R.string.accessibility_body,
+            state,
+            caption,
+            R.string.open_settings to system.openAccessibilitySettings,
             turnOff = turnOff
         )
 

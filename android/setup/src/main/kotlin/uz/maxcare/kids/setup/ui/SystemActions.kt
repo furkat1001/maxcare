@@ -9,5 +9,7 @@ internal class SystemActions(
     val requestLocation: () -> Unit,
     /** Особый доступ: системного диалога нет, только экран настроек со списком приложений. */
     val openUsageAccessSettings: () -> Unit,
+    /** Специальные возможности: служба включается только там, диалога нет. */
+    val openAccessibilitySettings: () -> Unit,
     val openAppSettings: () -> Unit
 )
