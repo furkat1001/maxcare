@@ -10,12 +10,14 @@ import uz.maxcare.kids.core.protection.DisableProtectionResult
 import uz.maxcare.kids.core.protection.ParentPassword
 import uz.maxcare.kids.core.protection.PasswordCheck
 import uz.maxcare.kids.core.protection.ProtectionShutdown
+import uz.maxcare.kids.core.protection.ProtectionShutdownSignal
 
 internal class PasswordProtectedShutdown @Inject constructor(
     private val parentPassword: ParentPassword,
     private val gateway: DevicePolicyGateway,
     private val remover: ProtectionRemover,
     private val events: EventRecorder,
+    private val shutdownSignal: ProtectionShutdownSignal,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ProtectionShutdown {
 
@@ -30,6 +32,8 @@ internal class PasswordProtectedShutdown @Inject constructor(
                 // До снятия: запись сразу уходит на сервер, пока служба ещё работает.
                 events.record(EventType.PROTECTION_DISABLED)
                 withContext(ioDispatcher) { remover.removeAll() }
+                // Служба доступности выключается сама: снять её отсюда Android не даёт.
+                shutdownSignal.notifyDisabled()
                 DisableProtectionResult.Disabled
             }
 

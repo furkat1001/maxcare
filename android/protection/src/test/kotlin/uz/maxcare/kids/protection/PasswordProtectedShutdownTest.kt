@@ -1,8 +1,10 @@
 package uz.maxcare.kids.protection
 
 import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -10,6 +12,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import uz.maxcare.kids.core.events.EventType
 import uz.maxcare.kids.core.protection.DisableProtectionResult
+import uz.maxcare.kids.core.protection.InMemoryProtectionShutdownSignal
 import uz.maxcare.kids.core.protection.PasswordCheck
 import uz.maxcare.kids.protection.password.FakeDeviceClock
 import uz.maxcare.kids.protection.password.FakeSecureStore
@@ -19,14 +22,21 @@ class PasswordProtectedShutdownTest {
     private val service = FakeProtectionServiceStarter()
     private val password = FakeParentPassword()
     private val events = FakeEventRecorder()
+    private val signal = InMemoryProtectionShutdownSignal()
+    private val signals = mutableListOf<Unit>()
 
     private fun TestScope.shutdown(gateway: FakeDevicePolicyGateway) = PasswordProtectedShutdown(
         parentPassword = password,
         gateway = gateway,
         remover = ProtectionRemover(gateway, service, FakeNetworkFilter(), FakeDeviceClock()),
         events = events,
+        shutdownSignal = signal,
         ioDispatcher = StandardTestDispatcher(testScheduler)
-    )
+    ).also {
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            signal.shutdowns.collect { signals += it }
+        }
+    }
 
     private suspend fun TestScope.deviceOwner(): FakeDevicePolicyGateway {
         val gateway = FakeDevicePolicyGateway(deviceOwner = true)
@@ -118,6 +128,24 @@ class PasswordProtectedShutdownTest {
         shutdown(deviceOwner()).disable(pw())
 
         assertTrue(events.recorded.isEmpty())
+    }
+
+    @Test
+    fun `correct password tells the content filter to switch itself off`() = runTest {
+        shutdown(deviceOwner()).disable(pw())
+
+        assertEquals(1, signals.size)
+    }
+
+    @Test
+    fun `wrong password, lockout and inactive protection keep the filter on`() = runTest {
+        password.result = PasswordCheck.Wrong(attemptsBeforeLockout = 4)
+        shutdown(deviceOwner()).disable(pw())
+        password.result = PasswordCheck.LockedOut(5.minutes)
+        shutdown(deviceOwner()).disable(pw())
+        shutdown(FakeDevicePolicyGateway()).disable(pw())
+
+        assertTrue(signals.isEmpty())
     }
 
     private fun pw() = "secret-password".toCharArray()
