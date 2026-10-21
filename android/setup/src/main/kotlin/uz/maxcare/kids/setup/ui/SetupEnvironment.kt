@@ -1,9 +1,11 @@
 package uz.maxcare.kids.setup.ui
 
 import android.Manifest
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.view.accessibility.AccessibilityManager
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -22,6 +24,9 @@ internal interface SetupEnvironment {
 
     /** Выдан «Доступ к истории использования» — для времени в приложениях в отчёте родителю. */
     fun usageAccessAllowed(): Boolean
+
+    /** Служба доступности MaxCare Kids включена в Настройках → Специальные возможности. */
+    fun accessibilityEnabled(): Boolean
 
     /** Прошивка закрывает фоновые приложения: родителю нужна подсказка про автозапуск. */
     fun needsBackgroundHint(): Boolean
@@ -44,6 +49,15 @@ internal class AndroidSetupEnvironment @Inject constructor(
     }
 
     override fun usageAccessAllowed(): Boolean = context.hasUsageAccess()
+
+    // Класс службы — в модуле accessibility, от которого setup не зависит: сверяем по пакету.
+    override fun accessibilityEnabled(): Boolean {
+        val manager = context.getSystemService(AccessibilityManager::class.java) ?: return false
+        return manager.getEnabledAccessibilityServiceList(
+            AccessibilityServiceInfo.FEEDBACK_ALL_MASK
+        )
+            .any { it.resolveInfo.serviceInfo.packageName == context.packageName }
+    }
 
     private fun granted(permission: String) =
         ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED

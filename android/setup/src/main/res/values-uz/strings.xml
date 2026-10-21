@@ -86,4 +86,6 @@
     <string name="unpair_cancel">Bekor qilish</string>
     <string name="password_show">Parolni ko‘rsatish</string>
     <string name="password_hide">Parolni yashirish</string>
+    <string name="accessibility_title">Filtr va vaqt cheklovlari</string>
+    <string name="accessibility_body">MaxCare Kids maxsus imkoniyatlar xizmatidan foydalanadi. U xavfli kontentni yashirish uchun ekrandagi va qidiruv satridagi matn va rasmlarni o‘qiydi, siz bergan vaqt cheklovlari uchun qaysi ilova ochiqligini ko‘radi va ilovani parolingizsiz o‘chirib bo‘lmaydi. Matn va rasmlar faqat shu telefonda tekshiriladi va hech qayerga yuborilmaydi; siz faqat hodisani olasiz: nima ishladi va qachon. «Sozlamalarni ochish»ni bosing, «O‘rnatilgan ilovalar» → MaxCare Kids ni tanlang va xizmatni yoqing.</string>
 </resources>
