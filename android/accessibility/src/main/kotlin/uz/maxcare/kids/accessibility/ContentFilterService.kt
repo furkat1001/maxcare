@@ -26,6 +26,7 @@ import uz.maxcare.kids.core.events.EventType
 import uz.maxcare.kids.core.ml.ImageCategory
 import uz.maxcare.kids.core.ml.ImageClassifier
 import uz.maxcare.kids.core.ml.ImageVerdict
+import uz.maxcare.kids.core.protection.ProtectionShutdownSignal
 import uz.maxcare.kids.core.protection.TrustedSettingsWindow
 
 /**
@@ -62,6 +63,11 @@ class ContentFilterService : AccessibilityService() {
     @Inject
     lateinit var trustedSettings: TrustedSettingsWindow
 
+    @Inject
+    lateinit var shutdownSignal: ProtectionShutdownSignal
+
+    private var shutdownJob: Job? = null
+
     private val limitActions by lazy { LimitActions(this, events, limits, appScope) }
 
     private var limitsJob: Job? = null
@@ -87,6 +93,11 @@ class ContentFilterService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        // Родитель отключил защиту паролем — фильтр и ограничения времени тоже выключаются.
+        // Счётчики ограничений сохранит onUnbind, который Android вызовет после disableSelf().
+        shutdownJob = appScope.launch {
+            shutdownSignal.shutdowns.collect { mainHandler.post { disableSelf() } }
+        }
         dictionaryJob = appScope.launch { keepDictionaryFresh() }
         limitsJob = appScope.launch {
             limits.run(
@@ -138,6 +149,7 @@ class ContentFilterService : AccessibilityService() {
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
+        shutdownJob?.cancel()
         dictionaryJob?.cancel()
         limitsJob?.cancel()
         appScope.launch { limits.save() }

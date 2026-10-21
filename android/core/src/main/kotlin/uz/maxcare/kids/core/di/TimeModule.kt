@@ -7,6 +7,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import java.time.Clock
 import javax.inject.Singleton
+import uz.maxcare.kids.core.protection.InMemoryProtectionShutdownSignal
+import uz.maxcare.kids.core.protection.ProtectionShutdownSignal
 import uz.maxcare.kids.core.protection.TimedTrustedSettingsWindow
 import uz.maxcare.kids.core.protection.TrustedSettingsWindow
 
@@ -25,4 +27,10 @@ object TimeModule {
     @Singleton
     fun provideTrustedSettingsWindow(): TrustedSettingsWindow =
         TimedTrustedSettingsWindow { SystemClock.elapsedRealtime() }
+
+    /** Один на процесс: подаёт экран отключения защиты, слушает служба доступности. */
+    @Provides
+    @Singleton
+    fun provideProtectionShutdownSignal(): ProtectionShutdownSignal =
+        InMemoryProtectionShutdownSignal()
 }
