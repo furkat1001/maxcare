@@ -286,6 +286,18 @@ class KidsViewModelTest {
     }
 
     @Test
+    fun `finishing setup with everything already granted still starts background work`() {
+        // Сценарий с телефона: отвязка стёрла задачи, а при новой привязке шаги с выданными
+        // разрешениями мастер пропустил.
+        val vm = setUpFully()
+        vm.refresh()
+
+        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_ADMIN), vm.screen)
+        assertEquals(1, scheduler.scheduled)
+        assertEquals(1, usageScheduler.scheduled)
+    }
+
+    @Test
     fun `location step stays and schedules nothing until granted`() {
         environment.location = false
         val vm = setUpFully()
