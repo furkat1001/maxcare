@@ -1,0 +1,29 @@
+# TLS для API. Сертификат — только от Let's Encrypt: приложение ребёнка закрепляет корни
+# Let's Encrypt (android/app-kids/src/main/res/xml/network_security_config.xml). Издатель
+# задан явно, чтобы Caddy не переключился на запасной ZeroSSL — с ним приложение не соединится.
+
+{
+	email {$ACME_EMAIL}
+}
+
+{$API_DOMAIN} {
+	tls {
+		issuer acme {
+			dir https://acme-v02.api.letsencrypt.org/directory
+		}
+	}
+
+	encode gzip
+	reverse_proxy server:8080
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		-Server
+	}
+
+	# Без журнала запросов: в адресах есть ID устройств, лишние данные на диске не нужны.
+	log {
+		output discard
+	}
+}

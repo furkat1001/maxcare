@@ -14,7 +14,12 @@ class AppConfig(
     val redisUrl: String,
     val secretKey: ByteArray,
     /** ID OAuth-клиентов Google (через запятую в MAXCARE_GOOGLE_CLIENT_IDS); пусто — вход через Google выключен. */
-    val googleClientIds: Set<String> = emptySet()
+    val googleClientIds: Set<String> = emptySet(),
+    /**
+     * Сервер стоит за своим прокси (Caddy) и недоступен напрямую: IP клиента берётся из
+     * `X-Forwarded-For`. Без прокси заголовку верить нельзя — его подделает кто угодно.
+     */
+    val behindProxy: Boolean = false
 ) {
     // Пароль базы и ключ не попадают в логи и сообщения об ошибках.
     override fun toString() =
@@ -41,7 +46,8 @@ class AppConfig(
                     .split(',')
                     .map { it.trim() }
                     .filter { it.isNotEmpty() }
-                    .toSet()
+                    .toSet(),
+                behindProxy = env["MAXCARE_BEHIND_PROXY"] == "true"
             )
         }
 

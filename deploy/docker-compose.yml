@@ -1,0 +1,69 @@
+# MaxCare на сервере: API за Caddy (TLS от Let's Encrypt), PostgreSQL, Redis.
+# Запуск на сервере из папки с этим файлом и файлом .env (см. env.example):
+#   docker compose up -d --build
+# Наружу открыты только 80 и 443 (Caddy). База, Redis и сам сервер — только во внутренней сети:
+# Docker публикует порты в обход ufw, поэтому `ports` есть только у Caddy.
+
+services:
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      ACME_EMAIL: ${ACME_EMAIL}
+      API_DOMAIN: ${API_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data        # сертификаты и ключи — переживают перезапуск
+      - caddy-config:/config
+    depends_on:
+      - server
+
+  server:
+    build: ../backend
+    restart: unless-stopped
+    environment:
+      MAXCARE_SECRET_KEY: ${MAXCARE_SECRET_KEY}
+      MAXCARE_DB_URL: jdbc:postgresql://postgres:5432/maxcare
+      MAXCARE_DB_USER: maxcare
+      MAXCARE_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      MAXCARE_REDIS_URL: redis://redis:6379
+      MAXCARE_GOOGLE_CLIENT_IDS: ${MAXCARE_GOOGLE_CLIENT_IDS}
+      # Сервер доступен только через Caddy — IP клиента берётся из X-Forwarded-For.
+      MAXCARE_BEHIND_PROXY: "true"
+    mem_limit: 1536m
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: maxcare
+      POSTGRES_USER: maxcare
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    mem_limit: 1536m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U maxcare -d maxcare"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    # Только счётчики лимитов запросов: на диск не пишем.
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    mem_limit: 256m
+
+volumes:
+  caddy-data:
+  caddy-config:
+  postgres-data:
