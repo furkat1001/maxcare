@@ -9,6 +9,7 @@ import io.ktor.server.auth.bearer
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
@@ -61,7 +62,7 @@ fun main() {
     )
 
     embeddedServer(Netty, port = config.port) {
-        maxcareModule(services)
+        maxcareModule(services, behindProxy = config.behindProxy)
         monitor.subscribe(ApplicationStopped) {
             redis.close()
             redisClient.shutdown()
@@ -70,7 +71,11 @@ fun main() {
     }.start(wait = true)
 }
 
-fun Application.maxcareModule(services: Services) {
+fun Application.maxcareModule(services: Services, behindProxy: Boolean = false) {
+    if (behindProxy) {
+        // Последнее значение ставит наш прокси; всё, что левее, мог прислать сам клиент.
+        install(XForwardedHeaders) { useLastProxy() }
+    }
     install(ContentNegotiation) {
         json(Json { ignoreUnknownKeys = true })
     }
