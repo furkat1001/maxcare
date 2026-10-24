@@ -7,6 +7,7 @@ import uz.maxcare.backend.limits.AppLimitsService
 import uz.maxcare.backend.location.LocationService
 import uz.maxcare.backend.parents.ParentService
 import uz.maxcare.backend.ratelimit.RateLimiter
+import uz.maxcare.backend.reports.DailyReportService
 import uz.maxcare.backend.security.IdTokenVerifier
 import uz.maxcare.backend.security.IdentityProvider
 import uz.maxcare.backend.usage.AppUsageService
@@ -20,6 +21,7 @@ class Services(
     val appUsage: AppUsageService,
     val filterWords: FilterWordsService,
     val appLimits: AppLimitsService,
+    val dailyReports: DailyReportService,
     val rateLimiter: RateLimiter,
     val idTokens: Map<IdentityProvider, IdTokenVerifier> = emptyMap()
 )

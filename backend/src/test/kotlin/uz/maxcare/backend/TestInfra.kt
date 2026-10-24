@@ -21,6 +21,7 @@ import uz.maxcare.backend.limits.AppLimitsService
 import uz.maxcare.backend.location.LocationService
 import uz.maxcare.backend.parents.ParentService
 import uz.maxcare.backend.ratelimit.RedisRateLimiter
+import uz.maxcare.backend.reports.DailyReportService
 import uz.maxcare.backend.security.Argon2Hasher
 import uz.maxcare.backend.security.IdentityProvider
 import uz.maxcare.backend.security.JwtIdTokenVerifier
@@ -64,6 +65,7 @@ object TestInfra {
             appUsage = AppUsageService(db, clock),
             filterWords = FilterWordsService(db),
             appLimits = AppLimitsService(db),
+            dailyReports = DailyReportService(db),
             rateLimiter = RedisRateLimiter(redis),
             idTokens = mapOf(
                 IdentityProvider.GOOGLE to JwtIdTokenVerifier(

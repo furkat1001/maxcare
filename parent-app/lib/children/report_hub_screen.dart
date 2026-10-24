@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import 'app_limits_screen.dart';
 import 'app_usage_screen.dart';
 import 'child_location_screen.dart';
+import 'daily_report_screen.dart';
 import 'device_events_screen.dart';
 import 'recovery_code_screen.dart';
 
@@ -22,6 +23,18 @@ class ReportHubScreen extends StatelessWidget {
       appBar: AppBar(title: Text(title)),
       body: ListView(
         children: [
+          ListTile(
+            leading: const Icon(Icons.insights_outlined),
+            title: Text(t.reportDaily),
+            subtitle: Text(t.reportDailySubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => DailyReportScreen(deviceId: deviceId, title: title),
+              ),
+            ),
+          ),
+          const Divider(height: 1),
           ListTile(
             leading: const Icon(Icons.map_outlined),
             title: Text(t.reportRoute),

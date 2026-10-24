@@ -32,6 +32,8 @@ import uz.maxcare.backend.location.locationRoutes
 import uz.maxcare.backend.parents.ParentService
 import uz.maxcare.backend.parents.parentRoutes
 import uz.maxcare.backend.ratelimit.RedisRateLimiter
+import uz.maxcare.backend.reports.DailyReportService
+import uz.maxcare.backend.reports.dailyReportRoutes
 import uz.maxcare.backend.security.Argon2Hasher
 import uz.maxcare.backend.security.IdentityProvider
 import uz.maxcare.backend.security.JwtIdTokenVerifier
@@ -54,6 +56,7 @@ fun main() {
         appUsage = AppUsageService(db, clock),
         filterWords = FilterWordsService(db),
         appLimits = AppLimitsService(db),
+        dailyReports = DailyReportService(db),
         rateLimiter = RedisRateLimiter(redis),
         idTokens = mapOf(
             IdentityProvider.GOOGLE to JwtIdTokenVerifier.google(config.googleClientIds)
@@ -90,6 +93,7 @@ fun Application.maxcareModule(services: Services) {
         eventRoutes(services.events, services.rateLimiter)
         locationRoutes(services.locations, services.rateLimiter)
         appUsageRoutes(services.appUsage, services.rateLimiter)
+        dailyReportRoutes(services.dailyReports)
         filterWordsRoutes(services.filterWords, services.rateLimiter)
         appLimitsRoutes(services.appLimits, services.rateLimiter)
     }
