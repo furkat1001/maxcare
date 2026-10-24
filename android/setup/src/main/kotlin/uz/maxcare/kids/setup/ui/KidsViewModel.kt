@@ -131,7 +131,7 @@ class KidsViewModel @Inject internal constructor(
     fun onLocationPermissionResult() = launchAction {
         trustedSettings.close()
         showNextScreen()
-        if (currentStep() != SetupStep.LOCATION) locationScheduler.schedulePeriodic()
+        if (currentStep() != SetupStep.LOCATION) scheduleLocation()
     }
 
     /**
@@ -141,7 +141,7 @@ class KidsViewModel @Inject internal constructor(
     fun onUsageAccessResult() = launchAction {
         trustedSettings.close()
         showNextScreen()
-        if (currentStep() != SetupStep.USAGE_ACCESS) appUsageScheduler.schedulePeriodic()
+        if (currentStep() != SetupStep.USAGE_ACCESS) scheduleAppUsage()
     }
 
     /** Вернулись из Настроек → Специальные возможности. Шаг остаётся, пока служба выключена. */
@@ -205,6 +205,10 @@ class KidsViewModel @Inject internal constructor(
     private suspend fun showNextScreen() {
         val step = firstIncompleteStep()
         val screen = if (step == null) {
+            // Шаги с уже выданными разрешениями мастер пропускает, и их колбэки не срабатывают —
+            // например, после отвязки и новой привязки. Тогда фоновые задачи ставит конец мастера.
+            scheduleLocation()
+            scheduleAppUsage()
             KidsScreen.Home(protection.mode.value)
         } else {
             val steps = applicableSteps()
@@ -245,6 +249,22 @@ class KidsViewModel @Inject internal constructor(
             SetupStep.BACKGROUND_WORK
 
         else -> null
+    }
+
+    // Повторная постановка безопасна (уникальная задача WorkManager), но одной за запуск экрана хватает.
+    private var locationScheduled = false
+    private var appUsageScheduled = false
+
+    private fun scheduleLocation() {
+        if (locationScheduled) return
+        locationScheduler.schedulePeriodic()
+        locationScheduled = true
+    }
+
+    private fun scheduleAppUsage() {
+        if (appUsageScheduled) return
+        appUsageScheduler.schedulePeriodic()
+        appUsageScheduled = true
     }
 
     private fun applicableSteps(): List<SetupStep> = SetupStep.entries.filter {
