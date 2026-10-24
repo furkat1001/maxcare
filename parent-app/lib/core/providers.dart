@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../children/app_limits_repository.dart';
 import '../children/app_usage_repository.dart';
+import '../children/daily_report_repository.dart';
 import '../auth/auth_repository.dart';
 import '../auth/google_id_token_source.dart';
 import '../children/device_repository.dart';
@@ -93,6 +94,21 @@ final appUsageProvider =
     FutureProvider.autoDispose.family<DayAppUsage, AppUsageRequest>(
   (ref, request) => ref
       .watch(appUsageRepositoryProvider)
+      .day(request.deviceId, DateTime.parse(request.date)),
+);
+
+final dailyReportRepositoryProvider = Provider<DailyReportRepository>(
+  (ref) => DailyReportRepository(ref.watch(apiClientProvider)),
+);
+
+/// Запрос итогов дня: устройство и день в виде `2026-10-23`.
+typedef DailyReportRequest = ({String deviceId, String date});
+
+/// Итоги одного дня по телефону ребёнка.
+final dailyReportProvider =
+    FutureProvider.autoDispose.family<DailyReport, DailyReportRequest>(
+  (ref, request) => ref
+      .watch(dailyReportRepositoryProvider)
       .day(request.deviceId, DateTime.parse(request.date)),
 );
 
