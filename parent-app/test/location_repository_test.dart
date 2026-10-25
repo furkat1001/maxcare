@@ -90,4 +90,19 @@ void main() {
 
     expect(adapter.lastRequest?.uri.queryParameters['since'], '2026-10-11T06:00:00.000Z');
   });
+
+  test('points worse than 100 m are not used for the route line', () {
+    DeviceLocation point(double? accuracy) => DeviceLocation(
+          latitude: 41.0,
+          longitude: 69.0,
+          accuracyMeters: accuracy,
+          recordedAt: DateTime.utc(2026, 10, 25),
+          receivedAt: DateTime.utc(2026, 10, 25),
+        );
+
+    expect(isPrecise(point(4)), isTrue);
+    expect(isPrecise(point(100)), isTrue);
+    expect(isPrecise(point(200)), isFalse);
+    expect(isPrecise(point(null)), isTrue);
+  });
 }

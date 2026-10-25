@@ -46,3 +46,10 @@ class LocationRepository {
     return rows.map(DeviceLocation.fromJson).toList();
   }
 }
+
+/// Точка не хуже этого (в метрах) — точная: по ней можно вести линию маршрута.
+/// Позиции по Wi‑Fi и вышкам связи часто «прыгают» на сотни метров при заявленных 100–200 м.
+const preciseAccuracyMeters = 100.0;
+
+/// Точность неизвестна — считаем точной: старые телефоны её не сообщают.
+bool isPrecise(DeviceLocation p) => (p.accuracyMeters ?? 0) <= preciseAccuracyMeters;

@@ -6,9 +6,16 @@ import 'token_store.dart';
 
 /// Клиент к серверу MaxCare. Подставляет токен родителя в заголовок и разбирает
 /// коды ошибок в [ApiException]. Тела запросов/ответов не логируются (в них токены).
+///
+/// Канал до сервера бывает нестабильным (потери пакетов, короткие обрывы), поэтому сетевые
+/// ошибки повторяются до [_maxAttempts] раз с паузой [retryDelay] — и только потом «нет связи».
 class ApiClient {
-  ApiClient({required TokenStore tokenStore, Dio? dio})
-      : _tokenStore = tokenStore,
+  ApiClient({
+    required TokenStore tokenStore,
+    Dio? dio,
+    Duration Function(int attempt)? retryDelay,
+  })  : _tokenStore = tokenStore,
+        _retryDelay = retryDelay ?? ((attempt) => Duration(seconds: attempt)),
         _dio = dio ??
             Dio(
               BaseOptions(
@@ -22,13 +29,20 @@ class ApiClient {
 
   final Dio _dio;
   final TokenStore _tokenStore;
+  final Duration Function(int attempt) _retryDelay;
+
+  static const _maxAttempts = 3;
 
   Future<Map<String, dynamic>> post(
     String path, {
     Object? body,
     bool authorized = false,
   }) =>
-      _request((options) => _dio.post<dynamic>(path, data: body, options: options), authorized);
+      _request(
+        (options) => _dio.post<dynamic>(path, data: body, options: options),
+        authorized,
+        idempotent: false,
+      );
 
   Future<Map<String, dynamic>> get(String path, {bool authorized = true}) =>
       _request((options) => _dio.get<dynamic>(path, options: options), authorized);
@@ -56,27 +70,35 @@ class ApiClient {
 
   Future<Map<String, dynamic>> _request(
     Future<Response<dynamic>> Function(Options) call,
-    bool authorized,
-  ) async {
-    final data = await _requestRaw(call, authorized);
+    bool authorized, {
+    bool idempotent = true,
+  }) async {
+    final data = await _requestRaw(call, authorized, idempotent: idempotent);
     return data is Map<String, dynamic> ? data : <String, dynamic>{};
   }
 
   Future<Object?> _requestRaw(
     Future<Response<dynamic>> Function(Options) call,
-    bool authorized,
-  ) async {
+    bool authorized, {
+    bool idempotent = true,
+  }) async {
     final headers = <String, String>{};
     if (authorized) {
       final token = await _tokenStore.read();
       if (token != null) headers['Authorization'] = 'Bearer $token';
     }
-    final Response<dynamic> response;
-    try {
-      response = await call(Options(headers: headers));
-    } on DioException {
-      // Таймаут, нет сети, сервер недоступен — всё как «нет связи».
-      throw ApiException(ApiErrorKind.noConnection);
+    late final Response<dynamic> response;
+    for (var attempt = 1;; attempt++) {
+      try {
+        response = await call(Options(headers: headers));
+        break;
+      } on DioException catch (e) {
+        if (attempt >= _maxAttempts || !_retryable(e, idempotent: idempotent)) {
+          // Таймаут, нет сети, сервер недоступен — всё как «нет связи».
+          throw ApiException(ApiErrorKind.noConnection);
+        }
+        await Future<void>.delayed(_retryDelay(attempt));
+      }
     }
     final status = response.statusCode ?? 0;
     if (status < 200 || status >= 300) {
@@ -85,6 +107,17 @@ class ApiClient {
     }
     return response.data;
   }
+
+  /// Соединение не установилось — запрос не ушёл, повторять безопасно всегда. Ответ не пришёл
+  /// после отправки — повторяем только идемпотентные запросы: регистрацию дважды не шлём.
+  bool _retryable(DioException e, {required bool idempotent}) => switch (e.type) {
+        DioExceptionType.connectionTimeout || DioExceptionType.connectionError => true,
+        DioExceptionType.receiveTimeout ||
+        DioExceptionType.sendTimeout ||
+        DioExceptionType.unknown =>
+          idempotent,
+        _ => false,
+      };
 
   ApiErrorKind _kindFor(int status, String? code) {
     switch (code) {
