@@ -117,9 +117,12 @@ class _ChildLocationScreenState extends ConsumerState<ChildLocationScreen> {
       };
 
   Widget _map2(BuildContext context, AppLocalizations t, List<DeviceLocation> points) {
-    final latLngs = points.map((p) => LatLng(p.latitude, p.longitude)).toList();
+    LatLng at(DeviceLocation p) => LatLng(p.latitude, p.longitude);
+    // Линия — только через точные точки: грубые (Wi‑Fi, вышки) давали ложные скачки на км.
+    final route = points.where(isPrecise).map(at).toList();
+    final rough = points.where((p) => !isPrecise(p)).map(at).toList();
     final current = points.last;
-    final currentLatLng = latLngs.last;
+    final currentLatLng = at(current);
     final scheme = Theme.of(context).colorScheme;
     // При смене дня переводим камеру на последнюю точку; иначе не трогаем панораму.
     if (_centeredDay != _day) {
@@ -140,16 +143,36 @@ class _ChildLocationScreenState extends ConsumerState<ChildLocationScreen> {
               // Политика тайлов OSM требует указывать приложение.
               userAgentPackageName: 'uz.maxcare.parent',
             ),
-            if (latLngs.length > 1)
-              PolylineLayer(
-                polylines: [
-                  Polyline(points: latLngs, strokeWidth: 4, color: scheme.primary),
+            // Насколько можно верить текущему положению: круг радиусом в заявленную точность.
+            if (current.accuracyMeters != null)
+              CircleLayer(
+                circles: [
+                  CircleMarker(
+                    point: currentLatLng,
+                    radius: current.accuracyMeters!,
+                    useRadiusInMeter: true,
+                    color: scheme.primary.withValues(alpha: 0.12),
+                    borderColor: scheme.primary.withValues(alpha: 0.4),
+                    borderStrokeWidth: 1,
+                  ),
                 ],
               ),
-            // Кружок на каждой записанной точке, чтобы был виден весь маршрут.
+            if (route.length > 1)
+              PolylineLayer(
+                polylines: [
+                  Polyline(points: route, strokeWidth: 4, color: scheme.primary),
+                ],
+              ),
+            // Кружок на каждой точке: точные — яркие, грубые — бледные и без линии.
             CircleLayer(
               circles: [
-                for (final p in latLngs)
+                for (final p in rough)
+                  CircleMarker(
+                    point: p,
+                    radius: 4,
+                    color: scheme.outline.withValues(alpha: 0.5),
+                  ),
+                for (final p in route)
                   CircleMarker(
                     point: p,
                     radius: 5,

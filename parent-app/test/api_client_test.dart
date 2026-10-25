@@ -53,8 +53,46 @@ ApiClient _client(_StubAdapter adapter, {TokenStore? store}) {
     validateStatus: (s) => s != null && s < 500,
   ))
     ..httpClientAdapter = adapter;
-  return ApiClient(tokenStore: store ?? _FakeTokenStore(), dio: dio);
+  return ApiClient(
+    tokenStore: store ?? _FakeTokenStore(),
+    dio: dio,
+    retryDelay: (_) => Duration.zero,
+  );
 }
+
+/// Сначала [failures] раз бросает сетевую ошибку [type], потом отвечает 200.
+class _FlakyAdapter implements HttpClientAdapter {
+  _FlakyAdapter(this.failures, this.type);
+  int failures;
+  final DioExceptionType type;
+  int calls = 0;
+
+  @override
+  Future<ResponseBody> fetch(RequestOptions options, Stream<Uint8List>? requestStream,
+      Future<void>? cancelFuture) async {
+    calls++;
+    if (failures > 0) {
+      failures--;
+      throw DioException(requestOptions: options, type: type);
+    }
+    return ResponseBody.fromString(
+      jsonEncode({'ok': true}),
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
+ApiClient _flakyClient(_FlakyAdapter adapter) => ApiClient(
+      tokenStore: _FakeTokenStore(),
+      dio: Dio(BaseOptions(baseUrl: 'http://test'))..httpClientAdapter = adapter,
+      retryDelay: (_) => Duration.zero,
+    );
 
 void main() {
   test('success returns the parsed body', () async {
@@ -108,5 +146,44 @@ void main() {
     final adapter = _StubAdapter(201, {'token': 'x'});
     await _client(adapter, store: store).post('/v1/sessions');
     expect(adapter.lastRequest?.headers.containsKey('Authorization'), false);
+  });
+
+  test('a short network drop is retried and the request succeeds', () async {
+    final adapter = _FlakyAdapter(2, DioExceptionType.connectionError);
+
+    final body = await _flakyClient(adapter).get('/v1/devices/x/events');
+
+    expect(body['ok'], isTrue);
+    expect(adapter.calls, 3);
+  });
+
+  test('after three failed attempts it is reported as no connection', () async {
+    final adapter = _FlakyAdapter(5, DioExceptionType.connectionTimeout);
+
+    await expectLater(
+      _flakyClient(adapter).get('/v1/devices'),
+      throwsA(isA<ApiException>().having((e) => e.kind, 'kind', ApiErrorKind.noConnection)),
+    );
+    expect(adapter.calls, 3);
+  });
+
+  test('a post whose answer was lost is not sent twice', () async {
+    final adapter = _FlakyAdapter(1, DioExceptionType.receiveTimeout);
+
+    await expectLater(
+      _flakyClient(adapter).post('/v1/parents', body: {'email': 'p@example.test'}),
+      throwsA(isA<ApiException>()),
+    );
+    expect(adapter.calls, 1);
+  });
+
+  test('a post that never left the phone is retried', () async {
+    final adapter = _FlakyAdapter(1, DioExceptionType.connectionTimeout);
+
+    final body =
+        await _flakyClient(adapter).post('/v1/sessions', body: {'email': 'p@example.test'});
+
+    expect(body['ok'], isTrue);
+    expect(adapter.calls, 2);
   });
 }
