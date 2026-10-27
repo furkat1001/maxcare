@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
-import 'app_limits_screen.dart';
 import 'app_usage_screen.dart';
 import 'child_location_screen.dart';
 import 'daily_report_screen.dart';
 import 'device_events_screen.dart';
-import 'recovery_code_screen.dart';
 
-/// Хаб отчёта по одному ребёнку: маршрут, время и ограничения в приложениях, журнал событий.
-/// Дальнейшие разделы (удалённые звонки/смс) добавятся сюда.
+/// Хаб отчёта по одному ребёнку — только то, что родитель смотрит: итоги дня, маршрут,
+/// время в приложениях, журнал. Что он меняет (ограничения, код восстановления) — в настройках.
 class ReportHubScreen extends StatelessWidget {
   const ReportHubScreen({required this.deviceId, required this.title, super.key});
 
@@ -60,18 +58,6 @@ class ReportHubScreen extends StatelessWidget {
           ),
           const Divider(height: 1),
           ListTile(
-            leading: const Icon(Icons.timer_outlined),
-            title: Text(t.reportLimits),
-            subtitle: Text(t.reportLimitsSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => AppLimitsScreen(deviceId: deviceId, title: title),
-              ),
-            ),
-          ),
-          const Divider(height: 1),
-          ListTile(
             leading: const Icon(Icons.list_alt_outlined),
             title: Text(t.reportActivity),
             subtitle: Text(t.reportActivitySubtitle),
@@ -79,18 +65,6 @@ class ReportHubScreen extends StatelessWidget {
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (_) => DeviceEventsScreen(deviceId: deviceId, title: title),
-              ),
-            ),
-          ),
-          const Divider(height: 1),
-          ListTile(
-            leading: const Icon(Icons.lock_reset),
-            title: Text(t.recoveryTitle),
-            subtitle: Text(t.recoverySubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => RecoveryCodeScreen(deviceId: deviceId, title: title),
               ),
             ),
           ),

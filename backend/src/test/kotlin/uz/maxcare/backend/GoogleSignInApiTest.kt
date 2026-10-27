@@ -16,6 +16,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import uz.maxcare.backend.devices.DeviceSummaryDto
 import uz.maxcare.backend.http.ApiError
+import uz.maxcare.backend.parents.AccountResponse
 import uz.maxcare.backend.parents.CredentialsRequest
 import uz.maxcare.backend.parents.IdTokenRequest
 import uz.maxcare.backend.parents.SessionResponse
@@ -66,6 +67,17 @@ class GoogleSignInApiTest : ApiTestBase() {
         assertEquals(0, client.deviceCount(token))
         client.pairedDevice(token)
         assertEquals(1, client.deviceCount(token))
+    }
+
+    @Test
+    fun `a google account has no password and lists google as its sign in`() = apiTest { client ->
+        val token = client.googleSession(googleToken())
+
+        val account = client.getJson("/v1/account", token).body<AccountResponse>()
+
+        assertEquals(false, account.hasPassword)
+        assertEquals(listOf("google"), account.providers)
+        assertEquals(14, account.plan.trialDaysLeft)
     }
 
     @Test

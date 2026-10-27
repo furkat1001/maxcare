@@ -230,5 +230,35 @@
   "dailyPhone": "Phone",
   "dailyPhoneBoots": "Turned on",
   "dailyPhoneShutdowns": "Turned off",
-  "dailyProtectionDisabled": "Protection turned off with the password"
+  "dailyProtectionDisabled": "Protection turned off with the password",
+
+  "settingsAccount": "Account",
+  "settingsSignInGoogle": "Signed in with Google",
+  "settingsSignInPassword": "Signed in with e-mail and password",
+  "settingsSubscription": "Subscription",
+  "planTrialDaysLeft": "{count, plural, one{Free trial: {count} day left} other{Free trial: {count} days left}}",
+  "@planTrialDaysLeft": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "planExpired": "The free trial has ended",
+  "settingsChildren": "Children",
+  "settingsChildSubtitle": "Time limits and recovery code",
+  "settingsChildrenEmpty": "Add a child on the Home tab — their settings will appear here.",
+  "settingsProtection": "Protection",
+  "settingsApp": "App",
+  "settingsLanguage": "Language",
+  "languageSystem": "Same as phone",
+  "languageEnglish": "English",
+  "languageUzbekLatin": "O‘zbek tili (lotin yozuvida)",
+  "languageRussian": "Русский язык",
+  "accountSignIn": "Sign-in method",
+  "accountCreated": "Account created",
+  "subscriptionTrial": "Free trial",
+  "subscriptionTrialEnds": "Until {date}",
+  "@subscriptionTrialEnds": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "subscriptionTrialBody": "During the trial every MaxCare feature works without limits.",
+  "subscriptionSoon": "Paying for a subscription is coming in an upcoming version. Until then MaxCare keeps working.",
+  "subscriptionSubscribe": "Subscribe"
 }

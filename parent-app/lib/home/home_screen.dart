@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../children/add_child_screen.dart';
 import '../children/children_list.dart';
 import '../children/device_events_screen.dart';
-import '../children/filter_words_screen.dart';
 import '../children/report_hub_screen.dart';
 import '../core/providers.dart';
 import '../l10n/app_localizations.dart';
+import '../settings/settings_tab.dart';
 
 /// Корневой экран родителя: нижние вкладки «Главная», «Отчёты», «Настройки».
 class MainShell extends ConsumerStatefulWidget {
@@ -32,7 +32,7 @@ class _MainShellState extends ConsumerState<MainShell> {
       appBar: AppBar(title: Text(title)),
       body: IndexedStack(
         index: _tab,
-        children: const [_MainTab(), _ReportsTab(), _SettingsTab()],
+        children: const [_MainTab(), _ReportsTab(), SettingsTab()],
       ),
       floatingActionButton: _tab == 0 ? _addChildButton(context, t) : null,
       bottomNavigationBar: NavigationBar(
@@ -75,7 +75,8 @@ class _MainTab extends StatelessWidget {
       );
 }
 
-/// «Отчёты»: выбор ребёнка открывает хаб отчёта (маршрут, журнал).
+/// «Отчёты»: выбор ребёнка открывает хаб отчёта — только то, что смотрят; настройки ребёнка
+/// (ограничения, код восстановления) — на вкладке «Настройки».
 class _ReportsTab extends StatelessWidget {
   const _ReportsTab();
 
@@ -87,32 +88,4 @@ class _ReportsTab extends StatelessWidget {
           ),
         ),
       );
-}
-
-/// «Настройки»: фильтр и стоп-слова, выход из аккаунта.
-class _SettingsTab extends ConsumerWidget {
-  const _SettingsTab();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final t = AppLocalizations.of(context);
-    return ListView(
-      children: [
-        ListTile(
-          leading: const Icon(Icons.shield_outlined),
-          title: Text(t.settingsFilter),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (_) => const FilterWordsScreen()),
-          ),
-        ),
-        const Divider(height: 1),
-        ListTile(
-          leading: const Icon(Icons.logout),
-          title: Text(t.homeSignOut),
-          onTap: () => ref.read(sessionProvider.notifier).signOut(),
-        ),
-      ],
-    );
-  }
 }
