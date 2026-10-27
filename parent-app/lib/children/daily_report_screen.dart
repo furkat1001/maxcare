@@ -8,10 +8,12 @@ import '../l10n/app_localizations.dart';
 import 'app_usage_repository.dart';
 import 'app_usage_screen.dart';
 import 'daily_report_repository.dart';
+import 'day_timeline.dart';
+import 'day_timeline_view.dart';
 import 'device_repository.dart';
 import 'event_label.dart';
 
-/// «Итоги дня»: главное за день одним экраном — время, блокировки, ограничения, обходы, маршрут.
+/// «Итоги дня»: кольцо экранного времени, лента событий дня, ниже — сводка по разделам.
 /// Дни — те же последние [trackDays], что и у маршрута и времени в приложениях.
 class DailyReportScreen extends ConsumerStatefulWidget {
   const DailyReportScreen({required this.deviceId, required this.title, super.key});
@@ -46,7 +48,10 @@ class _DailyReportScreenState extends ConsumerState<DailyReportScreen> {
           IconButton(
             tooltip: t.commonRetry,
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.invalidate(dailyReportProvider(_request)),
+            onPressed: () {
+              ref.invalidate(dailyReportProvider(_request));
+              ref.invalidate(dayEventsProvider(_request));
+            },
           ),
         ],
       ),
@@ -85,17 +90,33 @@ class _DailyReportScreenState extends ConsumerState<DailyReportScreen> {
     );
   }
 
-  Widget _content(BuildContext context, AppLocalizations t, DailyReport r) => ListView(
-        padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
-        children: [
+  Widget _content(BuildContext context, AppLocalizations t, DailyReport r) {
+    final attention = ref.watch(dayEventsProvider(_request)).whenData(
+          (events) =>
+              buildTimeline(events).where((e) => e.level == EventLevel.attention).length,
+        );
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      children: [
+        DayOverview(report: r, attention: attention.valueOrNull),
+        DayTimeline(request: _request),
+        Padding(
+          padding: const EdgeInsets.only(top: 24),
+          child: Text(t.dailySummary, style: Theme.of(context).textTheme.titleMedium),
+        ),
+        ..._summary(t, r),
+      ],
+    );
+  }
+
+  List<Widget> _summary(AppLocalizations t, DailyReport r) => [
           _screenTime(t, r),
           _blocked(t, r),
           if (r.limitsReached.isNotEmpty) _limits(t, r),
           _bypass(t, r),
           _route(t, r),
           _phone(t, r),
-        ],
-      );
+        ];
 
   Widget _screenTime(AppLocalizations t, DailyReport r) => _Section(
         icon: Icons.hourglass_bottom_outlined,

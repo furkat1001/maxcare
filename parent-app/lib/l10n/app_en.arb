@@ -260,5 +260,31 @@
   },
   "subscriptionTrialBody": "During the trial every MaxCare feature works without limits.",
   "subscriptionSoon": "Paying for a subscription is coming in an upcoming version. Until then MaxCare keeps working.",
-  "subscriptionSubscribe": "Subscribe"
+  "subscriptionSubscribe": "Subscribe",
+
+  "homeStatusCalm": "All calm",
+  "homeStatusAttention": "Needs attention",
+  "homeStatusOffline": "No connection",
+  "homeStatusNotPaired": "Not connected yet",
+  "homeShowDetails": "Show details",
+  "homeMetricScreen": "Screen",
+  "homeMetricBlocked": "Blocked",
+  "homeMetricDistance": "Travelled",
+  "homeDistanceKm": "{km} km",
+  "@homeDistanceKm": {
+    "placeholders": { "km": { "type": "String" } }
+  },
+  "homeDailyHint": "What happened today, briefly",
+  "dailyTimeline": "Day timeline",
+  "dailyFilterAll": "Whole day",
+  "dailyFilterImportant": "Important",
+  "dailyTimelineEmpty": "No events on this day.",
+  "dailyImportantEmpty": "Nothing important: a calm day.",
+  "dailySummary": "Day summary",
+  "dailyAllCalm": "Protection worked all day",
+  "dailyAttentionCount": "{count, plural, one{{count} event needs attention} other{{count} events need attention}}",
+  "@dailyAttentionCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "dailyRingOther": "Other"
 }

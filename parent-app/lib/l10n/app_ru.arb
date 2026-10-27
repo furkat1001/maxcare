@@ -193,5 +193,25 @@
   "subscriptionTrialEnds": "До {date}",
   "subscriptionTrialBody": "Пока идёт пробный период, все функции MaxCare работают без ограничений.",
   "subscriptionSoon": "Оплата подписки появится в ближайших версиях. До тех пор MaxCare продолжает работать.",
-  "subscriptionSubscribe": "Оформить подписку"
+  "subscriptionSubscribe": "Оформить подписку",
+
+  "homeStatusCalm": "Всё спокойно",
+  "homeStatusAttention": "Требует внимания",
+  "homeStatusOffline": "Нет связи",
+  "homeStatusNotPaired": "Ещё не подключён",
+  "homeShowDetails": "Показать подробности",
+  "homeMetricScreen": "Экран",
+  "homeMetricBlocked": "Заблокировано",
+  "homeMetricDistance": "Пройдено",
+  "homeDistanceKm": "{km} км",
+  "homeDailyHint": "Что было сегодня, коротко",
+  "dailyTimeline": "Лента дня",
+  "dailyFilterAll": "Весь день",
+  "dailyFilterImportant": "Важное",
+  "dailyTimelineEmpty": "Событий за этот день нет.",
+  "dailyImportantEmpty": "Ничего важного: день прошёл спокойно.",
+  "dailySummary": "Сводка за день",
+  "dailyAllCalm": "Защита работала весь день",
+  "dailyAttentionCount": "{count, plural, one{{count} событие требует внимания} few{{count} события требуют внимания} many{{count} событий требуют внимания} other{{count} события требуют внимания}}",
+  "dailyRingOther": "Другие"
 }

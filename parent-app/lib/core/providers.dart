@@ -114,6 +114,18 @@ final dailyReportProvider =
       .day(request.deviceId, DateTime.parse(request.date)),
 );
 
+/// События одного дня по часовому поясу родителя — для ленты дня.
+final dayEventsProvider =
+    FutureProvider.autoDispose.family<List<DeviceEvent>, DailyReportRequest>((ref, request) {
+  final day = DateTime.parse(request.date);
+  final from = DateTime(day.year, day.month, day.day);
+  final to = DateTime(day.year, day.month, day.day + 1);
+  return ref.watch(deviceRepositoryProvider).events(request.deviceId, from, to);
+});
+
+/// Ребёнок, выбранный на главной; null — первый в списке.
+final selectedChildProvider = StateProvider<String?>((ref) => null);
+
 final appLimitsRepositoryProvider = Provider<AppLimitsRepository>(
   (ref) => AppLimitsRepository(
     ref.watch(apiClientProvider),

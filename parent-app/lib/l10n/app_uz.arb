@@ -193,5 +193,25 @@
   "subscriptionTrialEnds": "{date} gacha",
   "subscriptionTrialBody": "Sinov muddatida MaxCare’ning barcha imkoniyatlari cheklovsiz ishlaydi.",
   "subscriptionSoon": "Obuna uchun to‘lov yaqin versiyalarda paydo bo‘ladi. Ungacha MaxCare ishlashda davom etadi.",
-  "subscriptionSubscribe": "Obuna bo‘lish"
+  "subscriptionSubscribe": "Obuna bo‘lish",
+
+  "homeStatusCalm": "Hammasi joyida",
+  "homeStatusAttention": "E’tibor talab qiladi",
+  "homeStatusOffline": "Aloqa yo‘q",
+  "homeStatusNotPaired": "Hali ulanmagan",
+  "homeShowDetails": "Batafsil ko‘rsatish",
+  "homeMetricScreen": "Ekran",
+  "homeMetricBlocked": "Bloklangan",
+  "homeMetricDistance": "Bosib o‘tilgan",
+  "homeDistanceKm": "{km} km",
+  "homeDailyHint": "Bugun nima bo‘ldi, qisqacha",
+  "dailyTimeline": "Kun lentasi",
+  "dailyFilterAll": "Butun kun",
+  "dailyFilterImportant": "Muhim",
+  "dailyTimelineEmpty": "Bu kunda hodisalar yo‘q.",
+  "dailyImportantEmpty": "Muhim narsa yo‘q: kun tinch o‘tdi.",
+  "dailySummary": "Kun xulosasi",
+  "dailyAllCalm": "Himoya kun bo‘yi ishladi",
+  "dailyAttentionCount": "{count, plural, one{{count} ta hodisa e’tibor talab qiladi} other{{count} ta hodisa e’tibor talab qiladi}}",
+  "dailyRingOther": "Boshqalar"
 }

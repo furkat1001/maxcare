@@ -8,6 +8,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeParseException
 import java.util.UUID
@@ -70,7 +71,11 @@ fun Route.eventRoutes(events: EventService, rateLimiter: RateLimiter) {
             val deviceId = call.parameters["deviceId"]?.let {
                 runCatching { UUID.fromString(it) }.getOrNull()
             }
-            val activity = deviceId?.let { events.activity(parent.familyId, it) }
+            val window = parseWindow(
+                call.request.queryParameters["from"],
+                call.request.queryParameters["to"]
+            ) ?: return@get call.respondError(HttpStatusCode.BadRequest, ErrorCodes.INVALID_REQUEST)
+            val activity = deviceId?.let { events.activity(parent.familyId, it, window.value) }
             if (activity == null) {
                 call.respondError(HttpStatusCode.NotFound, ErrorCodes.NOT_FOUND)
             } else {
@@ -79,6 +84,34 @@ fun Route.eventRoutes(events: EventService, rateLimiter: RateLimiter) {
         }
     }
 }
+
+/** Окно запроса: [value] null — параметров нет, нужен обычный журнал. */
+private class WindowParam(val value: EventWindow?)
+
+/**
+ * `from` и `to` — оба или ни одного, ISO-8601 в UTC, не длиннее [MAX_WINDOW].
+ * null — параметры испорчены.
+ */
+private fun parseWindow(from: String?, to: String?): WindowParam? = when {
+    from == null && to == null -> WindowParam(null)
+
+    from == null || to == null -> null
+
+    else -> parseInstant(from)?.let { start ->
+        parseInstant(to)
+            ?.takeIf { end -> start < end && Duration.between(start, end) <= MAX_WINDOW }
+            ?.let { end -> WindowParam(EventWindow(start, end)) }
+    }
+}
+
+private fun parseInstant(value: String): Instant? = try {
+    Instant.parse(value)
+} catch (ignored: DateTimeParseException) {
+    null
+}
+
+// Сутки плюс запас на переход на летнее время у родителя.
+private val MAX_WINDOW: Duration = Duration.ofHours(26)
 
 /**
  * null — пачка испорчена (неверный id или время): это ошибка клиента.

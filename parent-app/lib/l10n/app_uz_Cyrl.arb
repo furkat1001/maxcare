@@ -193,5 +193,25 @@
   "subscriptionTrialEnds": "{date} гача",
   "subscriptionTrialBody": "Синов муддатида MaxCare’нинг барча имкониятлари чекловсиз ишлайди.",
   "subscriptionSoon": "Обуна учун тўлов яқин версияларда пайдо бўлади. Унгача MaxCare ишлашда давом этади.",
-  "subscriptionSubscribe": "Обуна бўлиш"
+  "subscriptionSubscribe": "Обуна бўлиш",
+
+  "homeStatusCalm": "Ҳаммаси жойида",
+  "homeStatusAttention": "Эътибор талаб қилади",
+  "homeStatusOffline": "Алоқа йўқ",
+  "homeStatusNotPaired": "Ҳали уланмаган",
+  "homeShowDetails": "Батафсил кўрсатиш",
+  "homeMetricScreen": "Экран",
+  "homeMetricBlocked": "Блокланган",
+  "homeMetricDistance": "Босиб ўтилган",
+  "homeDistanceKm": "{km} км",
+  "homeDailyHint": "Бугун нима бўлди, қисқача",
+  "dailyTimeline": "Кун лентаси",
+  "dailyFilterAll": "Бутун кун",
+  "dailyFilterImportant": "Муҳим",
+  "dailyTimelineEmpty": "Бу кунда ҳодисалар йўқ.",
+  "dailyImportantEmpty": "Муҳим нарса йўқ: кун тинч ўтди.",
+  "dailySummary": "Кун хулосаси",
+  "dailyAllCalm": "Ҳимоя кун бўйи ишлади",
+  "dailyAttentionCount": "{count, plural, one{{count} та ҳодиса эътибор талаб қилади} other{{count} та ҳодиса эътибор талаб қилади}}",
+  "dailyRingOther": "Бошқалар"
 }

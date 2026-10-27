@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../children/add_child_screen.dart';
 import '../children/children_list.dart';
-import '../children/device_events_screen.dart';
 import '../children/report_hub_screen.dart';
 import '../core/providers.dart';
 import '../l10n/app_localizations.dart';
 import '../settings/settings_tab.dart';
+import 'main_tab.dart';
 
 /// Корневой экран родителя: нижние вкладки «Главная», «Отчёты», «Настройки».
 class MainShell extends ConsumerStatefulWidget {
@@ -32,7 +32,7 @@ class _MainShellState extends ConsumerState<MainShell> {
       appBar: AppBar(title: Text(title)),
       body: IndexedStack(
         index: _tab,
-        children: const [_MainTab(), _ReportsTab(), SettingsTab()],
+        children: const [MainTab(), _ReportsTab(), SettingsTab()],
       ),
       floatingActionButton: _tab == 0 ? _addChildButton(context, t) : null,
       bottomNavigationBar: NavigationBar(
@@ -58,20 +58,6 @@ class _MainShellState extends ConsumerState<MainShell> {
         },
         icon: const Icon(Icons.add),
         label: Text(t.homeAddChild),
-      );
-}
-
-/// «Главная»: список детей со статусом, нажатие ведёт в журнал событий.
-class _MainTab extends StatelessWidget {
-  const _MainTab();
-
-  @override
-  Widget build(BuildContext context) => ChildrenList(
-        onTap: (context, device) => Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (_) => DeviceEventsScreen(deviceId: device.id, title: device.title),
-          ),
-        ),
       );
 }
 
