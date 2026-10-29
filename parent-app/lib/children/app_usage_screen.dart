@@ -10,10 +10,18 @@ import 'app_usage_repository.dart';
 /// «Время в приложениях»: сколько минут каждое приложение было на экране ребёнка за день.
 /// Дни — те же последние [trackDays], что и у маршрута.
 class AppUsageScreen extends ConsumerStatefulWidget {
-  const AppUsageScreen({required this.deviceId, required this.title, super.key});
+  const AppUsageScreen({
+    required this.deviceId,
+    required this.title,
+    this.embedded = false,
+    super.key,
+  });
 
   final String deviceId;
   final String title;
+
+  /// Внутри вкладки экрана ребёнка: без своей шапки — её даёт экран ребёнка.
+  final bool embedded;
 
   @override
   ConsumerState<AppUsageScreen> createState() => _AppUsageScreenState();
@@ -33,7 +41,7 @@ class _AppUsageScreenState extends ConsumerState<AppUsageScreen> {
     final t = AppLocalizations.of(context);
     final usage = ref.watch(appUsageProvider(_request));
     return Scaffold(
-      appBar: AppBar(
+      appBar: widget.embedded ? null : AppBar(
         title: Text(widget.title),
         actions: [
           IconButton(

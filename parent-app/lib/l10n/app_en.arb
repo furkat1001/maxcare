@@ -241,9 +241,6 @@
     "placeholders": { "count": { "type": "int" } }
   },
   "planExpired": "The free trial has ended",
-  "settingsChildren": "Children",
-  "settingsChildSubtitle": "Time limits and recovery code",
-  "settingsChildrenEmpty": "Add a child on the Home tab — their settings will appear here.",
   "settingsProtection": "Protection",
   "settingsApp": "App",
   "settingsLanguage": "Language",
@@ -266,7 +263,6 @@
   "homeStatusAttention": "Needs attention",
   "homeStatusOffline": "No connection",
   "homeStatusNotPaired": "Not connected yet",
-  "homeShowDetails": "Show details",
   "homeMetricScreen": "Screen",
   "homeMetricBlocked": "Blocked",
   "homeMetricDistance": "Travelled",
@@ -274,7 +270,6 @@
   "@homeDistanceKm": {
     "placeholders": { "km": { "type": "String" } }
   },
-  "homeDailyHint": "What happened today, briefly",
   "dailyTimeline": "Day timeline",
   "dailyFilterAll": "Whole day",
   "dailyFilterImportant": "Important",
@@ -286,5 +281,24 @@
   "@dailyAttentionCount": {
     "placeholders": { "count": { "type": "int" } }
   },
-  "dailyRingOther": "Other"
+  "dailyRingOther": "Other",
+
+  "navFamily": "Family",
+  "navMap": "Map",
+  "navEvents": "Events",
+  "childTabSummary": "Summary",
+  "childTabTime": "Time",
+  "familyAttention": "Need attention: {names}",
+  "@familyAttention": {
+    "placeholders": { "names": { "type": "String" } }
+  },
+  "childAttentionReason": "Today protection was bypassed or turned off",
+  "mapNoLocation": "No location yet",
+  "mapPointAt": "Seen at {time}",
+  "@mapPointAt": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "mapEmpty": "The children’s phones have not sent a location yet.",
+  "filterAll": "All",
+  "eventsImportantOnly": "Important only"
 }

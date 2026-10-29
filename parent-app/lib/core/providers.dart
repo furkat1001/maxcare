@@ -123,8 +123,17 @@ final dayEventsProvider =
   return ref.watch(deviceRepositoryProvider).events(request.deviceId, from, to);
 });
 
-/// Ребёнок, выбранный на главной; null — первый в списке.
-final selectedChildProvider = StateProvider<String?>((ref) => null);
+/// Вкладка нижнего меню: 0 — семья, 1 — карта, 2 — события, 3 — настройки.
+final mainTabProvider = StateProvider<int>((ref) => 0);
+
+/// Последняя точка каждого ребёнка для общей карты: id устройства → позиция (null — ещё нет).
+final familyLocationsProvider =
+    FutureProvider.autoDispose<Map<String, DeviceLocation?>>((ref) async {
+  final devices = await ref.watch(devicesProvider.future);
+  final repo = ref.watch(locationRepositoryProvider);
+  final points = await Future.wait(devices.map((d) => repo.latest(d.id)));
+  return {for (var i = 0; i < devices.length; i++) devices[i].id: points[i]};
+});
 
 final appLimitsRepositoryProvider = Provider<AppLimitsRepository>(
   (ref) => AppLimitsRepository(

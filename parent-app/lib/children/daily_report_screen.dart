@@ -16,10 +16,18 @@ import 'event_label.dart';
 /// «Итоги дня»: кольцо экранного времени, лента событий дня, ниже — сводка по разделам.
 /// Дни — те же последние [trackDays], что и у маршрута и времени в приложениях.
 class DailyReportScreen extends ConsumerStatefulWidget {
-  const DailyReportScreen({required this.deviceId, required this.title, super.key});
+  const DailyReportScreen({
+    required this.deviceId,
+    required this.title,
+    this.embedded = false,
+    super.key,
+  });
 
   final String deviceId;
   final String title;
+
+  /// Внутри вкладки экрана ребёнка: без своей шапки — её даёт экран ребёнка.
+  final bool embedded;
 
   @override
   ConsumerState<DailyReportScreen> createState() => _DailyReportScreenState();
@@ -42,7 +50,7 @@ class _DailyReportScreenState extends ConsumerState<DailyReportScreen> {
     final t = AppLocalizations.of(context);
     final report = ref.watch(dailyReportProvider(_request));
     return Scaffold(
-      appBar: AppBar(
+      appBar: widget.embedded ? null : AppBar(
         title: Text(widget.title),
         actions: [
           IconButton(
