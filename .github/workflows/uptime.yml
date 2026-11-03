@@ -1,0 +1,64 @@
+# Проверка снаружи: доступен ли сервер из интернета. Сам о своём отказе сервер сообщить не может.
+# Пишет в Telegram только при смене состояния; остальное — deploy/health-check.sh на сервере.
+name: uptime
+
+on:
+  schedule:
+    # Не в начало часа: тогда запуски GitHub чаще всего задерживаются.
+    # Запасная к Cloudflare (deploy/uptime-worker): GitHub запускает расписание с большими
+    # задержками, на деле реже раза в час. Раз в час — около 720 из 2000 бесплатных минут в месяц.
+    - cron: "7 * * * *"
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Адрес для проверки (другой — чтобы проверить само оповещение)"
+        default: "https://api.maxcare.dexx.uz/health"
+
+permissions:
+  actions: read
+
+concurrency:
+  group: uptime
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check and report
+        env:
+          URL: ${{ inputs.url || 'https://api.maxcare.dexx.uz/health' }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.MAXCARE_TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.MAXCARE_TELEGRAM_CHAT_ID }}
+        run: |
+          notify() {
+            printf 'url = "https://api.telegram.org/bot%s/sendMessage"\n' "$TELEGRAM_BOT_TOKEN" |
+              curl -fsS -m 15 --retry 3 -o /dev/null -K - \
+                --data-urlencode "chat_id=$TELEGRAM_CHAT_ID" \
+                --data-urlencode "text=MaxCare: $1"
+          }
+
+          # Предыдущий завершённый запуск: так видно, изменилось ли состояние.
+          # Отменённые запуски не считаются: они ничего не говорят о сервере.
+          previous=$(gh run list --workflow uptime.yml --status completed --limit 5 --json conclusion \
+            --jq 'map(select(.conclusion == "success" or .conclusion == "failure"))[0].conclusion // ""' || echo "")
+
+          # Три попытки с паузой: одна потерянная проверка — ещё не отказ.
+          for attempt in 1 2 3; do
+            if curl -fsS -m 20 -o /dev/null "$URL"; then
+              echo "доступен, попытка $attempt"
+              if [ "$previous" = "failure" ]; then
+                notify "сервер снова доступен снаружи (GitHub)"
+              fi
+              exit 0
+            fi
+            [ "$attempt" = 3 ] || sleep 60
+          done
+
+          echo "не отвечает после трёх попыток"
+          if [ "$previous" != "failure" ]; then
+            notify "сервер не отвечает снаружи (проверка из-за границы, GitHub). Если приложения в Узбекистане работают, возможен сбой международного канала."
+          fi
+          exit 1
