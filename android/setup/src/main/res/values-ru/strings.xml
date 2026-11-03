@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="setup_step_counter">Шаг %1$d из %2$d</string>
     <string name="open_settings">Открыть настройки</string>
     <string name="back">Назад</string>
 
@@ -8,35 +7,19 @@
     <string name="disclosure_body">MaxCare Kids — родительский контроль. Его устанавливает родитель, а ребёнок всегда видит, что приложение работает.\n\nЧто приложение делает сейчас:\n• отключить защиту в приложении можно только с паролем родителя;\n• показывает постоянное уведомление о том, что защита включена;\n• связывает телефон с аккаунтом родителя. На сервер MaxCare передаются название и модель телефона;\n• отправляет на сервер MaxCare события защиты: отключение администратора, блокировка или сброс пароля родителя, отключение уведомлений, включение и выключение телефона, заблокированные сайты с их адресом — только что произошло и когда;\n• отправляет на сервер MaxCare, сколько времени каждое приложение было на экране за день, — только название приложения и минуты, без того, что в нём делали;\n• фильтрует сайты: названия сайтов (не содержимое страниц) в зашифрованном виде проверяет семейный DNS-сервис Cloudflare for Families.\n\nПриложение не скрывается, не читает переписку и не отправляет фото и содержимое экрана.\n\nПродолжайте, только если вы родитель или опекун ребёнка.</string>
     <string name="disclosure_accept">Я родитель, продолжить</string>
 
-    <string name="pairing_title">Связь с родителем</string>
     <string name="pairing_body">В приложении MaxCare на телефоне родителя выберите «Добавить ребёнка» и введите здесь код из 8 цифр. Код действует 10 минут.</string>
     <string name="pairing_code_label">Код</string>
-    <string name="pairing_submit">Связать</string>
 
-    <string name="password_title">Пароль родителя</string>
     <string name="password_body">Он нужен только родителю: чтобы отключить защиту или изменить настройки на этом телефоне. Не меньше 6 символов. Не показывайте его ребёнку.</string>
     <string name="password_label">Пароль</string>
     <string name="password_confirm_label">Повторите пароль</string>
-    <string name="password_submit">Сохранить пароль</string>
-
-    <string name="admin_title">Администратор устройства</string>
-    <string name="admin_body">Android попросит включить администратора устройства MaxCare Kids — он нужен для защиты. На некоторых телефонах приложение всё ещё можно удалить вместе с администратором.</string>
-    <string name="admin_submit">Включить</string>
-
-    <string name="notifications_title">Уведомление</string>
-    <string name="notifications_body">MaxCare Kids всегда показывает уведомление о том, что защита включена, — так ребёнок знает о ней. Разрешите уведомления, чтобы продолжить.</string>
-    <string name="notifications_allow">Разрешить</string>
 
     <string name="location_title">Местоположение</string>
     <string name="location_body">MaxCare Kids отправляет вам местоположение этого телефона — периодически и в фоне, даже когда приложение закрыто, — чтобы вы видели, где ребёнок. Нажмите «Разрешить геолокацию», затем выберите «Разрешить всегда».</string>
     <string name="location_allow">Разрешить геолокацию</string>
-    <string name="usage_title">Время в приложениях</string>
-    <string name="usage_body">MaxCare Kids отправляет вам, сколько времени каждое приложение было на экране этого телефона за день, — раз в 15 минут, в фоне. Передаются только название приложения и минуты: что ребёнок смотрел, писал или искал внутри — нет. Нажмите «Открыть доступ», найдите MaxCare Kids в списке и включите доступ к истории использования.</string>
-    <string name="usage_allow">Открыть доступ</string>
 
     <string name="background_title">Работа в фоне</string>
     <string name="background_body">На этом телефоне система может останавливать MaxCare Kids в фоне. В настройках приложения разрешите автозапуск и отключите ограничения батареи для MaxCare Kids.</string>
-    <string name="background_done">Готово</string>
 
     <string name="home_title">Защита включена</string>
     <string name="home_mode_owner">Полная защита: приложение нельзя удалить, безопасный режим и сброс телефона заблокированы.</string>
@@ -68,7 +51,7 @@
     <string name="error_wrong_password">Неверный пароль. Осталось попыток до паузы: %1$d</string>
     <string name="error_locked_out">Слишком много неверных попыток. Повторите через %1$d мин.</string>
     <string name="error_storage">Данные защиты на этом телефоне повреждены. Используйте код восстановления из приложения родителя.</string>
-    <string name="error_admin_not_activated">Администратор не включён. Нажмите «Включить» и подтвердите.</string>
+    <string name="error_admin_not_activated">Администратор не включён. Нажмите «Продолжить» и подтвердите.</string>
     <string name="error_notifications_denied">Уведомления выключены. Включите их в настройках.</string>
     <string name="error_recovery_code_invalid">Неверный код. Осталось попыток до паузы: %1$d</string>
     <string name="error_not_paired">Телефон не связан с родителем, поэтому код восстановления проверить нельзя.</string>
@@ -88,4 +71,31 @@
     <string name="password_hide">Скрыть пароль</string>
     <string name="accessibility_title">Фильтр и ограничения времени</string>
     <string name="accessibility_body">MaxCare Kids использует службу специальных возможностей. Она читает текст и изображения на экране и в строке поиска, чтобы скрывать опасное содержимое, видит, какое приложение открыто, — для ограничений времени, которые задали вы, — и не даёт удалить приложение без вашего пароля. Текст и изображения проверяются только на этом телефоне и никуда не отправляются; вы получаете только событие: что сработало и когда. Нажмите «Открыть настройки», выберите «Установленные приложения» → MaxCare Kids и включите службу.</string>
+
+    <!-- Экраны «Подключение» и «Разрешения» -->
+    <string name="connect_title">Подключите телефон ребёнка</string>
+    <string name="connect_summary">• Фильтрует сайты и опасный контент на экране\n• Отправляет родителю местоположение, время в приложениях и события защиты\n• Всегда показывает уведомление, что защита работает</string>
+    <string name="connect_not_doing">Не читает переписку и не отправляет фото и содержимое экрана.</string>
+    <string name="connect_more">Подробнее о данных</string>
+    <string name="connect_paired">✓ Телефон связан с родителем</string>
+    <string name="close">Закрыть</string>
+    <string name="permissions_title">Включите защиту</string>
+    <string name="permissions_body">Android покажет несколько окон подряд. В каждом нажмите «Разрешить» или «Включить».</string>
+    <string name="permissions_progress">Готово %1$d из %2$d</string>
+    <string name="permissions_done">Включено</string>
+    <string name="permissions_start">Включить защиту</string>
+    <string name="permissions_continue">Продолжить</string>
+    <string name="perm_admin_title">Защита от удаления</string>
+    <string name="perm_admin_hint">Ребёнок не сможет удалить приложение без вашего пароля</string>
+    <string name="perm_filter_hint">Опасные сайты не откроются ни в одном браузере</string>
+    <string name="perm_notifications_title">Уведомления</string>
+    <string name="perm_notifications_hint">Уведомление показывает, что защита работает</string>
+    <string name="perm_location_hint">Где ребёнок, даже когда приложение закрыто</string>
+    <string name="perm_usage_title">Время в приложениях</string>
+    <string name="perm_usage_hint">Только названия приложений и минуты. Если откроется список, найдите MaxCare Kids</string>
+    <string name="perm_accessibility_hint">Скрывает опасный контент и следит за лимитами времени</string>
+    <string name="perm_background_hint">Иначе телефон может останавливать защиту</string>
+    <string name="consent_agree">Согласен, открыть настройки</string>
+    <string name="consent_later">Не сейчас</string>
+    <string name="error_step_not_done">Разрешение не включено. Нажмите «Продолжить», чтобы попробовать ещё раз.</string>
 </resources>

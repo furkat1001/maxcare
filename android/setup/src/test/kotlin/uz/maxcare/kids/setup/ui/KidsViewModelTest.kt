@@ -4,10 +4,13 @@ import android.content.Intent
 import java.io.IOException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -59,7 +62,18 @@ class KidsViewModelTest {
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
 
     @After
-    fun tearDown() = Dispatchers.resetMain()
+    fun tearDown() {
+        collector.cancel()
+        Dispatchers.resetMain()
+    }
+
+    private val collector = CoroutineScope(UnconfinedTestDispatcher())
+    private val launched = mutableListOf<SystemLaunch>()
+
+    /** Что открыла бы Activity. */
+    private fun KidsViewModel.collectLaunches() = also { vm ->
+        collector.launch { vm.launches.collect { launched += it } }
+    }
 
     private fun viewModel() = KidsViewModel(
         pairing,
@@ -88,79 +102,56 @@ class KidsViewModelTest {
         return viewModel()
     }
 
-    @Test
-    fun `fresh install starts with the disclosure`() {
-        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 9), viewModel().screen)
-    }
+    private val allSteps = listOf(
+        SetupStep.DEVICE_ADMIN,
+        SetupStep.WEB_FILTER,
+        SetupStep.NOTIFICATIONS,
+        SetupStep.LOCATION,
+        SetupStep.USAGE_ACCESS,
+        SetupStep.ACCESSIBILITY
+    )
 
-    @Test
-    fun `background hint adds a step on aggressive firmware`() {
-        environment.backgroundHint = true
+    private val KidsViewModel.permissions get() = screen as KidsScreen.Permissions
 
-        assertEquals(KidsScreen.Setup(SetupStep.DISCLOSURE, 1, 10), viewModel().screen)
-    }
-
-    @Test
-    fun `steps follow each other`() {
-        val vm = viewModel()
-
-        vm.acceptDisclosure()
-        assertEquals(KidsScreen.Setup(SetupStep.PAIRING, 2, 9), vm.screen)
-
-        vm.submitPairingCode("12345678")
-        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 9), vm.screen)
-
-        vm.submitNewPassword("secret-1", "secret-1")
-        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 9), vm.screen)
-
-        protection.activeMode = ProtectionMode.DEVICE_ADMIN
-        environment.notifications = false
-        environment.location = false
-        filter.permitted = false
-        vm.onDeviceAdminResult()
-        assertEquals(KidsScreen.Setup(SetupStep.WEB_FILTER, 5, 9, canTurnOff = true), vm.screen)
-
-        filter.permitted = true
-        vm.onWebFilterResult()
-        assertEquals(KidsScreen.Setup(SetupStep.NOTIFICATIONS, 6, 9, canTurnOff = true), vm.screen)
-
-        environment.notifications = true
-        vm.onNotificationPermissionResult()
-        assertEquals(KidsScreen.Setup(SetupStep.LOCATION, 7, 9, canTurnOff = true), vm.screen)
-
-        environment.location = true
-        environment.usageAccess = false
-        vm.onLocationPermissionResult()
-        assertEquals(KidsScreen.Setup(SetupStep.USAGE_ACCESS, 8, 9, canTurnOff = true), vm.screen)
-        assertEquals(1, scheduler.scheduled)
-
-        environment.usageAccess = true
-        vm.onUsageAccessResult()
-        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_ADMIN), vm.screen)
-        assertEquals(1, usageScheduler.scheduled)
-    }
-
-    @Test
-    fun `setup resumes where it stopped`() {
-        store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
-        pairing.paired = true
-
-        assertEquals(KidsScreen.Setup(SetupStep.PASSWORD, 3, 9), viewModel().screen)
-    }
-
-    @Test
-    fun `device owner skips the device admin step`() {
+    private fun connected(): KidsViewModel {
         store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
         pairing.paired = true
         password.set = true
-        protection.activeMode = ProtectionMode.DEVICE_OWNER
-
-        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_OWNER), viewModel().screen)
+        return viewModel()
     }
 
     @Test
-    fun `pairing errors keep the step and explain`() {
-        store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
+    fun `fresh install starts with the connect screen`() {
+        assertEquals(KidsScreen.Connect(paired = false, needsPassword = true), viewModel().screen)
+    }
+
+    @Test
+    fun `one tap connects the phone, saves the password and opens the permissions`() {
+        val vm = viewModel()
+
+        vm.submitConnect("12345678", "secret-1", "secret-1")
+
+        assertTrue(pairing.paired)
+        assertTrue(password.set)
+        assertEquals(KidsScreen.Permissions(allSteps, done = allSteps.drop(1).toSet()), vm.screen)
+    }
+
+    @Test
+    fun `password problems are found before the phone is paired`() {
+        val vm = viewModel()
+
+        vm.submitConnect("12345678", "secret-1", "secret-2")
+        assertEquals(UiMessage.PasswordsDiffer, vm.message)
+
+        vm.submitConnect("12345678", "123", "123")
+        assertEquals(UiMessage.PasswordTooShort, vm.message)
+
+        assertEquals(0, pairing.pairCalls)
+        assertFalse(password.set)
+    }
+
+    @Test
+    fun `pairing errors keep the connect screen and explain`() {
         val vm = viewModel()
         mapOf(
             PairingResult.InvalidFormat to UiMessage.InvalidCodeFormat,
@@ -171,124 +162,218 @@ class KidsViewModelTest {
             PairingResult.ServerError to UiMessage.ServerError
         ).forEach { (result, message) ->
             pairing.result = result
-            vm.submitPairingCode("12345678")
-            assertEquals(SetupStep.PAIRING, (vm.screen as KidsScreen.Setup).step)
+            vm.submitConnect("12345678", "secret-1", "secret-1")
+            assertEquals(KidsScreen.Connect(paired = false), vm.screen)
             assertEquals(message, vm.message)
+            assertFalse(password.set)
         }
     }
 
     @Test
-    fun `different passwords are not saved`() {
-        store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
-        pairing.paired = true
-        val vm = viewModel()
-
-        vm.submitNewPassword("secret-1", "secret-2")
-
-        assertEquals(UiMessage.PasswordsDiffer, vm.message)
-        assertFalse(password.set)
-    }
-
-    @Test
-    fun `short password is explained`() {
-        store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
-        pairing.paired = true
+    fun `paired phone with an unsaved password does not ask for the code again`() {
         password.setResult = SetPasswordResult.TooShort
         val vm = viewModel()
 
-        vm.submitNewPassword("123", "123")
+        vm.submitConnect("12345678", "secret-1", "secret-1")
 
+        assertEquals(KidsScreen.Connect(paired = true), vm.screen)
         assertEquals(UiMessage.PasswordTooShort, vm.message)
+
+        password.setResult = SetPasswordResult.Saved
+        vm.submitConnect("", "secret-1", "secret-1")
+        assertEquals(1, pairing.pairCalls)
+        assertTrue(vm.screen is KidsScreen.Permissions)
     }
 
     @Test
-    fun `declined device admin is explained`() {
+    fun `setup resumes where it stopped`() {
         store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
         pairing.paired = true
-        password.set = true
-        val vm = viewModel()
 
-        vm.onDeviceAdminResult()
-
-        assertEquals(KidsScreen.Setup(SetupStep.DEVICE_ADMIN, 4, 9), vm.screen)
-        assertEquals(UiMessage.AdminNotActivated, vm.message)
+        assertEquals(KidsScreen.Connect(paired = true), viewModel().screen)
     }
 
     @Test
-    fun `protection can be turned off from a step asking to re-enable something`() {
-        // Ребёнок удалил VPN-профиль: защита работает, мастер просит включить фильтр снова.
+    fun `background work is an extra permission on aggressive firmware`() {
+        environment.backgroundHint = true
+
+        assertEquals(allSteps + SetupStep.BACKGROUND_WORK, connected().permissions.steps)
+    }
+
+    @Test
+    fun `accessibility comes after the other permissions`() {
+        environment.accessibility = false
+        environment.usageAccess = false
+
+        assertEquals(SetupStep.USAGE_ACCESS, setUpFully().permissions.current)
+    }
+
+    @Test
+    fun `device owner skips the device admin and the vpn consent`() {
+        protection.activeMode = ProtectionMode.DEVICE_OWNER
+
+        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_OWNER), connected().screen)
+    }
+
+    @Test
+    fun `one button walks through every permission`() {
+        filter.permitted = false
+        environment.notifications = false
+        environment.location = false
+        environment.locationForeground = false
+        environment.usageAccess = false
+        environment.accessibility = false
+        val vm = connected().collectLaunches()
+
+        vm.startPermissions()
+        assertEquals(listOf(SystemLaunch(SetupStep.DEVICE_ADMIN)), launched)
+
+        protection.activeMode = ProtectionMode.DEVICE_ADMIN
+        vm.onSystemResult(SetupStep.DEVICE_ADMIN)
+        assertEquals(SetupStep.WEB_FILTER, vm.state.value.consent)
+
+        vm.acceptConsent()
+        filter.permitted = true
+        vm.onSystemResult(SetupStep.WEB_FILTER)
+        environment.notifications = true
+        vm.onSystemResult(SetupStep.NOTIFICATIONS)
+        assertEquals(SetupStep.LOCATION, vm.state.value.consent)
+
+        vm.acceptConsent()
+        environment.locationForeground = true
+        vm.onSystemResult(SetupStep.LOCATION)
+        environment.location = true
+        vm.onSystemResult(SetupStep.LOCATION)
+        assertEquals(1, scheduler.scheduled)
+
+        environment.usageAccess = true
+        vm.onSystemResult(SetupStep.USAGE_ACCESS)
+        assertEquals(1, usageScheduler.scheduled)
+        assertEquals(SetupStep.ACCESSIBILITY, vm.state.value.consent)
+
+        vm.acceptConsent()
+        environment.accessibility = true
+        vm.onSystemResult(SetupStep.ACCESSIBILITY)
+
+        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_ADMIN), vm.screen)
+        assertEquals(
+            listOf(
+                SetupStep.DEVICE_ADMIN,
+                SetupStep.WEB_FILTER,
+                SetupStep.NOTIFICATIONS,
+                // Второй запрос — «Разрешить всегда» сразу после «При использовании».
+                SetupStep.LOCATION,
+                SetupStep.LOCATION,
+                SetupStep.USAGE_ACCESS,
+                SetupStep.ACCESSIBILITY
+            ),
+            launched.map { it.step }
+        )
+        assertNull(vm.message)
+    }
+
+    @Test
+    fun `a refusal stops the chain and continue starts from the same permission`() {
+        val vm = connected().collectLaunches()
+
+        vm.startPermissions()
+        vm.onSystemResult(SetupStep.DEVICE_ADMIN)
+
+        assertEquals(UiMessage.AdminNotActivated, vm.message)
+        assertEquals(SetupStep.DEVICE_ADMIN, vm.permissions.current)
+        assertEquals(1, launched.size)
+
+        vm.startPermissions()
+        assertEquals(
+            listOf(SetupStep.DEVICE_ADMIN, SetupStep.DEVICE_ADMIN),
+            launched.map {
+                it.step
+            }
+        )
+    }
+
+    @Test
+    fun `closing a consent window stops the chain without opening anything`() {
+        environment.accessibility = false
+        val vm = setUpFully().collectLaunches()
+
+        vm.startPermissions()
+        vm.dismissConsent()
+
+        assertNull(vm.state.value.consent)
+        assertTrue(launched.isEmpty())
+        assertEquals(SetupStep.ACCESSIBILITY, vm.permissions.current)
+    }
+
+    @Test
+    fun `after denied notifications the next attempt opens the settings`() {
+        environment.notifications = false
+        val vm = setUpFully().collectLaunches()
+
+        vm.startPermissions()
+        vm.onSystemResult(SetupStep.NOTIFICATIONS)
+        assertEquals(UiMessage.NotificationsDenied, vm.message)
+
+        vm.startPermissions()
+        assertEquals(
+            listOf(
+                SystemLaunch(SetupStep.NOTIFICATIONS),
+                SystemLaunch(SetupStep.NOTIFICATIONS, viaSettings = true)
+            ),
+            launched
+        )
+    }
+
+    @Test
+    fun `denied location is not asked again in a loop`() {
+        environment.location = false
+        environment.locationForeground = false
+        val vm = setUpFully().collectLaunches()
+
+        vm.startPermissions()
+        vm.acceptConsent()
+        vm.onSystemResult(SetupStep.LOCATION)
+
+        assertEquals(1, launched.size)
+        assertEquals(UiMessage.StepNotDone, vm.message)
+        assertEquals(0, scheduler.scheduled)
+    }
+
+    @Test
+    fun `background work counts as done once the parent is back from the settings`() {
+        environment.backgroundHint = true
+        val vm = setUpFully()
+        assertEquals(SetupStep.BACKGROUND_WORK, vm.permissions.current)
+
+        vm.onSystemResult(SetupStep.BACKGROUND_WORK)
+
+        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_ADMIN), vm.screen)
+    }
+
+    @Test
+    fun `nothing to turn off before the device admin is on`() {
+        assertFalse(connected().permissions.canTurnOff)
+    }
+
+    @Test
+    fun `protection can be turned off from the permissions asking to re-enable something`() {
+        // Ребёнок удалил VPN-профиль: защита работает, экран просит включить фильтр снова.
         filter.permitted = false
         val vm = setUpFully()
-        val step = vm.screen as KidsScreen.Setup
-        assertEquals(SetupStep.WEB_FILTER, step.step)
-        assertTrue(step.canTurnOff)
+        assertEquals(setOf(SetupStep.WEB_FILTER), allSteps.toSet() - vm.permissions.done)
+        assertTrue(vm.permissions.canTurnOff)
 
         vm.openDisableProtection()
         assertEquals(KidsScreen.DisableProtection, vm.screen)
 
         vm.back()
-        assertEquals(SetupStep.WEB_FILTER, (vm.screen as KidsScreen.Setup).step)
-    }
-
-    @Test
-    fun `nothing to turn off before the device admin is on`() {
-        store.values["setup_disclosure_accepted"] = "1".encodeToByteArray()
-        pairing.paired = true
-        password.set = true
-
-        val step = viewModel().screen as KidsScreen.Setup
-
-        assertEquals(SetupStep.DEVICE_ADMIN, step.step)
-        assertFalse(step.canTurnOff)
-    }
-
-    @Test
-    fun `declined vpn consent is explained`() {
-        filter.permitted = false
-        val vm = setUpFully()
-
-        vm.onWebFilterResult()
-
-        assertEquals(SetupStep.WEB_FILTER, (vm.screen as KidsScreen.Setup).step)
-        assertEquals(UiMessage.FilterNotAllowed, vm.message)
-    }
-
-    @Test
-    fun `denied notifications are explained`() {
-        environment.notifications = false
-        val vm = setUpFully()
-
-        vm.onNotificationPermissionResult()
-
-        assertEquals(UiMessage.NotificationsDenied, vm.message)
-    }
-
-    @Test
-    fun `location permission is asked for before setup finishes`() {
-        environment.location = false
-        val vm = setUpFully()
-
-        val step = vm.screen as KidsScreen.Setup
-        assertEquals(SetupStep.LOCATION, step.step)
-        assertNull(vm.message)
-    }
-
-    @Test
-    fun `granting location starts the periodic collection`() {
-        environment.location = false
-        val vm = setUpFully()
-
-        environment.location = true
-        vm.onLocationPermissionResult()
-
-        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_ADMIN), vm.screen)
-        assertEquals(1, scheduler.scheduled)
+        assertEquals(SetupStep.WEB_FILTER, vm.permissions.current)
     }
 
     @Test
     fun `finishing setup with everything already granted still starts background work`() {
-        // Сценарий с телефона: отвязка стёрла задачи, а при новой привязке шаги с выданными
-        // разрешениями мастер пропустил.
+        // Сценарий с телефона: отвязка стёрла задачи, а при новой привязке пункты с выданными
+        // разрешениями цепочка пропустила.
         val vm = setUpFully()
         vm.refresh()
 
@@ -298,59 +383,37 @@ class KidsViewModelTest {
     }
 
     @Test
-    fun `location step stays and schedules nothing until granted`() {
-        environment.location = false
-        val vm = setUpFully()
-
-        vm.onLocationPermissionResult()
-
-        assertEquals(SetupStep.LOCATION, (vm.screen as KidsScreen.Setup).step)
-        assertEquals(0, scheduler.scheduled)
-    }
-
-    @Test
-    fun `usage access is asked for before setup finishes`() {
+    fun `usage access stays and schedules nothing until granted`() {
         environment.usageAccess = false
         val vm = setUpFully()
 
-        assertEquals(SetupStep.USAGE_ACCESS, (vm.screen as KidsScreen.Setup).step)
-        assertNull(vm.message)
-    }
+        vm.onSystemResult(SetupStep.USAGE_ACCESS)
 
-    @Test
-    fun `granting usage access starts sending app usage`() {
-        environment.usageAccess = false
-        val vm = setUpFully()
-
-        environment.usageAccess = true
-        vm.onUsageAccessResult()
-
-        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_ADMIN), vm.screen)
-        assertEquals(1, usageScheduler.scheduled)
-    }
-
-    @Test
-    fun `usage access step stays and schedules nothing until granted`() {
-        environment.usageAccess = false
-        val vm = setUpFully()
-
-        vm.onUsageAccessResult()
-
-        assertEquals(SetupStep.USAGE_ACCESS, (vm.screen as KidsScreen.Setup).step)
+        assertEquals(SetupStep.USAGE_ACCESS, vm.permissions.current)
         assertEquals(0, usageScheduler.scheduled)
     }
 
     @Test
-    fun `revoked usage access brings the step back`() {
+    fun `revoked usage access brings back only that permission`() {
         val vm = setUpFully()
         assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_ADMIN), vm.screen)
 
         environment.usageAccess = false
         vm.refresh()
 
-        val step = vm.screen as KidsScreen.Setup
-        assertEquals(SetupStep.USAGE_ACCESS, step.step)
-        assertEquals(true, step.canTurnOff)
+        assertEquals(allSteps.toSet() - SetupStep.USAGE_ACCESS, vm.permissions.done)
+        assertTrue(vm.permissions.canTurnOff)
+    }
+
+    @Test
+    fun `auto return checks the permission itself`() {
+        environment.usageAccess = false
+        val vm = setUpFully()
+        assertFalse(vm.isGranted(SetupStep.USAGE_ACCESS))
+
+        environment.usageAccess = true
+        assertTrue(vm.isGranted(SetupStep.USAGE_ACCESS))
+        assertFalse(vm.isGranted(SetupStep.BACKGROUND_WORK))
     }
 
     @Test
@@ -388,13 +451,13 @@ class KidsViewModelTest {
     }
 
     @Test
-    fun `settings opened by the wizard are trusted until the user comes back`() {
+    fun `settings opened for a permission are trusted until the user comes back`() {
         val vm = setUpFully()
 
         vm.beforeSettingsScreen()
         assertTrue(trustedSettings.isOpen())
 
-        vm.onUsageAccessResult()
+        vm.onSystemResult(SetupStep.USAGE_ACCESS)
         assertFalse(trustedSettings.isOpen())
     }
 
@@ -406,29 +469,6 @@ class KidsViewModelTest {
         vm.refresh()
 
         assertFalse(trustedSettings.isOpen())
-    }
-
-    @Test
-    fun `accessibility service is the last step and stays until it is on`() {
-        environment.accessibility = false
-        val vm = setUpFully()
-        assertEquals(KidsScreen.Setup(SetupStep.ACCESSIBILITY, 9, 9, canTurnOff = true), vm.screen)
-
-        vm.onAccessibilityResult()
-        assertEquals(SetupStep.ACCESSIBILITY, (vm.screen as KidsScreen.Setup).step)
-
-        environment.accessibility = true
-        vm.onAccessibilityResult()
-        assertEquals(KidsScreen.Home(ProtectionMode.DEVICE_ADMIN), vm.screen)
-    }
-
-    @Test
-    fun `accessibility comes after usage access`() {
-        environment.accessibility = false
-        environment.usageAccess = false
-        val vm = setUpFully()
-
-        assertEquals(SetupStep.USAGE_ACCESS, (vm.screen as KidsScreen.Setup).step)
     }
 
     private fun disabledByParent(): KidsViewModel {
@@ -519,7 +559,7 @@ class KidsViewModelTest {
         store.failWrites = true
         val vm = viewModel()
 
-        vm.acceptDisclosure()
+        vm.submitConnect("12345678", "secret-1", "secret-1")
 
         assertEquals(UiMessage.StorageDamaged, vm.message)
         assertFalse(vm.state.value.busy)
@@ -541,10 +581,12 @@ class KidsViewModelTest {
     private class FakePairing : DevicePairing {
         var paired = false
         var result: PairingResult = PairingResult.Paired
+        var pairCalls = 0
 
         override suspend fun isPaired() = paired
 
         override suspend fun pair(code: String): PairingResult {
+            pairCalls++
             if (result == PairingResult.Paired) paired = true
             return result
         }
@@ -637,6 +679,7 @@ class KidsViewModelTest {
     private class FakeEnvironment : SetupEnvironment {
         var notifications = true
         var location = true
+        var locationForeground = true
         var usageAccess = true
         var accessibility = true
         var backgroundHint = false
@@ -644,6 +687,8 @@ class KidsViewModelTest {
         override fun notificationsAllowed() = notifications
 
         override fun locationAllowed() = location
+
+        override fun locationForegroundAllowed() = locationForeground
 
         override fun usageAccessAllowed() = usageAccess
 

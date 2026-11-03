@@ -6,9 +6,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlin.time.Duration
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.maxcare.kids.core.filter.NetworkFilter
@@ -35,9 +38,10 @@ import uz.maxcare.kids.core.usage.AppUsageScheduler
 import uz.maxcare.kids.setup.pairing.AppDataReset
 
 /**
- * Экраны приложения ребёнка. Шаг настройки не хранится отдельно, а вычисляется заново по
- * фактическому состоянию (привязка, пароль, администратор, уведомления) при каждом открытии:
- * если приложение закрыли посреди настройки, оно продолжит с нужного места.
+ * Экраны приложения ребёнка. Что осталось настроить, не хранится отдельно, а вычисляется заново
+ * по фактическому состоянию (привязка, пароль, разрешения) при каждом открытии: если приложение
+ * закрыли посреди настройки, оно продолжит с нужного места, а если ребёнок потом что-то выключил,
+ * снова откроется экран «Разрешения» с этим пунктом.
  *
  * Пароли приходят из полей ввода строками: Compose хранит текст поля как String, затереть её
  * нельзя. Дальше — массив символов, который модули защиты затирают после проверки.
@@ -62,6 +66,17 @@ class KidsViewModel @Inject internal constructor(
     private val _state = MutableStateFlow(KidsUiState())
     val state: StateFlow<KidsUiState> = _state.asStateFlow()
 
+    private val _launches = Channel<SystemLaunch>(Channel.BUFFERED)
+
+    /** Системные окна, которые открывает Activity: экран сам их открыть не может. */
+    val launches: Flow<SystemLaunch> = _launches.receiveAsFlow()
+
+    // Цепочка «Включить защиту»: идёт, пока пункты включаются, и останавливается на первом отказе.
+    private var chainActive = false
+    private val consented = mutableSetOf<SetupStep>()
+    private var locationForegroundBefore = false
+    private var notificationsDenied = false
+
     /**
      * Перед экраном Настроек для шага мастера: защита от удаления пропустит его (иначе на
      * экране есть название приложения, и он закрывается заглушкой).
@@ -84,75 +99,105 @@ class KidsViewModel @Inject internal constructor(
     /** Системный диалог согласия на VPN; null — согласие уже есть. */
     fun webFilterIntent(): Intent? = networkFilter.permissionIntent()
 
-    fun acceptDisclosure() = launchAction {
-        store.writeString(DISCLOSURE_ACCEPTED_KEY, FLAG_SET)
-        showNextScreen()
-    }
-
-    fun submitPairingCode(code: String) = launchAction {
-        when (val result = pairing.pair(code)) {
-            PairingResult.Paired, PairingResult.AlreadyPaired -> showNextScreen()
-            else -> showMessage(pairingMessage(result))
+    /**
+     * Кнопка экрана «Подключение»: согласие, привязка и пароль за одно нажатие.
+     * Пароль проверяется до привязки: иначе телефон оказался бы связан, а пароль — не сохранён.
+     * Если привязка прошла, а пароль нет, экран остаётся, но код вводить заново не нужно.
+     */
+    fun submitConnect(code: String, password: String, confirmation: String) = launchAction {
+        val needsPassword = !parentPassword.isSet()
+        val passwordProblem = when {
+            !needsPassword -> null
+            password != confirmation -> UiMessage.PasswordsDiffer
+            password.length < ParentPassword.MIN_LENGTH -> UiMessage.PasswordTooShort
+            else -> null
         }
+        val problem = passwordProblem ?: connect(code, password, needsPassword)
+        showNextScreen()
+        problem?.let(::showMessage)
     }
 
-    fun submitNewPassword(password: String, confirmation: String) = launchAction {
-        if (password != confirmation) {
-            showMessage(UiMessage.PasswordsDiffer)
+    private suspend fun connect(
+        code: String,
+        password: String,
+        needsPassword: Boolean
+    ): UiMessage? {
+        store.writeString(DISCLOSURE_ACCEPTED_KEY, FLAG_SET)
+        val pairingResult = if (pairing.isPaired()) {
+            PairingResult.AlreadyPaired
         } else {
-            when (parentPassword.setInitial(password.toCharArray())) {
-                SetPasswordResult.TooShort -> showMessage(UiMessage.PasswordTooShort)
-                SetPasswordResult.Saved, SetPasswordResult.AlreadySet -> showNextScreen()
+            pairing.pair(
+                code
+            )
+        }
+        if (pairingResult != PairingResult.Paired && pairingResult != PairingResult.AlreadyPaired) {
+            return pairingMessage(pairingResult)
+        }
+        val saved = !needsPassword ||
+            parentPassword.setInitial(password.toCharArray()) != SetPasswordResult.TooShort
+        return if (saved) null else UiMessage.PasswordTooShort
+    }
+
+    /** Кнопка экрана «Разрешения»: включать всё по очереди, пока не откажут или не закончится. */
+    fun startPermissions() = launchAction {
+        chainActive = true
+        consented.clear()
+        showNextScreen()
+        advance()
+    }
+
+    /** Окно согласия: пользователь согласился — открываем системное окно. */
+    fun acceptConsent() {
+        val step = _state.value.consent ?: return
+        consented += step
+        _state.update { it.copy(consent = null) }
+        launch(step)
+    }
+
+    /** Окно согласия закрыто без согласия: цепочка останавливается, пункт остаётся невключённым. */
+    fun dismissConsent() {
+        chainActive = false
+        _state.update { it.copy(consent = null) }
+    }
+
+    /**
+     * Вернулись из системного окна. Пункт сверяется с фактическим состоянием, а не с ответом
+     * окна: разрешение могли выдать или отозвать в Настройках как угодно.
+     */
+    fun onSystemResult(step: SetupStep) = launchAction {
+        trustedSettings.close()
+        // Автозапуск проверить нельзя: подсказку считаем выполненной, когда родитель вернулся.
+        if (step ==
+            SetupStep.BACKGROUND_WORK
+        ) {
+            store.writeString(BACKGROUND_HINT_SHOWN_KEY, FLAG_SET)
+        }
+        showNextScreen()
+        val done = isShownAsDone(step)
+        if (done && step == SetupStep.LOCATION) scheduleLocation()
+        if (done && step == SetupStep.USAGE_ACCESS) scheduleAppUsage()
+        when {
+            done -> if (chainActive) advance()
+
+            // Геолокация двухступенчатая: после «При использовании» сразу просим «Разрешить всегда».
+            step == SetupStep.LOCATION && chainActive && !locationForegroundBefore &&
+                environment.locationForegroundAllowed() -> launch(step)
+
+            else -> {
+                chainActive = false
+                if (step == SetupStep.NOTIFICATIONS) notificationsDenied = true
+                showMessage(notDoneMessage(step))
             }
         }
     }
 
-    fun onDeviceAdminResult() = launchAction {
-        showNextScreen()
-        if (currentStep() == SetupStep.DEVICE_ADMIN) showMessage(UiMessage.AdminNotActivated)
-    }
-
-    fun onWebFilterResult() = launchAction {
-        showNextScreen()
-        if (currentStep() == SetupStep.WEB_FILTER) showMessage(UiMessage.FilterNotAllowed)
-    }
-
-    fun onNotificationPermissionResult() = launchAction {
-        trustedSettings.close()
-        showNextScreen()
-        if (currentStep() == SetupStep.NOTIFICATIONS) showMessage(UiMessage.NotificationsDenied)
-    }
-
-    /**
-     * После запроса разрешения на геолокацию. Разрешение двухступенчатое (сначала доступ,
-     * затем «Разрешить всегда»), поэтому сообщение об отказе не показываем — шаг просто остаётся,
-     * пока не выдадут оба; как только выдали — сразу запускаем периодический сбор.
-     */
-    fun onLocationPermissionResult() = launchAction {
-        trustedSettings.close()
-        showNextScreen()
-        if (currentStep() != SetupStep.LOCATION) scheduleLocation()
-    }
-
-    /**
-     * После возврата из настроек «Доступ к истории использования». Сообщение об отказе не
-     * показываем: шаг остаётся, пока доступ не выдан; как только выдали — запускаем отправку.
-     */
-    fun onUsageAccessResult() = launchAction {
-        trustedSettings.close()
-        showNextScreen()
-        if (currentStep() != SetupStep.USAGE_ACCESS) scheduleAppUsage()
-    }
-
-    /** Вернулись из Настроек → Специальные возможности. Шаг остаётся, пока служба выключена. */
-    fun onAccessibilityResult() = launchAction {
-        trustedSettings.close()
-        showNextScreen()
-    }
-
-    fun confirmBackgroundWork() = launchAction {
-        store.writeString(BACKGROUND_HINT_SHOWN_KEY, FLAG_SET)
-        showNextScreen()
+    /** Для автовозврата из Настроек: включено ли разрешение прямо сейчас. */
+    fun isGranted(step: SetupStep): Boolean = when (step) {
+        SetupStep.NOTIFICATIONS -> environment.notificationsAllowed()
+        SetupStep.LOCATION -> environment.locationAllowed()
+        SetupStep.USAGE_ACCESS -> environment.usageAccessAllowed()
+        SetupStep.ACCESSIBILITY -> environment.accessibilityEnabled()
+        SetupStep.DEVICE_ADMIN, SetupStep.WEB_FILTER, SetupStep.BACKGROUND_WORK -> false
     }
 
     fun openDisableProtection() = show(KidsScreen.DisableProtection)
@@ -203,52 +248,84 @@ class KidsViewModel @Inject internal constructor(
     fun dismissMessage() = _state.update { it.copy(message = null) }
 
     private suspend fun showNextScreen() {
-        val step = firstIncompleteStep()
-        val screen = if (step == null) {
-            // Шаги с уже выданными разрешениями мастер пропускает, и их колбэки не срабатывают —
-            // например, после отвязки и новой привязки. Тогда фоновые задачи ставит конец мастера.
+        val paired = pairing.isPaired()
+        val needsPassword = !parentPassword.isSet()
+        if (!isFlagSet(DISCLOSURE_ACCEPTED_KEY) || !paired || needsPassword) {
+            show(KidsScreen.Connect(paired, needsPassword))
+            return
+        }
+        val steps = applicableSteps()
+        // По порядку: проверка администратора заодно применяет политики и запускает уведомление.
+        val done = steps.filterTo(mutableSetOf()) { isStepDone(it) }
+        val screen = if (done.size == steps.size) {
+            // Пункты с уже выданными разрешениями цепочка пропускает, и их результат не приходит —
+            // например, после отвязки и новой привязки. Тогда фоновые задачи ставит конец настройки.
+            chainActive = false
             scheduleLocation()
             scheduleAppUsage()
             KidsScreen.Home(protection.mode.value)
         } else {
-            val steps = applicableSteps()
-            KidsScreen.Setup(
-                step,
-                number = steps.indexOf(step) + 1,
-                total = steps.size,
+            KidsScreen.Permissions(
+                steps,
+                done,
                 canTurnOff = protection.mode.value != ProtectionMode.NONE
             )
         }
         show(screen)
     }
 
-    private suspend fun firstIncompleteStep(): SetupStep? = when {
-        !isFlagSet(DISCLOSURE_ACCEPTED_KEY) -> SetupStep.DISCLOSURE
+    private suspend fun isStepDone(step: SetupStep): Boolean = when (step) {
+        SetupStep.DEVICE_ADMIN -> protection.applyPolicies() != ProtectionMode.NONE
 
-        !pairing.isPaired() -> SetupStep.PAIRING
+        // В режиме Device Owner согласие на VPN выдаётся вместе с постоянным VPN.
+        SetupStep.WEB_FILTER -> networkFilter.isPermitted()
 
-        !parentPassword.isSet() -> SetupStep.PASSWORD
+        SetupStep.NOTIFICATIONS -> environment.notificationsAllowed()
 
-        // Заодно применяет политики и запускает постоянное уведомление.
-        protection.applyPolicies() == ProtectionMode.NONE -> SetupStep.DEVICE_ADMIN
+        SetupStep.LOCATION -> environment.locationAllowed()
 
-        // В режиме Device Owner согласие на VPN выдаётся вместе с постоянным VPN — шаг пропускается.
-        !networkFilter.isPermitted() -> SetupStep.WEB_FILTER
+        SetupStep.USAGE_ACCESS -> environment.usageAccessAllowed()
 
-        !environment.notificationsAllowed() -> SetupStep.NOTIFICATIONS
+        SetupStep.ACCESSIBILITY -> environment.accessibilityEnabled()
 
-        !environment.locationAllowed() -> SetupStep.LOCATION
+        SetupStep.BACKGROUND_WORK -> isFlagSet(BACKGROUND_HINT_SHOWN_KEY)
+    }
 
-        !environment.usageAccessAllowed() -> SetupStep.USAGE_ACCESS
+    /** Следующий пункт цепочки: сначала окно согласия, если оно нужно, потом системное окно. */
+    private fun advance() {
+        val screen = _state.value.screen as? KidsScreen.Permissions
+        if (screen == null) {
+            chainActive = false
+        } else if (screen.current in CONSENT_STEPS && screen.current !in consented) {
+            _state.update { it.copy(consent = screen.current) }
+        } else {
+            launch(screen.current)
+        }
+    }
 
-        // Последним: пока служба включена, защита от удаления закрывает экраны Настроек
-        // с названием приложения — предыдущие шаги проходят раньше.
-        !environment.accessibilityEnabled() -> SetupStep.ACCESSIBILITY
+    private fun launch(step: SetupStep) {
+        if (step == SetupStep.LOCATION) {
+            locationForegroundBefore = environment.locationForegroundAllowed()
+        }
+        _launches.trySend(
+            SystemLaunch(step, viaSettings = step == SetupStep.NOTIFICATIONS && notificationsDenied)
+        )
+    }
 
-        environment.needsBackgroundHint() && !isFlagSet(BACKGROUND_HINT_SHOWN_KEY) ->
-            SetupStep.BACKGROUND_WORK
+    private fun isShownAsDone(step: SetupStep): Boolean {
+        val screen = _state.value.screen
+        return screen !is KidsScreen.Permissions || step in screen.done
+    }
 
-        else -> null
+    private fun notDoneMessage(step: SetupStep): UiMessage = when (step) {
+        SetupStep.DEVICE_ADMIN -> UiMessage.AdminNotActivated
+
+        SetupStep.WEB_FILTER -> UiMessage.FilterNotAllowed
+
+        SetupStep.NOTIFICATIONS -> UiMessage.NotificationsDenied
+
+        SetupStep.LOCATION, SetupStep.USAGE_ACCESS, SetupStep.ACCESSIBILITY,
+        SetupStep.BACKGROUND_WORK -> UiMessage.StepNotDone
     }
 
     // Повторная постановка безопасна (уникальная задача WorkManager), но одной за запуск экрана хватает.
@@ -271,8 +348,6 @@ class KidsViewModel @Inject internal constructor(
         it != SetupStep.BACKGROUND_WORK ||
             environment.needsBackgroundHint()
     }
-
-    private fun currentStep(): SetupStep? = (_state.value.screen as? KidsScreen.Setup)?.step
 
     private suspend fun isFlagSet(key: String): Boolean = try {
         store.readString(key) == FLAG_SET
@@ -346,6 +421,14 @@ class KidsViewModel @Inject internal constructor(
         const val DISCLOSURE_ACCEPTED_KEY = "setup_disclosure_accepted"
         const val BACKGROUND_HINT_SHOWN_KEY = "setup_background_hint_shown"
         const val FLAG_SET = "1"
+
+        /** Перед этими пунктами — окно согласия: заметное раскрытие по политике Google Play. */
+        val CONSENT_STEPS = setOf(
+            SetupStep.WEB_FILTER,
+            SetupStep.LOCATION,
+            SetupStep.ACCESSIBILITY,
+            SetupStep.BACKGROUND_WORK
+        )
         const val SECONDS_PER_MINUTE = 60L
     }
 }

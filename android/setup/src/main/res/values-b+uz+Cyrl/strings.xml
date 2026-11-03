@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="setup_step_counter">%1$d-қадам, жами %2$d</string>
     <string name="open_settings">Созламаларни очиш</string>
     <string name="back">Орқага</string>
 
@@ -8,35 +7,19 @@
     <string name="disclosure_body">MaxCare Kids — ота-она назорати. Уни ота-она ўрнатади, бола эса илова ишлаётганини доим кўриб туради.\n\nИлова ҳозир нима қилади:\n• иловада ҳимояни фақат ота-она пароли билан ўчириш мумкин;\n• ҳимоя ёқилгани ҳақида доимий билдиришнома кўрсатади;\n• телефонни ота-онанинг ҳисобига боғлайди. MaxCare серверига телефон номи ва модели юборилади;\n• MaxCare серверига ҳимоя ҳодисаларини юборади: администраторнинг ўчирилиши, ота-она паролининг блокланиши ёки тикланиши, билдиришномаларнинг ўчирилиши, телефоннинг ёқилиши ва ўчирилиши, блокланган сайтлар манзили билан — фақат нима ва қачон содир бўлгани;\n• MaxCare серверига ҳар бир илова кун давомида экранда қанча вақт бўлганини юборади — фақат илова номи ва дақиқалар, унда нима қилингани эмас;\n• сайтларни филтрлайди: сайт номларини (саҳифалар таркибини эмас) шифрланган ҳолда Cloudflare for Families оилавий DNS хизмати текширади.\n\nИлова яширинмайди, ёзишмаларни ўқимайди, расмлар ва экран таркибини юбормайди.\n\nФақат боланинг ота-онаси ёки васийси бўлсангиз, давом этинг.</string>
     <string name="disclosure_accept">Мен ота-онаман, давом этиш</string>
 
-    <string name="pairing_title">Ота-она билан боғланиш</string>
     <string name="pairing_body">Ота-онанинг телефонидаги MaxCare иловасида «Бола қўшиш»ни танланг ва 8 хонали кодни шу ерга киритинг. Код 10 дақиқа амал қилади.</string>
     <string name="pairing_code_label">Код</string>
-    <string name="pairing_submit">Боғлаш</string>
 
-    <string name="password_title">Ота-она пароли</string>
     <string name="password_body">У фақат ота-онага керак: шу телефонда ҳимояни ўчириш ёки созламаларни ўзгартириш учун. Камида 6 та белги. Уни болага кўрсатманг.</string>
     <string name="password_label">Парол</string>
     <string name="password_confirm_label">Паролни такрорланг</string>
-    <string name="password_submit">Паролни сақлаш</string>
-
-    <string name="admin_title">Қурилма администратори</string>
-    <string name="admin_body">Android MaxCare Kids қурилма администраторини ёқишни сўрайди — у ҳимоя учун керак. Баъзи телефонларда иловани администратор билан бирга ҳали ҳам ўчириш мумкин.</string>
-    <string name="admin_submit">Ёқиш</string>
-
-    <string name="notifications_title">Билдиришнома</string>
-    <string name="notifications_body">MaxCare Kids ҳимоя ёқилгани ҳақида доим билдиришнома кўрсатади — шунда бола бу ҳақда билади. Давом этиш учун билдиришномаларга рухсат беринг.</string>
-    <string name="notifications_allow">Рухсат бериш</string>
 
     <string name="location_title">Жойлашув</string>
     <string name="location_body">MaxCare Kids бу телефон жойлашувини сизга юборади — вақти-вақти билан ва фонда, илова ёпиқ бўлса ҳам, — шунда сиз бола қаердалигини кўрасиз. “Жойлашувга рухсат”ни босинг, сўнг “Доимо рухсат бериш”ни танланг.</string>
     <string name="location_allow">Жойлашувга рухсат</string>
-    <string name="usage_title">Иловалардаги вақт</string>
-    <string name="usage_body">MaxCare Kids сизга ҳар бир илова кун давомида бу телефон экранида қанча вақт бўлганини юборади — ҳар 15 дақиқада, фонда. Фақат илова номи ва дақиқалар юборилади: бола ичида нимани кўргани, ёзгани ёки қидиргани юборилмайди. “Рухсатни очиш”ни босинг, рўйхатдан MaxCare Kids’ни топинг ва фойдаланиш тарихига рухсатни ёқинг.</string>
-    <string name="usage_allow">Рухсатни очиш</string>
 
     <string name="background_title">Фонда ишлаш</string>
     <string name="background_body">Бу телефонда тизим MaxCare Kids иловасини фонда тўхтатиб қўйиши мумкин. Илова созламаларида автоишга туширишга рухсат беринг ва MaxCare Kids учун батарея чекловларини ўчиринг.</string>
-    <string name="background_done">Тайёр</string>
 
     <string name="home_title">Ҳимоя ёқилган</string>
     <string name="home_mode_owner">Тўлиқ ҳимоя: иловани ўчириб бўлмайди, хавфсиз режим ва телефонни тиклаш блокланган.</string>
@@ -68,7 +51,7 @@
     <string name="error_wrong_password">Парол нотўғри. Танаффусгача қолган уринишлар: %1$d</string>
     <string name="error_locked_out">Нотўғри уринишлар жуда кўп. %1$d дақиқадан сўнг қайтадан уриниб кўринг.</string>
     <string name="error_storage">Бу телефондаги ҳимоя маълумотлари шикастланган. Ота-она иловасидаги тиклаш кодидан фойдаланинг.</string>
-    <string name="error_admin_not_activated">Администратор ёқилмади. «Ёқиш» тугмасини босинг ва тасдиқланг.</string>
+    <string name="error_admin_not_activated">Администратор ёқилмади. «Давом этиш»ни босинг ва тасдиқланг.</string>
     <string name="error_notifications_denied">Билдиришномалар ўчирилган. Уларни созламаларда ёқинг.</string>
     <string name="error_recovery_code_invalid">Код нотўғри. Танаффусгача қолган уринишлар: %1$d</string>
     <string name="error_not_paired">Телефон ота-онага боғланмаган, шунинг учун тиклаш кодини текшириб бўлмайди.</string>
@@ -88,4 +71,31 @@
     <string name="password_hide">Паролни яшириш</string>
     <string name="accessibility_title">Фильтр ва вақт чекловлари</string>
     <string name="accessibility_body">MaxCare Kids махсус имкониятлар хизматидан фойдаланади. У хавфли контентни яшириш учун экрандаги ва қидирув сатридаги матн ва расмларни ўқийди, сиз берган вақт чекловлари учун қайси илова очиқлигини кўради ва иловани паролингизсиз ўчириб бўлмайди. Матн ва расмлар фақат шу телефонда текширилади ва ҳеч қаерга юборилмайди; сиз фақат ҳодисани оласиз: нима ишлади ва қачон. «Созламаларни очиш»ни босинг, «Ўрнатилган иловалар» → MaxCare Kids ни танланг ва хизматни ёқинг.</string>
+
+    <!-- Экраны «Подключение» и «Разрешения» -->
+    <string name="connect_title">Боланинг телефонини уланг</string>
+    <string name="connect_summary">• Сайтлар ва экрандаги хавфли контентни филтрлайди\n• Ота-онага жойлашув, иловалардаги вақт ва ҳимоя ҳодисаларини юборади\n• Ҳимоя ишлаётгани ҳақида доим билдиришнома кўрсатади</string>
+    <string name="connect_not_doing">Ёзишмаларни ўқимайди, расмлар ва экран мазмунини юбормайди.</string>
+    <string name="connect_more">Маълумотлар ҳақида батафсил</string>
+    <string name="connect_paired">✓ Телефон ота-онага боғланган</string>
+    <string name="close">Ёпиш</string>
+    <string name="permissions_title">Ҳимояни ёқинг</string>
+    <string name="permissions_body">Android кетма-кет бир нечта ойна кўрсатади. Ҳар бирида «Рухсат бериш» ёки «Ёқиш»ни босинг.</string>
+    <string name="permissions_progress">Бажарилди: %1$d / %2$d</string>
+    <string name="permissions_done">Ёқилган</string>
+    <string name="permissions_start">Ҳимояни ёқиш</string>
+    <string name="permissions_continue">Давом этиш</string>
+    <string name="perm_admin_title">Ўчиришдан ҳимоя</string>
+    <string name="perm_admin_hint">Бола иловани сизнинг паролингизсиз ўчира олмайди</string>
+    <string name="perm_filter_hint">Хавфли сайтлар ҳеч бир браузерда очилмайди</string>
+    <string name="perm_notifications_title">Билдиришномалар</string>
+    <string name="perm_notifications_hint">Билдиришнома ҳимоя ишлаётганини кўрсатади</string>
+    <string name="perm_location_hint">Бола қаерда экани, илова ёпиқ бўлса ҳам</string>
+    <string name="perm_usage_title">Иловалардаги вақт</string>
+    <string name="perm_usage_hint">Фақат илова номлари ва дақиқалар. Рўйхат очилса, MaxCare Kids’ни топинг</string>
+    <string name="perm_accessibility_hint">Хавфли контентни яширади ва вақт чекловларини кузатади</string>
+    <string name="perm_background_hint">Акс ҳолда телефон ҳимояни тўхтатиб қўйиши мумкин</string>
+    <string name="consent_agree">Розиман, созламаларни очиш</string>
+    <string name="consent_later">Ҳозир эмас</string>
+    <string name="error_step_not_done">Рухсат ёқилмади. Қайта уриниш учун «Давом этиш»ни босинг.</string>
 </resources>

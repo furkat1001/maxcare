@@ -22,6 +22,9 @@ internal interface SetupEnvironment {
      */
     fun locationAllowed(): Boolean
 
+    /** Есть хотя бы доступ к местоположению при использовании: остался шаг «Разрешить всегда». */
+    fun locationForegroundAllowed(): Boolean
+
     /** Выдан «Доступ к истории использования» — для времени в приложениях в отчёте родителю. */
     fun usageAccessAllowed(): Boolean
 
@@ -39,14 +42,17 @@ internal class AndroidSetupEnvironment @Inject constructor(
         NotificationManagerCompat.from(context).areNotificationsEnabled()
 
     override fun locationAllowed(): Boolean {
-        val foreground = granted(Manifest.permission.ACCESS_FINE_LOCATION) ||
-            granted(Manifest.permission.ACCESS_COARSE_LOCATION)
+        val foreground = locationForegroundAllowed()
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             foreground && granted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         } else {
             foreground
         }
     }
+
+    override fun locationForegroundAllowed(): Boolean =
+        granted(Manifest.permission.ACCESS_FINE_LOCATION) ||
+            granted(Manifest.permission.ACCESS_COARSE_LOCATION)
 
     override fun usageAccessAllowed(): Boolean = context.hasUsageAccess()
 

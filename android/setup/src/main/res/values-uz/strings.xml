@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="setup_step_counter">%1$d-qadam, jami %2$d</string>
     <string name="open_settings">Sozlamalarni ochish</string>
     <string name="back">Orqaga</string>
 
@@ -8,35 +7,19 @@
     <string name="disclosure_body">MaxCare Kids — ota-ona nazorati. Uni ota-ona o‘rnatadi, bola esa ilova ishlayotganini doim ko‘rib turadi.\n\nIlova hozir nima qiladi:\n• ilovada himoyani faqat ota-ona paroli bilan o‘chirish mumkin;\n• himoya yoqilgani haqida doimiy bildirishnoma ko‘rsatadi;\n• telefonni ota-onaning hisobiga bog‘laydi. MaxCare serveriga telefon nomi va modeli yuboriladi;\n• MaxCare serveriga himoya hodisalarini yuboradi: administratorning o‘chirilishi, ota-ona parolining bloklanishi yoki tiklanishi, bildirishnomalarning o‘chirilishi, telefonning yoqilishi va o‘chirilishi, bloklangan saytlar manzili bilan — faqat nima va qachon sodir bo‘lgani;\n• MaxCare serveriga har bir ilova kun davomida ekranda qancha vaqt bo‘lganini yuboradi — faqat ilova nomi va daqiqalar, unda nima qilingani emas;\n• saytlarni filtrlaydi: sayt nomlarini (sahifalar tarkibini emas) shifrlangan holda Cloudflare for Families oilaviy DNS xizmati tekshiradi.\n\nIlova yashirinmaydi, yozishmalarni o‘qimaydi, rasmlar va ekran tarkibini yubormaydi.\n\nFaqat bolaning ota-onasi yoki vasiysi bo‘lsangiz, davom eting.</string>
     <string name="disclosure_accept">Men ota-onaman, davom etish</string>
 
-    <string name="pairing_title">Ota-ona bilan bog‘lanish</string>
     <string name="pairing_body">Ota-onaning telefonidagi MaxCare ilovasida «Bola qo‘shish»ni tanlang va 8 xonali kodni shu yerga kiriting. Kod 10 daqiqa amal qiladi.</string>
     <string name="pairing_code_label">Kod</string>
-    <string name="pairing_submit">Bog‘lash</string>
 
-    <string name="password_title">Ota-ona paroli</string>
     <string name="password_body">U faqat ota-onaga kerak: shu telefonda himoyani o‘chirish yoki sozlamalarni o‘zgartirish uchun. Kamida 6 ta belgi. Uni bolaga ko‘rsatmang.</string>
     <string name="password_label">Parol</string>
     <string name="password_confirm_label">Parolni takrorlang</string>
-    <string name="password_submit">Parolni saqlash</string>
-
-    <string name="admin_title">Qurilma administratori</string>
-    <string name="admin_body">Android MaxCare Kids qurilma administratorini yoqishni so‘raydi — u himoya uchun kerak. Ba’zi telefonlarda ilovani administrator bilan birga hali ham o‘chirish mumkin.</string>
-    <string name="admin_submit">Yoqish</string>
-
-    <string name="notifications_title">Bildirishnoma</string>
-    <string name="notifications_body">MaxCare Kids himoya yoqilgani haqida doim bildirishnoma ko‘rsatadi — shunda bola bu haqda biladi. Davom etish uchun bildirishnomalarga ruxsat bering.</string>
-    <string name="notifications_allow">Ruxsat berish</string>
 
     <string name="location_title">Joylashuv</string>
     <string name="location_body">MaxCare Kids bu telefon joylashuvini sizga yuboradi — vaqti-vaqti bilan va fonda, ilova yopiq bo‘lsa ham, — shunda siz bola qayerdaligini ko‘rasiz. “Joylashuvga ruxsat”ni bosing, so‘ng “Doimo ruxsat berish”ni tanlang.</string>
     <string name="location_allow">Joylashuvga ruxsat</string>
-    <string name="usage_title">Ilovalardagi vaqt</string>
-    <string name="usage_body">MaxCare Kids sizga har bir ilova kun davomida bu telefon ekranida qancha vaqt bo‘lganini yuboradi — har 15 daqiqada, fonda. Faqat ilova nomi va daqiqalar yuboriladi: bola ichida nimani ko‘rgani, yozgani yoki qidirgani yuborilmaydi. “Ruxsatni ochish”ni bosing, ro‘yxatdan MaxCare Kids’ni toping va foydalanish tarixiga ruxsatni yoqing.</string>
-    <string name="usage_allow">Ruxsatni ochish</string>
 
     <string name="background_title">Fonda ishlash</string>
     <string name="background_body">Bu telefonda tizim MaxCare Kids ilovasini fonda to‘xtatib qo‘yishi mumkin. Ilova sozlamalarida avtoishga tushirishga ruxsat bering va MaxCare Kids uchun batareya cheklovlarini o‘chiring.</string>
-    <string name="background_done">Tayyor</string>
 
     <string name="home_title">Himoya yoqilgan</string>
     <string name="home_mode_owner">To‘liq himoya: ilovani o‘chirib bo‘lmaydi, xavfsiz rejim va telefonni tiklash bloklangan.</string>
@@ -68,7 +51,7 @@
     <string name="error_wrong_password">Parol noto‘g‘ri. Tanaffusgacha qolgan urinishlar: %1$d</string>
     <string name="error_locked_out">Noto‘g‘ri urinishlar juda ko‘p. %1$d daqiqadan so‘ng qaytadan urinib ko‘ring.</string>
     <string name="error_storage">Bu telefondagi himoya ma’lumotlari shikastlangan. Ota-ona ilovasidagi tiklash kodidan foydalaning.</string>
-    <string name="error_admin_not_activated">Administrator yoqilmadi. «Yoqish» tugmasini bosing va tasdiqlang.</string>
+    <string name="error_admin_not_activated">Administrator yoqilmadi. «Davom etish»ni bosing va tasdiqlang.</string>
     <string name="error_notifications_denied">Bildirishnomalar o‘chirilgan. Ularni sozlamalarda yoqing.</string>
     <string name="error_recovery_code_invalid">Kod noto‘g‘ri. Tanaffusgacha qolgan urinishlar: %1$d</string>
     <string name="error_not_paired">Telefon ota-onaga bog‘lanmagan, shuning uchun tiklash kodini tekshirib bo‘lmaydi.</string>
@@ -88,4 +71,31 @@
     <string name="password_hide">Parolni yashirish</string>
     <string name="accessibility_title">Filtr va vaqt cheklovlari</string>
     <string name="accessibility_body">MaxCare Kids maxsus imkoniyatlar xizmatidan foydalanadi. U xavfli kontentni yashirish uchun ekrandagi va qidiruv satridagi matn va rasmlarni o‘qiydi, siz bergan vaqt cheklovlari uchun qaysi ilova ochiqligini ko‘radi va ilovani parolingizsiz o‘chirib bo‘lmaydi. Matn va rasmlar faqat shu telefonda tekshiriladi va hech qayerga yuborilmaydi; siz faqat hodisani olasiz: nima ishladi va qachon. «Sozlamalarni ochish»ni bosing, «O‘rnatilgan ilovalar» → MaxCare Kids ni tanlang va xizmatni yoqing.</string>
+
+    <!-- Экраны «Подключение» и «Разрешения» -->
+    <string name="connect_title">Bolaning telefonini ulang</string>
+    <string name="connect_summary">• Saytlar va ekrandagi xavfli kontentni filtrlaydi\n• Ota-onaga joylashuv, ilovalardagi vaqt va himoya hodisalarini yuboradi\n• Himoya ishlayotgani haqida doim bildirishnoma ko‘rsatadi</string>
+    <string name="connect_not_doing">Yozishmalarni o‘qimaydi, rasmlar va ekran mazmunini yubormaydi.</string>
+    <string name="connect_more">Ma’lumotlar haqida batafsil</string>
+    <string name="connect_paired">✓ Telefon ota-onaga bog‘langan</string>
+    <string name="close">Yopish</string>
+    <string name="permissions_title">Himoyani yoqing</string>
+    <string name="permissions_body">Android ketma-ket bir nechta oyna ko‘rsatadi. Har birida «Ruxsat berish» yoki «Yoqish»ni bosing.</string>
+    <string name="permissions_progress">Bajarildi: %1$d / %2$d</string>
+    <string name="permissions_done">Yoqilgan</string>
+    <string name="permissions_start">Himoyani yoqish</string>
+    <string name="permissions_continue">Davom etish</string>
+    <string name="perm_admin_title">O‘chirishdan himoya</string>
+    <string name="perm_admin_hint">Bola ilovani sizning parolingizsiz o‘chira olmaydi</string>
+    <string name="perm_filter_hint">Xavfli saytlar hech bir brauzerda ochilmaydi</string>
+    <string name="perm_notifications_title">Bildirishnomalar</string>
+    <string name="perm_notifications_hint">Bildirishnoma himoya ishlayotganini ko‘rsatadi</string>
+    <string name="perm_location_hint">Bola qayerda ekani, ilova yopiq bo‘lsa ham</string>
+    <string name="perm_usage_title">Ilovalardagi vaqt</string>
+    <string name="perm_usage_hint">Faqat ilova nomlari va daqiqalar. Ro‘yxat ochilsa, MaxCare Kids’ni toping</string>
+    <string name="perm_accessibility_hint">Xavfli kontentni yashiradi va vaqt cheklovlarini kuzatadi</string>
+    <string name="perm_background_hint">Aks holda telefon himoyani to‘xtatib qo‘yishi mumkin</string>
+    <string name="consent_agree">Roziman, sozlamalarni ochish</string>
+    <string name="consent_later">Hozir emas</string>
+    <string name="error_step_not_done">Ruxsat yoqilmadi. Qayta urinish uchun «Davom etish»ni bosing.</string>
 </resources>
