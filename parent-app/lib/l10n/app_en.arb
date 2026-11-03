@@ -300,5 +300,19 @@
   },
   "mapEmpty": "The children’s phones have not sent a location yet.",
   "filterAll": "All",
-  "eventsImportantOnly": "Important only"
+  "eventsImportantOnly": "Important only",
+  "reconnectTitle": "Reconnect the phone",
+  "reconnectSubtitle": "New phone or MaxCare Kids reinstalled. History is kept.",
+  "reconnectBody": "Enter this code in MaxCare Kids on the new phone within 10 minutes. History, route and limits stay, and the old phone is disconnected.",
+  "deleteChildTitle": "Delete child",
+  "deleteChildSubtitle": "Deletes the child and everything collected about their phone",
+  "deleteChildConfirmTitle": "Delete “{name}”?",
+  "@deleteChildConfirmTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "deleteChildConfirmBody": "Events, route, app time and limits will be deleted. This cannot be undone. MaxCare Kids on the child’s phone will stop working with your account.",
+  "deleteChildConfirm": "Delete",
+  "childOfflineHint": "New phone or app reinstalled? Settings → “Reconnect the phone”.",
+  "eventPhoneReconnected": "A new phone was connected",
+  "childGone": "This child is no longer in the list."
 }

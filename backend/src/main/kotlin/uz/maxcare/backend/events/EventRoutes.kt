@@ -125,7 +125,8 @@ private fun parseBatch(request: EventBatchRequest): List<IncomingEvent>? {
         request.events.mapNotNull { dto ->
             val id = UUID.fromString(dto.id)
             val occurredAt = Instant.parse(dto.occurredAt)
-            EventType.parse(dto.type)?.let {
+            // События, которые пишет только сервер, телефон подделать не может.
+            EventType.parse(dto.type)?.takeIf { !it.serverOnly }?.let {
                 IncomingEvent(id, it, occurredAt, dto.detail?.takeIf(::isPlainDomain))
             }
         }

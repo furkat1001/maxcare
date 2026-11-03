@@ -10,7 +10,7 @@ import uz.maxcare.backend.db.queryOne
 import uz.maxcare.backend.db.update
 
 /** События защиты. Те же имена отправляет телефон: `android/core/.../EventType.kt`. */
-enum class EventType(val wireName: String) {
+enum class EventType(val wireName: String, val serverOnly: Boolean = false) {
     ADMIN_DISABLED("admin_disabled"),
     PROTECTION_DISABLED("protection_disabled"),
     PASSWORD_LOCKOUT("password_lockout"),
@@ -31,7 +31,10 @@ enum class EventType(val wireName: String) {
     APP_LIMIT_REACHED("app_limit_reached"),
     LOCATION_OFF("location_off"),
     LOCATION_DENIED("location_denied"),
-    LOCATION_ON("location_on");
+    LOCATION_ON("location_on"),
+
+    /** Пишет сам сервер: родитель подключил ребёнку новый телефон кодом «подключить заново». */
+    PHONE_RECONNECTED("phone_reconnected", serverOnly = true);
 
     companion object {
         fun parse(value: String) = entries.firstOrNull { it.wireName == value }

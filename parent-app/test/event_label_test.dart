@@ -14,7 +14,7 @@ void main() {
   test('location events have their own text in every language', () {
     for (final locale in AppLocalizations.supportedLocales) {
       final t = lookupAppLocalizations(locale);
-      for (final type in ['location_off', 'location_denied', 'location_on']) {
+      for (final type in ['location_off', 'location_denied', 'location_on', 'phone_reconnected']) {
         expect(
           eventLabel(t, _event(type)),
           isNot(type),

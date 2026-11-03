@@ -198,6 +198,9 @@ class _StatusBanner extends StatelessWidget {
                   style: TextStyle(color: look.bannerInk, fontWeight: FontWeight.w700),
                 ),
                 Text(reason, style: TextStyle(color: look.bannerInk, fontSize: 13)),
+                // Долгое молчание часто значит новый телефон или переустановку: подсказываем выход.
+                if (state == ChildState.offline)
+                  Text(t.childOfflineHint, style: TextStyle(color: look.bannerInk, fontSize: 13)),
               ],
             ),
           ),
