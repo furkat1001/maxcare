@@ -50,14 +50,21 @@
 
 Лимит: 20 попыток за 15 минут с одного адреса.
 
-### `GET /v1/account` — аккаунт и пробный период (родитель)
+### `GET /v1/account` — аккаунт и подписка (родитель)
 ```json
 {
   "email": "parent@example.test",
   "createdAt": "2026-10-09T10:00:00Z",
   "hasPassword": true,
   "providers": ["google"],
-  "plan": {"status": "trial", "trialEndsAt": "2026-10-23T10:00:00Z", "trialDaysLeft": 14}
+  "familyId": "4f1c…",
+  "plan": {
+    "status": "trial",
+    "trialEndsAt": "2026-10-23T10:00:00Z",
+    "trialDaysLeft": 14,
+    "paidUntil": null,
+    "graceEndsAt": "2026-10-26T10:00:00Z"
+  }
 }
 ```
 `providers` — связанные входы (`google`, позже `apple`); `hasPassword: false` — аккаунт создан
@@ -65,8 +72,19 @@
 
 Пробный период — у семьи, 14 дней с регистрации (`families.trial_ends_at`; продлить семье —
 поменять это поле). `trialDaysLeft` округляется вверх: остался час — это ещё 1 день.
-`status`: `trial` или `expired`. Оплаты пока нет: после окончания ничего не блокируется,
-статус только показывается.
+`status`: `trial` — пробный период; `active` — оплачено до `paidUntil`; `grace` — пробный
+период или оплата закончились, но до `graceEndsAt` (3 дня) всё работает; `expired` — MaxCare
+остановлен до оплаты. `familyId` — ID пользователя в RevenueCat: подписка на всю семью.
+
+### `POST /v1/account/billing/sync` — сверить оплату (родитель)
+Сразу после покупки: сервер сам запрашивает RevenueCat, что оплачено. Ответ `204`, затем
+приложение перечитывает `GET /v1/account`. Лимит: 30 в час на семью.
+
+### `POST /v1/billing/revenuecat` — уведомление RevenueCat
+Заголовок `Authorization` — ровно `MAXCARE_REVENUECAT_WEBHOOK_AUTH`, иначе `401`. Из тела
+берётся только `event.app_user_id` (ID семьи); дату оплаты сервер берёт из REST API RevenueCat,
+а не из уведомления. Неизвестный ID — `200` без изменений, ошибка RevenueCat — `500` (RevenueCat
+повторит).
 
 ## Привязка телефона ребёнка
 

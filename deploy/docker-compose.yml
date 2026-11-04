@@ -31,6 +31,9 @@ services:
       MAXCARE_DB_PASSWORD: ${POSTGRES_PASSWORD}
       MAXCARE_REDIS_URL: redis://redis:6379
       MAXCARE_GOOGLE_CLIENT_IDS: ${MAXCARE_GOOGLE_CLIENT_IDS}
+      # Подписка через RevenueCat (docs/revenuecat.md); пусто — оплата выключена.
+      MAXCARE_REVENUECAT_API_KEY: ${MAXCARE_REVENUECAT_API_KEY:-}
+      MAXCARE_REVENUECAT_WEBHOOK_AUTH: ${MAXCARE_REVENUECAT_WEBHOOK_AUTH:-}
       # Сервер доступен только через Caddy — IP клиента берётся из X-Forwarded-For.
       MAXCARE_BEHIND_PROXY: "true"
     mem_limit: 1536m

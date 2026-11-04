@@ -28,7 +28,10 @@ data class Account(
     val hasPassword: Boolean,
     val createdAt: Instant,
     val providers: List<String>,
-    val trialEndsAt: Instant
+    val trialEndsAt: Instant,
+    val familyId: UUID,
+    /** До какой даты оплачено, по данным RevenueCat; null — не оплачивали. */
+    val paidUntil: Instant? = null
 )
 
 /** Родитель, вошедший по токену сессии. */
@@ -179,7 +182,7 @@ class ParentService(
             c.queryOne(
                 """
                 select p.email, p.password_hash is not null as has_password, p.created_at,
-                       f.trial_ends_at
+                       f.trial_ends_at, f.id as family_id, f.paid_until
                 from parents p join families f on f.id = p.family_id
                 where p.id = ?
                 """.trimIndent(),
@@ -190,7 +193,9 @@ class ParentService(
                     hasPassword = it.getBoolean("has_password"),
                     createdAt = requireNotNull(it.instantOrNull("created_at")),
                     providers = emptyList(),
-                    trialEndsAt = requireNotNull(it.instantOrNull("trial_ends_at"))
+                    trialEndsAt = requireNotNull(it.instantOrNull("trial_ends_at")),
+                    familyId = it.uuid("family_id"),
+                    paidUntil = it.instantOrNull("paid_until")
                 )
             }
         ) { "Session belongs to a parent that no longer exists" }

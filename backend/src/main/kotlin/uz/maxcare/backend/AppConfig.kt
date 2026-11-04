@@ -19,7 +19,13 @@ class AppConfig(
      * Сервер стоит за своим прокси (Caddy) и недоступен напрямую: IP клиента берётся из
      * `X-Forwarded-For`. Без прокси заголовку верить нельзя — его подделает кто угодно.
      */
-    val behindProxy: Boolean = false
+    val behindProxy: Boolean = false,
+    /** Секретный ключ REST API RevenueCat; пусто — оплата выключена, у всех пробный период. */
+    val revenueCatApiKey: String? = null,
+    /** Заголовок `Authorization`, который RevenueCat присылает с уведомлениями. */
+    val revenueCatWebhookAuth: String? = null,
+    /** Entitlement в RevenueCat, который дают и месячная, и годовая подписка. */
+    val revenueCatEntitlement: String = "pro"
 ) {
     // Пароль базы и ключ не попадают в логи и сообщения об ошибках.
     override fun toString() =
@@ -47,7 +53,14 @@ class AppConfig(
                     .map { it.trim() }
                     .filter { it.isNotEmpty() }
                     .toSet(),
-                behindProxy = env["MAXCARE_BEHIND_PROXY"] == "true"
+                behindProxy = env["MAXCARE_BEHIND_PROXY"] == "true",
+                revenueCatApiKey = env["MAXCARE_REVENUECAT_API_KEY"]?.takeIf { it.isNotBlank() },
+                revenueCatWebhookAuth = env["MAXCARE_REVENUECAT_WEBHOOK_AUTH"]?.takeIf {
+                    it.isNotBlank()
+                },
+                revenueCatEntitlement =
+                    env["MAXCARE_REVENUECAT_ENTITLEMENT"]?.takeIf { it.isNotBlank() }
+                        ?: "pro"
             )
         }
 

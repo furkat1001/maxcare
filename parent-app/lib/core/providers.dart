@@ -11,6 +11,7 @@ import '../children/location_repository.dart';
 import '../children/pairing_repository.dart';
 import '../settings/account_repository.dart';
 import '../settings/app_language.dart';
+import '../settings/billing.dart';
 import 'api_client.dart';
 import 'token_store.dart';
 
@@ -158,6 +159,15 @@ final accountRepositoryProvider = Provider<AccountRepository>(
 );
 
 /// Аккаунт родителя и пробный период. Перечитывается при каждом открытии настроек.
+final billingProvider = Provider<Billing>((ref) => RevenueCatBilling());
+
+/// Тарифы из Google Play; без ID семьи (старый сервер) — пусто.
+final storePlansProvider = FutureProvider.autoDispose<List<StorePlan>>((ref) async {
+  final familyId = (await ref.watch(accountProvider.future)).familyId;
+  if (familyId == null) return const [];
+  return ref.watch(billingProvider).plans(familyId);
+});
+
 final accountProvider = FutureProvider.autoDispose<Account>(
   (ref) => ref.watch(accountRepositoryProvider).get(),
 );

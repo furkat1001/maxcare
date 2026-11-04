@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:parent/core/api_client.dart';
 import 'package:parent/core/token_store.dart';
 import 'package:parent/l10n/app_localizations.dart';
@@ -45,7 +46,11 @@ class _StubAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
-Future<Account> _account(Map<String, Object?> plan, {List<String> providers = const []}) {
+Future<Account> _account(
+  Map<String, Object?> plan, {
+  List<String> providers = const [],
+  String? familyId,
+}) {
   final dio = Dio(BaseOptions(baseUrl: 'http://test'))
     ..httpClientAdapter = _StubAdapter({
       'email': 'parent@example.test',
@@ -53,12 +58,14 @@ Future<Account> _account(Map<String, Object?> plan, {List<String> providers = co
       'hasPassword': providers.isEmpty,
       'providers': providers,
       'plan': plan,
+      'familyId': ?familyId,
     });
   return AccountRepository(ApiClient(tokenStore: _FakeTokenStore(), dio: dio)).get();
 }
 
 void main() {
   final ru = lookupAppLocalizations(const Locale('ru'));
+  setUpAll(() => initializeDateFormatting('ru'));
 
   test('a trial account shows the days left', () async {
     final a = await _account(
@@ -80,19 +87,53 @@ void main() {
     expect(planText(ru, a), 'Пробный период: остался 1 день');
   });
 
-  test('an ended trial says so', () async {
+  test('after the grace period MaxCare is shown as stopped', () async {
     final a = await _account(
       {'status': 'expired', 'trialEndsAt': '2026-10-23T10:00:00Z', 'trialDaysLeft': 0},
       providers: ['google'],
     );
 
-    expect(planText(ru, a), ru.planExpired);
+    expect(a.planStatus, PlanStatus.expired);
+    expect(planText(ru, a), ru.planStopped);
     expect(signInText(ru, a), ru.settingsSignInGoogle);
   });
 
-  test('an unknown plan status from a newer server is not shown as ended', () async {
+  test('a paid plan shows the date it is paid until and the family to buy for', () async {
     final a = await _account(
-      {'status': 'active', 'trialEndsAt': '2026-10-23T10:00:00Z', 'trialDaysLeft': 0},
+      {
+        'status': 'active',
+        'trialEndsAt': '2026-10-23T10:00:00Z',
+        'trialDaysLeft': 0,
+        'paidUntil': '2026-12-09T10:00:00Z',
+        'graceEndsAt': '2026-12-12T10:00:00Z',
+      },
+      familyId: 'f1',
+    );
+
+    expect(a.planStatus, PlanStatus.active);
+    expect(a.paidUntil, DateTime.utc(2026, 12, 9, 10));
+    expect(a.familyId, 'f1');
+    expect(planText(ru, a), startsWith('Оплачено до '));
+  });
+
+  test('during the grace period the stop date is shown', () async {
+    final a = await _account(
+      {
+        'status': 'grace',
+        'trialEndsAt': '2026-10-23T10:00:00Z',
+        'trialDaysLeft': 0,
+        'graceEndsAt': '2026-10-26T10:00:00Z',
+      },
+    );
+
+    expect(a.planStatus, PlanStatus.grace);
+    expect(a.graceEndsAt, DateTime.utc(2026, 10, 26, 10));
+    expect(planText(ru, a), startsWith('Не оплачено: MaxCare остановится '));
+  });
+
+  test('an unknown plan status from a newer server is not shown as stopped', () async {
+    final a = await _account(
+      {'status': 'family_lifetime', 'trialEndsAt': '2026-10-23T10:00:00Z', 'trialDaysLeft': 0},
     );
 
     expect(a.planStatus, PlanStatus.trial);
