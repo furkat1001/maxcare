@@ -22,7 +22,9 @@ class MainShell extends ConsumerWidget {
     final tab = ref.watch(mainTabProvider);
     final account = ref.watch(accountProvider).valueOrNull;
     // После отсрочки без оплаты открыты только «Настройки»: там подписка и аккаунт.
-    final stopped = account?.planStatus == PlanStatus.expired;
+    // Сборка без оплаты не блокирует никогда: иначе родителю было бы нечем заплатить.
+    final stopped =
+        account?.planStatus == PlanStatus.expired && ref.watch(billingProvider).available;
     const tabs = [FamilyTab(), FamilyMapTab(), EventsTab(), SettingsTab()];
     final title = switch (tab) {
       0 => t.navFamily,
