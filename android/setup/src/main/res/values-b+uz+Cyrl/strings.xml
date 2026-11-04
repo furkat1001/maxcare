@@ -98,4 +98,5 @@
     <string name="consent_agree">Розиман, созламаларни очиш</string>
     <string name="consent_later">Ҳозир эмас</string>
     <string name="error_step_not_done">Рухсат ёқилмади. Қайта уриниш учун «Давом этиш»ни босинг.</string>
+    <string name="language_label">Илова тили</string>
 </resources>

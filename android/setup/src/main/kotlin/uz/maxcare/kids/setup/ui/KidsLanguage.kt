@@ -6,13 +6,15 @@ import java.util.Locale
 
 /**
  * Языки интерфейса MaxCare Kids — те же, что в ресурсах (`values`, `uz`, `uz-Cyrl`, `ru`).
- * Подпись — на самом языке: её узнают, даже если сейчас интерфейс на незнакомом языке.
+ * Подписи — на самом языке: их узнают, даже если сейчас интерфейс на незнакомом языке.
+ * Без флагов: флаг — это страна, а латиница и кириллица в узбекском под одним флагом.
+ * @param label сокращение на кнопке меню; @param fullName строка в самом меню.
  */
-enum class KidsLanguage(val tag: String, val label: String) {
-    UZBEK_LATIN("uz", "O‘zb"),
-    UZBEK_CYRILLIC("uz-Cyrl", "Ўзб"),
-    RUSSIAN("ru", "Рус"),
-    ENGLISH("en", "Eng");
+enum class KidsLanguage(val tag: String, val label: String, val fullName: String) {
+    UZBEK_LATIN("uz", "O‘zb", "O‘zbekcha (lotin)"),
+    UZBEK_CYRILLIC("uz-Cyrl", "Ўзб", "Ўзбекча (кирилл)"),
+    RUSSIAN("ru", "Рус", "Русский"),
+    ENGLISH("en", "Eng", "English");
 
     companion object {
         /** Язык, на котором сейчас показан интерфейс; незнакомый язык телефона — английский. */

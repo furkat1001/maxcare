@@ -99,4 +99,5 @@
     <string name="consent_agree">I agree, open settings</string>
     <string name="consent_later">Not now</string>
     <string name="error_step_not_done">This permission is not on. Tap “Continue” to try again.</string>
+    <string name="language_label">App language</string>
 </resources>

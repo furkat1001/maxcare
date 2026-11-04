@@ -98,4 +98,5 @@
     <string name="consent_agree">Roziman, sozlamalarni ochish</string>
     <string name="consent_later">Hozir emas</string>
     <string name="error_step_not_done">Ruxsat yoqilmadi. Qayta urinish uchun «Davom etish»ni bosing.</string>
+    <string name="language_label">Ilova tili</string>
 </resources>
