@@ -112,9 +112,15 @@ class DeviceRepository {
     return DeviceActivity.fromJson(response).events;
   }
 
+  /// Удаляет ребёнка и всё, что собрано о его телефоне. Отменить нельзя.
+  Future<void> delete(String deviceId) => _api.delete('/v1/devices/$deviceId');
+
   Future<RecoveryCode> recoveryCode(String deviceId) async {
-    final response =
-        await _api.post('/v1/devices/$deviceId/recovery-code', body: const {});
+    final response = await _api.post(
+      '/v1/devices/$deviceId/recovery-code',
+      authorized: true,
+      body: const {},
+    );
     return RecoveryCode.fromJson(response);
   }
 }

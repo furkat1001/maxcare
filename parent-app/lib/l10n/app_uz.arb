@@ -221,5 +221,16 @@
   "mapPointAt": "{time} dagi nuqta",
   "mapEmpty": "Bolalar telefonlari hali joylashuv yubormagan.",
   "filterAll": "Hammasi",
-  "eventsImportantOnly": "Faqat muhim"
+  "eventsImportantOnly": "Faqat muhim",
+  "reconnectTitle": "Telefonni qayta ulash",
+  "reconnectSubtitle": "Yangi telefon yoki MaxCare Kids qayta o‘rnatilgan. Tarix saqlanadi.",
+  "reconnectBody": "Bu kodni 10 daqiqa ichida yangi telefondagi MaxCare Kids’ga kiriting. Tarix, marshrut va cheklovlar saqlanadi, eski telefon uziladi.",
+  "deleteChildTitle": "Bolani o‘chirish",
+  "deleteChildSubtitle": "Bolani va uning telefoni haqida to‘plangan hamma narsani o‘chiradi",
+  "deleteChildConfirmTitle": "«{name}» o‘chirilsinmi?",
+  "deleteChildConfirmBody": "Hodisalar, marshrut, ilovalardagi vaqt va cheklovlar o‘chiriladi. Buni bekor qilib bo‘lmaydi. Bolaning telefonidagi MaxCare Kids hisobingiz bilan ishlashni to‘xtatadi.",
+  "deleteChildConfirm": "O‘chirish",
+  "childOfflineHint": "Yangi telefon yoki ilova qayta o‘rnatildimi? Sozlamalar → «Telefonni qayta ulash».",
+  "eventPhoneReconnected": "Yangi telefon ulandi",
+  "childGone": "Bu bola endi ro‘yxatda yo‘q."
 }

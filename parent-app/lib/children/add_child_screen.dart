@@ -9,8 +9,12 @@ import '../core/providers.dart';
 import '../l10n/app_localizations.dart';
 import 'pairing_repository.dart';
 
+/// Код привязки телефона ребёнка. С [reconnectDeviceId] — код для нового телефона уже
+/// существующего ребёнка: имя не спрашивается, код запрашивается сразу.
 class AddChildScreen extends ConsumerStatefulWidget {
-  const AddChildScreen({super.key});
+  const AddChildScreen({this.reconnectDeviceId, super.key});
+
+  final String? reconnectDeviceId;
 
   @override
   ConsumerState<AddChildScreen> createState() => _AddChildScreenState();
@@ -21,6 +25,14 @@ class _AddChildScreenState extends ConsumerState<AddChildScreen> {
   bool _busy = false;
   String? _error;
   PairingCode? _code;
+
+  bool get _reconnect => widget.reconnectDeviceId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_reconnect) WidgetsBinding.instance.addPostFrameCallback((_) => _getCode());
+  }
 
   @override
   void dispose() {
@@ -35,11 +47,19 @@ class _AddChildScreenState extends ConsumerState<AddChildScreen> {
       _error = null;
     });
     try {
-      final code = await ref.read(pairingRepositoryProvider).createCode(childName: _name.text.trim());
+      final repository = ref.read(pairingRepositoryProvider);
+      final deviceId = widget.reconnectDeviceId;
+      final code = deviceId == null
+          ? await repository.createCode(childName: _name.text.trim())
+          : await repository.createReconnectCode(deviceId);
       if (mounted) setState(() => _code = code);
     } on ApiException catch (e) {
       if (mounted) {
-        setState(() => _error = e.kind == ApiErrorKind.childLimit ? t.addChildLimit : errorText(t, e));
+        setState(() => _error = switch (e.kind) {
+              ApiErrorKind.childLimit => t.addChildLimit,
+              ApiErrorKind.notFound => t.childGone,
+              _ => errorText(t, e),
+            });
       }
     } catch (e) {
       if (mounted) setState(() => _error = errorText(t, e));
@@ -53,7 +73,7 @@ class _AddChildScreenState extends ConsumerState<AddChildScreen> {
     final t = AppLocalizations.of(context);
     final code = _code;
     return Scaffold(
-      appBar: AppBar(title: Text(t.addChildTitle)),
+      appBar: AppBar(title: Text(_reconnect ? t.reconnectTitle : t.addChildTitle)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -66,14 +86,16 @@ class _AddChildScreenState extends ConsumerState<AddChildScreen> {
   Widget _form(AppLocalizations t) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(t.addChildBody),
+          Text(_reconnect ? t.reconnectBody : t.addChildBody),
           const SizedBox(height: 16),
-          TextField(
-            controller: _name,
-            decoration: InputDecoration(labelText: t.addChildNameLabel),
-            textInputAction: TextInputAction.done,
-          ),
-          const SizedBox(height: 24),
+          if (!_reconnect) ...[
+            TextField(
+              controller: _name,
+              decoration: InputDecoration(labelText: t.addChildNameLabel),
+              textInputAction: TextInputAction.done,
+            ),
+            const SizedBox(height: 24),
+          ],
           if (_error != null) ...[
             Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
             const SizedBox(height: 12),
@@ -105,7 +127,7 @@ class _AddChildScreenState extends ConsumerState<AddChildScreen> {
         const SizedBox(height: 8),
         Text(t.addChildCodeExpires(time)),
         const SizedBox(height: 24),
-        Text(t.addChildCodeHint, textAlign: TextAlign.center),
+        Text(_reconnect ? t.reconnectBody : t.addChildCodeHint, textAlign: TextAlign.center),
         const SizedBox(height: 24),
         OutlinedButton.icon(
           onPressed: () => Clipboard.setData(ClipboardData(text: code.code)),

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:parent/children/device_repository.dart';
+import 'package:parent/children/pairing_repository.dart';
 import 'package:parent/core/api_client.dart';
 import 'package:parent/core/token_store.dart';
 
@@ -16,36 +17,50 @@ class _FakeTokenStore implements TokenStore {
   Future<void> clear() async {}
 }
 
-/// Отдаёт заранее заданное тело на любой запрос (массив или объект).
+/// Отдаёт заранее заданное тело на любой запрос (массив или объект) и запоминает запросы.
 class _StubAdapter implements HttpClientAdapter {
   _StubAdapter(this.body);
   final Object? body;
+  final requests = <RequestOptions>[];
 
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
-  ) async =>
-      ResponseBody.fromString(
+  ) async {
+    requests.add(options);
+    return ResponseBody.fromString(
         jsonEncode(body),
         200,
         headers: {
           Headers.contentTypeHeader: [Headers.jsonContentType],
         },
       );
+  }
 
   @override
   void close({bool force = false}) {}
 }
 
-DeviceRepository _repo(Object? body) {
+late _StubAdapter _adapter;
+
+ApiClient _api(Object? body) {
+  _adapter = _StubAdapter(body);
   final dio = Dio(BaseOptions(
     baseUrl: 'http://test',
     validateStatus: (s) => s != null && s < 500,
   ))
-    ..httpClientAdapter = _StubAdapter(body);
-  return DeviceRepository(ApiClient(tokenStore: _FakeTokenStore(), dio: dio));
+    ..httpClientAdapter = _adapter;
+  return ApiClient(tokenStore: _FakeTokenStore(), dio: dio);
+}
+
+DeviceRepository _repo(Object? body) => DeviceRepository(_api(body));
+
+/// Последний запрос: метод, путь и токен родителя.
+String _lastRequest() {
+  final r = _adapter.requests.last;
+  return '${r.method} ${r.path} ${r.headers['Authorization']}';
 }
 
 void main() {
@@ -118,5 +133,22 @@ void main() {
     expect(code.code, '62074247');
     expect(code.grouped, '6207 4247');
     expect(code.validUntil, DateTime.utc(2026, 10, 20, 12, 5));
+    expect(_lastRequest(), 'POST /v1/devices/dev-1/recovery-code Bearer tok');
+  });
+
+  test('reconnect code is asked for the existing child with the parent token', () async {
+    final code = await PairingRepository(_api({
+      'code': '12345678',
+      'expiresAt': '2026-11-03T18:10:00Z',
+    })).createReconnectCode('dev-1');
+
+    expect(code.code, '12345678');
+    expect(_lastRequest(), 'POST /v1/devices/dev-1/pairing-code Bearer tok');
+  });
+
+  test('deleting a child sends the parent token', () async {
+    await _repo(null).delete('dev-1');
+
+    expect(_lastRequest(), 'DELETE /v1/devices/dev-1 Bearer tok');
   });
 }
