@@ -10,13 +10,13 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.WindowManager
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,9 +26,12 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 
-/** Единственный экран приложения ребёнка: настройка, статус, отключение защиты. */
+/**
+ * Единственный экран приложения ребёнка: настройка, статус, отключение защиты.
+ * AppCompatActivity — ради выбора языка на Android 8–12: там его применяет только AppCompat.
+ */
 @AndroidEntryPoint
-class KidsActivity : ComponentActivity() {
+class KidsActivity : AppCompatActivity() {
     private val viewModel: KidsViewModel by viewModels()
     private val settingsReturn = SettingsReturn(this)
 

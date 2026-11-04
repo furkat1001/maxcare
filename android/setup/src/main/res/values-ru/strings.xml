@@ -98,4 +98,5 @@
     <string name="consent_agree">Согласен, открыть настройки</string>
     <string name="consent_later">Не сейчас</string>
     <string name="error_step_not_done">Разрешение не включено. Нажмите «Продолжить», чтобы попробовать ещё раз.</string>
+    <string name="language_label">Язык приложения</string>
 </resources>

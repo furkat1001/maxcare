@@ -56,7 +56,9 @@ internal fun ConnectScreen(
     ScreenLayout(
         title = stringResource(R.string.connect_title),
         body = "",
-        state = state
+        state = state,
+        // Справа вверху: родитель выбирает язык до того, как читать объяснение и вводить код.
+        headerEnd = { LanguagePicker() }
     ) {
         DisclosureSummary(onDetails = { details = true })
         if (screen.paired) {

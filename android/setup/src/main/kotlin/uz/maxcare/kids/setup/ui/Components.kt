@@ -2,8 +2,10 @@ package uz.maxcare.kids.setup.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,11 +14,14 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,10 +31,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.password
@@ -52,6 +59,8 @@ internal fun ScreenLayout(
     state: KidsUiState,
     modifier: Modifier = Modifier,
     caption: String? = null,
+    /** Справа от логотипа: например, выбор языка. */
+    headerEnd: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
@@ -63,11 +72,15 @@ internal fun ScreenLayout(
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Image(
-            painter = painterResource(CoreR.drawable.ic_maxcare_logo),
-            contentDescription = null,
-            modifier = Modifier.size(56.dp)
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Image(
+                painter = painterResource(CoreR.drawable.ic_maxcare_logo),
+                contentDescription = null,
+                modifier = Modifier.size(56.dp)
+            )
+            Spacer(Modifier.weight(1f))
+            headerEnd?.invoke()
+        }
         caption?.let {
             Text(
                 it,
@@ -82,6 +95,43 @@ internal fun ScreenLayout(
         state.message?.let { MessageText(it) }
         if (state.busy) {
             CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
+        }
+    }
+}
+
+/**
+ * Язык интерфейса: кнопка с глобусом и сокращением текущего языка, по нажатию — меню из четырёх
+ * языков. Выбор сразу пересоздаёт экран на новом языке.
+ */
+@Composable
+internal fun LanguagePicker() {
+    val current = KidsLanguage.of(LocalConfiguration.current.locales[0])
+    var open by remember { mutableStateOf(false) }
+    Box {
+        TextButton(onClick = { open = true }) {
+            Icon(
+                painter = painterResource(R.drawable.ic_language),
+                contentDescription = stringResource(R.string.language_label),
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(Modifier.width(6.dp))
+            Text("${current.label} ▾")
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            KidsLanguage.entries.forEach { language ->
+                DropdownMenuItem(
+                    text = { Text(language.fullName) },
+                    trailingIcon = if (language == current) {
+                        { Text("✓") }
+                    } else {
+                        null
+                    },
+                    onClick = {
+                        open = false
+                        if (language != current) applyLanguage(language)
+                    }
+                )
+            }
         }
     }
 }
