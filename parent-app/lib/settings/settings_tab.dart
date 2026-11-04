@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../children/filter_words_screen.dart';
 import '../core/providers.dart';
@@ -78,8 +79,14 @@ String signInText(AppLocalizations t, Account a) =>
 /// «Осталось N дней» или «закончился».
 String planText(AppLocalizations t, Account a) => switch (a.planStatus) {
       PlanStatus.trial => t.planTrialDaysLeft(a.trialDaysLeft),
-      PlanStatus.expired => t.planExpired,
+      PlanStatus.active => t.planActiveUntil(shortDate(t, a.paidUntil)),
+      PlanStatus.grace => t.planGrace(shortDate(t, a.graceEndsAt)),
+      PlanStatus.expired => t.planStopped,
     };
+
+/// «12 нояб. 2026 г.» на языке интерфейса; дата с сервера — в часовом поясе телефона.
+String shortDate(AppLocalizations t, DateTime? date) =>
+    date == null ? '' : DateFormat.yMMMd(t.localeName).format(date.toLocal());
 
 /// Название языка — на нём самом, чтобы его узнал тот, кто не читает текущий язык.
 String languageName(AppLocalizations t, AppLanguage language) => switch (language) {

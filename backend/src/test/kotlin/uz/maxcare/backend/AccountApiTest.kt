@@ -28,7 +28,7 @@ class AccountApiTest : ApiTestBase() {
     }
 
     @Test
-    fun `the trial counts down and then expires`() = apiTest { client ->
+    fun `the trial counts down, gives three days of grace and then expires`() = apiTest { client ->
         val token = client.registerAndLogin()
 
         clock.now = clock.now.plus(Duration.ofDays(10).plusHours(1))
@@ -36,9 +36,14 @@ class AccountApiTest : ApiTestBase() {
         assertEquals(4, later.plan.trialDaysLeft)
 
         clock.now = clock.now.plus(Duration.ofDays(5))
+        val grace = client.getJson("/v1/account", token).body<AccountResponse>()
+        assertEquals("grace", grace.plan.status)
+        assertEquals(0, grace.plan.trialDaysLeft)
+        assertEquals("2026-10-26T10:00:00Z", grace.plan.graceEndsAt)
+
+        clock.now = Instant.parse("2026-10-26T10:00:00Z")
         val expired = client.getJson("/v1/account", token).body<AccountResponse>()
         assertEquals("expired", expired.plan.status)
-        assertEquals(0, expired.plan.trialDaysLeft)
     }
 
     @Test

@@ -314,5 +314,42 @@
   "deleteChildConfirm": "Delete",
   "childOfflineHint": "New phone or app reinstalled? Settings → “Reconnect the phone”.",
   "eventPhoneReconnected": "A new phone was connected",
-  "childGone": "This child is no longer in the list."
+  "childGone": "This child is no longer in the list.",
+  "planActiveUntil": "Paid until {date}",
+  "@planActiveUntil": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "planGrace": "Not paid: MaxCare stops on {date}",
+  "@planGrace": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "planStopped": "MaxCare is stopped: not paid",
+  "subscriptionActiveTitle": "Subscription is active",
+  "subscriptionGraceTitle": "Subscription is not paid",
+  "subscriptionGraceBody": "Everything still works. On {date} MaxCare stops: filters and limits on the child’s phone, the map and reports. Subscribe so this does not happen.",
+  "@subscriptionGraceBody": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "subscriptionExpiredTitle": "MaxCare is stopped",
+  "subscriptionExpiredBody": "Filters and limits on the child’s phone, the map and reports do not work until you pay. After payment everything turns back on.",
+  "subscriptionMonthly": "Month",
+  "subscriptionYearly": "Year",
+  "subscriptionPerMonth": "{price} a month",
+  "@subscriptionPerMonth": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "subscriptionPerYear": "{price} a year",
+  "@subscriptionPerYear": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "subscriptionRestore": "Restore purchases",
+  "subscriptionRestoreNone": "No purchases found",
+  "subscriptionManageHint": "You can cancel the subscription in Google Play → Payments & subscriptions.",
+  "subscriptionUnavailable": "Payment is not available in this version of the app.",
+  "subscriptionPlansError": "Could not load the plans. Check the internet and try again.",
+  "subscriptionThanks": "Thank you! The subscription is active.",
+  "bannerTrialEnds": "The free trial ends on {date}",
+  "@bannerTrialEnds": {
+    "placeholders": { "date": { "type": "String" } }
+  }
 }

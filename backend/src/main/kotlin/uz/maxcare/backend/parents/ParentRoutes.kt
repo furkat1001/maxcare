@@ -16,6 +16,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import uz.maxcare.backend.billing.planAt
 import uz.maxcare.backend.devices.PARENT_AUTH
 import uz.maxcare.backend.http.ErrorCodes
 import uz.maxcare.backend.http.clientIp
@@ -37,9 +38,18 @@ data class SessionResponse(val token: String)
 @Serializable
 data class IdTokenRequest(val idToken: String)
 
-/** `status`: `trial` — пробный период идёт, `expired` — закончился (оплаты пока нет). */
+/**
+ * `status`: `trial`, `active` (оплачено), `grace` (закончилось, но ещё работает до
+ * [graceEndsAt]), `expired` (MaxCare остановлен до оплаты). Смотри `billing/Plan.kt`.
+ */
 @Serializable
-data class PlanDto(val status: String, val trialEndsAt: String, val trialDaysLeft: Int)
+data class PlanDto(
+    val status: String,
+    val trialEndsAt: String,
+    val trialDaysLeft: Int,
+    val paidUntil: String? = null,
+    val graceEndsAt: String? = null
+)
 
 @Serializable
 data class AccountResponse(
@@ -47,7 +57,9 @@ data class AccountResponse(
     val createdAt: String,
     val hasPassword: Boolean,
     val providers: List<String>,
-    val plan: PlanDto
+    val plan: PlanDto,
+    /** ID пользователя в RevenueCat: подписка — на всю семью. */
+    val familyId: String? = null
 )
 
 /** Сколько дней осталось: неполный день считается целым, после окончания — 0. */
@@ -63,7 +75,7 @@ fun Route.accountRoutes(parents: ParentService, clock: Clock) {
         get("/v1/account") {
             val parent = requireNotNull(call.principal<ParentPrincipal>())
             val account = parents.account(parent)
-            val daysLeft = trialDaysLeft(clock.instant(), account.trialEndsAt)
+            val plan = planAt(clock.instant(), account.trialEndsAt, account.paidUntil)
             call.respond(
                 AccountResponse(
                     email = account.email,
@@ -71,10 +83,13 @@ fun Route.accountRoutes(parents: ParentService, clock: Clock) {
                     hasPassword = account.hasPassword,
                     providers = account.providers,
                     plan = PlanDto(
-                        status = if (daysLeft > 0) "trial" else "expired",
-                        trialEndsAt = account.trialEndsAt.toString(),
-                        trialDaysLeft = daysLeft
-                    )
+                        status = plan.status.wireName,
+                        trialEndsAt = plan.trialEndsAt.toString(),
+                        trialDaysLeft = plan.trialDaysLeft,
+                        paidUntil = plan.paidUntil?.toString(),
+                        graceEndsAt = plan.graceEndsAt.toString()
+                    ),
+                    familyId = account.familyId.toString()
                 )
             )
         }

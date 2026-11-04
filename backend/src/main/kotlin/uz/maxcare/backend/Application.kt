@@ -16,6 +16,9 @@ import io.ktor.server.routing.routing
 import io.lettuce.core.RedisClient
 import java.time.Clock
 import kotlinx.serialization.json.Json
+import uz.maxcare.backend.billing.BillingService
+import uz.maxcare.backend.billing.RevenueCatEntitlements
+import uz.maxcare.backend.billing.billingRoutes
 import uz.maxcare.backend.db.Db
 import uz.maxcare.backend.devices.DeviceService
 import uz.maxcare.backend.devices.PARENT_AUTH
@@ -63,6 +66,14 @@ fun main() {
         idTokens = mapOf(
             IdentityProvider.GOOGLE to JwtIdTokenVerifier.google(config.googleClientIds)
         ),
+        billing = BillingService(
+            db,
+            config.revenueCatApiKey?.let {
+                RevenueCatEntitlements(it, config.revenueCatEntitlement)
+            },
+            clock
+        ),
+        revenueCatWebhookAuth = config.revenueCatWebhookAuth,
         clock = clock
     )
 
@@ -104,5 +115,6 @@ fun Application.maxcareModule(services: Services, behindProxy: Boolean = false) 
         dailyReportRoutes(services.dailyReports)
         filterWordsRoutes(services.filterWords, services.rateLimiter)
         appLimitsRoutes(services.appLimits, services.rateLimiter)
+        billingRoutes(services.billing, services.revenueCatWebhookAuth, services.rateLimiter)
     }
 }
