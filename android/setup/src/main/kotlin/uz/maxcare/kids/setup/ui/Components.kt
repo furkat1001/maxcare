@@ -76,7 +76,7 @@ internal fun ScreenLayout(
             )
         }
         Text(title, style = MaterialTheme.typography.headlineSmall)
-        Text(body, style = MaterialTheme.typography.bodyLarge)
+        if (body.isNotEmpty()) Text(body, style = MaterialTheme.typography.bodyLarge)
         Spacer(Modifier.height(4.dp))
         content()
         state.message?.let { MessageText(it) }
@@ -193,6 +193,8 @@ private fun messageText(message: UiMessage): String = when (message) {
     UiMessage.NotificationsDenied -> stringResource(R.string.error_notifications_denied)
 
     UiMessage.FilterNotAllowed -> stringResource(R.string.error_filter_not_allowed)
+
+    UiMessage.StepNotDone -> stringResource(R.string.error_step_not_done)
 
     is UiMessage.WrongRecoveryCode -> stringResource(
         R.string.error_recovery_code_invalid,
