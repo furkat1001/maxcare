@@ -1,6 +1,7 @@
 package uz.maxcare.backend.devices
 
 import java.security.SecureRandom
+import java.sql.Connection
 import java.time.Clock
 import java.time.Instant
 import java.util.UUID
@@ -13,6 +14,8 @@ import uz.maxcare.backend.db.queryList
 import uz.maxcare.backend.db.queryOne
 import uz.maxcare.backend.db.update
 import uz.maxcare.backend.db.uuid
+import uz.maxcare.backend.db.uuidOrNull
+import uz.maxcare.backend.events.EventType
 import uz.maxcare.backend.security.RecoveryCodes
 import uz.maxcare.backend.security.SecretBox
 import uz.maxcare.backend.security.Tokens
@@ -69,6 +72,30 @@ class DeviceService(
         // Проверка здесь даёт родителю понятный отказ до показа кода; гонка из двух
         // одновременно живущих кодов возможна, но для пилота несущественна.
         if (deviceCount(familyId) >= MAX_DEVICES_PER_FAMILY) return PairingCodeResult.LimitReached
+        return PairingCodeResult.Created(insertCode(familyId, childName, deviceId = null))
+    }
+
+    /**
+     * Код «подключить заново» для уже существующего ребёнка: новый телефон займёт его место.
+     * Место в лимите детей не нужно — ребёнок тот же.
+     * @return null, если устройства нет или оно принадлежит другой семье.
+     */
+    suspend fun createReconnectCode(familyId: UUID, deviceId: UUID): PairingCode? {
+        val exists = db.tx { c ->
+            c.queryOne(
+                "select 1 as found from devices where id = ? and family_id = ?",
+                deviceId,
+                familyId
+            ) { true } ?: false
+        }
+        return if (exists) insertCode(familyId, childName = null, deviceId = deviceId) else null
+    }
+
+    private suspend fun insertCode(
+        familyId: UUID,
+        childName: String?,
+        deviceId: UUID?
+    ): PairingCode {
         repeat(MAX_CODE_ATTEMPTS) {
             val code = random.nextInt(CODE_MODULO).toString().padStart(CODE_DIGITS, '0')
             val now = clock.instant()
@@ -81,16 +108,17 @@ class DeviceService(
                 )
                 c.update(
                     """
-                    insert into pairing_codes (code, family_id, child_name, expires_at)
-                    values (?, ?, ?, ?) on conflict (code) do nothing
+                    insert into pairing_codes (code, family_id, child_name, device_id, expires_at)
+                    values (?, ?, ?, ?, ?) on conflict (code) do nothing
                     """.trimIndent(),
                     code,
                     familyId,
                     childName,
+                    deviceId,
                     expiresAt
                 )
             }
-            if (inserted == 1) return PairingCodeResult.Created(PairingCode(code, expiresAt))
+            if (inserted == 1) return PairingCode(code, expiresAt)
         }
         error("Could not allocate a unique pairing code")
     }
@@ -110,30 +138,34 @@ class DeviceService(
                 """
             update pairing_codes set used_at = ?
             where code = ? and used_at is null and expires_at > ?
-            returning family_id, child_name
+            returning family_id, child_name, device_id
                 """.trimIndent(),
                 now,
                 code,
                 now
-            ) { it.uuid("family_id") to it.getString("child_name") }
+            ) {
+                ClaimedCode(
+                    it.uuid("family_id"),
+                    it.getString("child_name"),
+                    it.uuidOrNull("device_id")
+                )
+            }
                 ?: return@tx PairResult.InvalidCode
 
-            val deviceId = UUID.randomUUID()
+            val deviceId = claimed.deviceId ?: UUID.randomUUID()
             val token = Tokens.generate()
             val secret = ByteArray(RECOVERY_SECRET_BYTES).also(random::nextBytes)
-            c.update(
-                """
-            insert into devices (id, family_id, child_name, name, platform, token_hash, recovery_secret_enc)
-            values (?, ?, ?, ?, ?, ?, ?)
-                """.trimIndent(),
-                deviceId,
-                claimed.first,
-                claimed.second,
+            val access = DeviceAccess(
                 deviceName,
-                platform.value,
+                platform,
                 Tokens.hash(token),
                 secretBox.encrypt(secret, associatedData(deviceId))
             )
+            if (claimed.deviceId == null) {
+                c.insertDevice(deviceId, claimed, access)
+            } else {
+                c.replacePhone(deviceId, claimed.familyId, access, now)
+            }
             PairResult.Paired(deviceId, token, secret)
         }
 
@@ -172,6 +204,15 @@ class DeviceService(
         c.update("delete from devices where id = ?", deviceId)
     }
 
+    /**
+     * Удаление ребёнка родителем — например, когда телефон потерян или сброшен и отвязать его
+     * с самого телефона уже нельзя. Удаляется всё, что о нём собрано, как при [unpair].
+     * @return false, если устройства нет или оно принадлежит другой семье.
+     */
+    suspend fun delete(familyId: UUID, deviceId: UUID): Boolean = db.tx { c ->
+        c.update("delete from devices where id = ? and family_id = ?", deviceId, familyId) == 1
+    }
+
     /** @return null, если устройства нет или оно принадлежит другой семье. */
     suspend fun recoveryCode(familyId: UUID, deviceId: UUID): RecoveryCode? {
         val encrypted = db.tx { c ->
@@ -202,3 +243,65 @@ class DeviceService(
         private val EXPIRED_CODE_RETENTION = 1.days.toJavaDuration()
     }
 }
+
+private fun Connection.insertDevice(deviceId: UUID, claimed: ClaimedCode, access: DeviceAccess) {
+    update(
+        """
+        insert into devices (id, family_id, child_name, name, platform, token_hash, recovery_secret_enc)
+        values (?, ?, ?, ?, ?, ?, ?)
+        """.trimIndent(),
+        deviceId,
+        claimed.familyId,
+        claimed.childName,
+        access.name,
+        access.platform.value,
+        access.tokenHash,
+        access.recoverySecretEnc
+    )
+}
+
+/**
+ * Новый телефон на месте старого: прежний токен и секрет восстановления перестают действовать,
+ * история ребёнка остаётся. В ленту родителя — событие о замене.
+ */
+private fun Connection.replacePhone(
+    deviceId: UUID,
+    familyId: UUID,
+    access: DeviceAccess,
+    now: Instant
+) {
+    update(
+        """
+        update devices set name = ?, platform = ?, token_hash = ?, recovery_secret_enc = ?,
+            paired_at = ?, last_seen_at = null
+        where id = ? and family_id = ?
+        """.trimIndent(),
+        access.name,
+        access.platform.value,
+        access.tokenHash,
+        access.recoverySecretEnc,
+        now,
+        deviceId,
+        familyId
+    )
+    update(
+        """
+        insert into device_events (device_id, id, type, occurred_at, received_at)
+        values (?, ?, ?, ?, ?)
+        """.trimIndent(),
+        deviceId,
+        UUID.randomUUID(),
+        EventType.PHONE_RECONNECTED.wireName,
+        now,
+        now
+    )
+}
+
+private class DeviceAccess(
+    val name: String,
+    val platform: Platform,
+    val tokenHash: ByteArray,
+    val recoverySecretEnc: ByteArray
+)
+
+private data class ClaimedCode(val familyId: UUID, val childName: String?, val deviceId: UUID?)

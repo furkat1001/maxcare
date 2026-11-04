@@ -9,6 +9,9 @@ import '../children/device_repository.dart';
 import '../children/filter_words_repository.dart';
 import '../children/location_repository.dart';
 import '../children/pairing_repository.dart';
+import '../settings/account_repository.dart';
+import '../settings/app_language.dart';
+import '../settings/billing.dart';
 import 'api_client.dart';
 import 'token_store.dart';
 
@@ -112,6 +115,27 @@ final dailyReportProvider =
       .day(request.deviceId, DateTime.parse(request.date)),
 );
 
+/// События одного дня по часовому поясу родителя — для ленты дня.
+final dayEventsProvider =
+    FutureProvider.autoDispose.family<List<DeviceEvent>, DailyReportRequest>((ref, request) {
+  final day = DateTime.parse(request.date);
+  final from = DateTime(day.year, day.month, day.day);
+  final to = DateTime(day.year, day.month, day.day + 1);
+  return ref.watch(deviceRepositoryProvider).events(request.deviceId, from, to);
+});
+
+/// Вкладка нижнего меню: 0 — семья, 1 — карта, 2 — события, 3 — настройки.
+final mainTabProvider = StateProvider<int>((ref) => 0);
+
+/// Последняя точка каждого ребёнка для общей карты: id устройства → позиция (null — ещё нет).
+final familyLocationsProvider =
+    FutureProvider.autoDispose<Map<String, DeviceLocation?>>((ref) async {
+  final devices = await ref.watch(devicesProvider.future);
+  final repo = ref.watch(locationRepositoryProvider);
+  final points = await Future.wait(devices.map((d) => repo.latest(d.id)));
+  return {for (var i = 0; i < devices.length; i++) devices[i].id: points[i]};
+});
+
 final appLimitsRepositoryProvider = Provider<AppLimitsRepository>(
   (ref) => AppLimitsRepository(
     ref.watch(apiClientProvider),
@@ -128,6 +152,31 @@ final appLimitsProvider = FutureProvider.autoDispose.family<AppLimits, String>(
 final recentAppsProvider = FutureProvider.autoDispose.family<Map<String, String>, String>(
   (ref, deviceId) =>
       ref.watch(appLimitsRepositoryProvider).recentApps(deviceId, days: trackDays),
+);
+
+final accountRepositoryProvider = Provider<AccountRepository>(
+  (ref) => AccountRepository(ref.watch(apiClientProvider)),
+);
+
+/// Аккаунт родителя и пробный период. Перечитывается при каждом открытии настроек.
+final billingProvider = Provider<Billing>((ref) => RevenueCatBilling());
+
+/// Тарифы из Google Play; без ID семьи (старый сервер) — пусто.
+final storePlansProvider = FutureProvider.autoDispose<List<StorePlan>>((ref) async {
+  final familyId = (await ref.watch(accountProvider.future)).familyId;
+  if (familyId == null) return const [];
+  return ref.watch(billingProvider).plans(familyId);
+});
+
+final accountProvider = FutureProvider.autoDispose<Account>(
+  (ref) => ref.watch(accountRepositoryProvider).get(),
+);
+
+final languageStoreProvider = Provider<LanguageStore>((ref) => LanguageStore());
+
+/// Язык интерфейса, выбранный в настройках.
+final languageProvider = StateNotifierProvider<LanguageController, AppLanguage>(
+  (ref) => LanguageController(ref.watch(languageStoreProvider)),
 );
 
 /// Состояние сессии: null — ещё проверяем, true/false — вошли/нет.

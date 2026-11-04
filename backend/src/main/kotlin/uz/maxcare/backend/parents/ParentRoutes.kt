@@ -1,15 +1,23 @@
 package uz.maxcare.backend.parents
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import java.time.Clock
+import java.time.Duration
+import java.time.Instant
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import uz.maxcare.backend.billing.planAt
+import uz.maxcare.backend.devices.PARENT_AUTH
 import uz.maxcare.backend.http.ErrorCodes
 import uz.maxcare.backend.http.clientIp
 import uz.maxcare.backend.http.respondError
@@ -29,6 +37,64 @@ data class SessionResponse(val token: String)
 
 @Serializable
 data class IdTokenRequest(val idToken: String)
+
+/**
+ * `status`: `trial`, `active` (оплачено), `grace` (закончилось, но ещё работает до
+ * [graceEndsAt]), `expired` (MaxCare остановлен до оплаты). Смотри `billing/Plan.kt`.
+ */
+@Serializable
+data class PlanDto(
+    val status: String,
+    val trialEndsAt: String,
+    val trialDaysLeft: Int,
+    val paidUntil: String? = null,
+    val graceEndsAt: String? = null
+)
+
+@Serializable
+data class AccountResponse(
+    val email: String,
+    val createdAt: String,
+    val hasPassword: Boolean,
+    val providers: List<String>,
+    val plan: PlanDto,
+    /** ID пользователя в RevenueCat: подписка — на всю семью. */
+    val familyId: String? = null
+)
+
+/** Сколько дней осталось: неполный день считается целым, после окончания — 0. */
+internal fun trialDaysLeft(now: Instant, endsAt: Instant): Int {
+    val seconds = Duration.between(now, endsAt).seconds
+    return if (seconds <= 0) 0 else ((seconds + SECONDS_PER_DAY - 1) / SECONDS_PER_DAY).toInt()
+}
+
+private const val SECONDS_PER_DAY = 86_400L
+
+fun Route.accountRoutes(parents: ParentService, clock: Clock) {
+    authenticate(PARENT_AUTH) {
+        get("/v1/account") {
+            val parent = requireNotNull(call.principal<ParentPrincipal>())
+            val account = parents.account(parent)
+            val plan = planAt(clock.instant(), account.trialEndsAt, account.paidUntil)
+            call.respond(
+                AccountResponse(
+                    email = account.email,
+                    createdAt = account.createdAt.toString(),
+                    hasPassword = account.hasPassword,
+                    providers = account.providers,
+                    plan = PlanDto(
+                        status = plan.status.wireName,
+                        trialEndsAt = plan.trialEndsAt.toString(),
+                        trialDaysLeft = plan.trialDaysLeft,
+                        paidUntil = plan.paidUntil?.toString(),
+                        graceEndsAt = plan.graceEndsAt.toString()
+                    ),
+                    familyId = account.familyId.toString()
+                )
+            )
+        }
+    }
+}
 
 /** @param idTokens проверка ID-токенов по провайдерам; провайдера нет в карте — вход через него выключен. */
 fun Route.parentRoutes(

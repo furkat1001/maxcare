@@ -58,6 +58,8 @@ String _base(AppLocalizations t, String type) {
       return t.eventLocationOff;
     case 'location_denied':
       return t.eventLocationDenied;
+    case 'phone_reconnected':
+      return t.eventPhoneReconnected;
     case 'location_on':
       return t.eventLocationOn;
   }

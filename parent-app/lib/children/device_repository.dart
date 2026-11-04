@@ -104,9 +104,23 @@ class DeviceRepository {
     return DeviceActivity.fromJson(response);
   }
 
-  Future<RecoveryCode> recoveryCode(String deviceId) async {
+  /// События, случившиеся на телефоне с [from] до [to] (не включая), — для ленты дня.
+  Future<List<DeviceEvent>> events(String deviceId, DateTime from, DateTime to) async {
+    String utc(DateTime t) => Uri.encodeQueryComponent(t.toUtc().toIso8601String());
     final response =
-        await _api.post('/v1/devices/$deviceId/recovery-code', body: const {});
+        await _api.get('/v1/devices/$deviceId/events?from=${utc(from)}&to=${utc(to)}');
+    return DeviceActivity.fromJson(response).events;
+  }
+
+  /// Удаляет ребёнка и всё, что собрано о его телефоне. Отменить нельзя.
+  Future<void> delete(String deviceId) => _api.delete('/v1/devices/$deviceId');
+
+  Future<RecoveryCode> recoveryCode(String deviceId) async {
+    final response = await _api.post(
+      '/v1/devices/$deviceId/recovery-code',
+      authorized: true,
+      body: const {},
+    );
     return RecoveryCode.fromJson(response);
   }
 }

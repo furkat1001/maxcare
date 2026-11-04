@@ -1,5 +1,7 @@
 package uz.maxcare.backend
 
+import java.time.Clock
+import uz.maxcare.backend.billing.BillingService
 import uz.maxcare.backend.devices.DeviceService
 import uz.maxcare.backend.events.EventService
 import uz.maxcare.backend.filterwords.FilterWordsService
@@ -23,5 +25,9 @@ class Services(
     val appLimits: AppLimitsService,
     val dailyReports: DailyReportService,
     val rateLimiter: RateLimiter,
-    val idTokens: Map<IdentityProvider, IdTokenVerifier> = emptyMap()
+    val idTokens: Map<IdentityProvider, IdTokenVerifier> = emptyMap(),
+    val billing: BillingService,
+    /** Заголовок `Authorization` уведомлений RevenueCat; null — уведомления выключены. */
+    val revenueCatWebhookAuth: String? = null,
+    val clock: Clock = Clock.systemUTC()
 )

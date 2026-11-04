@@ -16,6 +16,9 @@ import io.ktor.server.routing.routing
 import io.lettuce.core.RedisClient
 import java.time.Clock
 import kotlinx.serialization.json.Json
+import uz.maxcare.backend.billing.BillingService
+import uz.maxcare.backend.billing.RevenueCatEntitlements
+import uz.maxcare.backend.billing.billingRoutes
 import uz.maxcare.backend.db.Db
 import uz.maxcare.backend.devices.DeviceService
 import uz.maxcare.backend.devices.PARENT_AUTH
@@ -31,6 +34,7 @@ import uz.maxcare.backend.limits.appLimitsRoutes
 import uz.maxcare.backend.location.LocationService
 import uz.maxcare.backend.location.locationRoutes
 import uz.maxcare.backend.parents.ParentService
+import uz.maxcare.backend.parents.accountRoutes
 import uz.maxcare.backend.parents.parentRoutes
 import uz.maxcare.backend.ratelimit.RedisRateLimiter
 import uz.maxcare.backend.reports.DailyReportService
@@ -61,7 +65,16 @@ fun main() {
         rateLimiter = RedisRateLimiter(redis),
         idTokens = mapOf(
             IdentityProvider.GOOGLE to JwtIdTokenVerifier.google(config.googleClientIds)
-        )
+        ),
+        billing = BillingService(
+            db,
+            config.revenueCatApiKey?.let {
+                RevenueCatEntitlements(it, config.revenueCatEntitlement)
+            },
+            clock
+        ),
+        revenueCatWebhookAuth = config.revenueCatWebhookAuth,
+        clock = clock
     )
 
     embeddedServer(Netty, port = config.port) {
@@ -94,6 +107,7 @@ fun Application.maxcareModule(services: Services, behindProxy: Boolean = false) 
     routing {
         get("/health") { call.respondText("ok") }
         parentRoutes(services.parents, services.idTokens, services.rateLimiter)
+        accountRoutes(services.parents, services.clock)
         deviceRoutes(services.devices, services.rateLimiter)
         eventRoutes(services.events, services.rateLimiter)
         locationRoutes(services.locations, services.rateLimiter)
@@ -101,5 +115,6 @@ fun Application.maxcareModule(services: Services, behindProxy: Boolean = false) 
         dailyReportRoutes(services.dailyReports)
         filterWordsRoutes(services.filterWords, services.rateLimiter)
         appLimitsRoutes(services.appLimits, services.rateLimiter)
+        billingRoutes(services.billing, services.revenueCatWebhookAuth, services.rateLimiter)
     }
 }

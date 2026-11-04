@@ -68,6 +68,8 @@ fun <T> Connection.queryList(sql: String, vararg params: Any?, map: (ResultSet) 
 
 fun ResultSet.uuid(column: String): UUID = getObject(column, UUID::class.java)
 
+fun ResultSet.uuidOrNull(column: String): UUID? = getObject(column, UUID::class.java)
+
 fun ResultSet.instantOrNull(column: String): Instant? =
     getObject(column, java.time.OffsetDateTime::class.java)?.toInstant()
 

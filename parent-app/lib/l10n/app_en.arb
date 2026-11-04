@@ -230,5 +230,126 @@
   "dailyPhone": "Phone",
   "dailyPhoneBoots": "Turned on",
   "dailyPhoneShutdowns": "Turned off",
-  "dailyProtectionDisabled": "Protection turned off with the password"
+  "dailyProtectionDisabled": "Protection turned off with the password",
+
+  "settingsAccount": "Account",
+  "settingsSignInGoogle": "Signed in with Google",
+  "settingsSignInPassword": "Signed in with e-mail and password",
+  "settingsSubscription": "Subscription",
+  "planTrialDaysLeft": "{count, plural, one{Free trial: {count} day left} other{Free trial: {count} days left}}",
+  "@planTrialDaysLeft": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "planExpired": "The free trial has ended",
+  "settingsProtection": "Protection",
+  "settingsApp": "App",
+  "settingsLanguage": "Language",
+  "languageSystem": "Same as phone",
+  "languageEnglish": "English",
+  "languageUzbekLatin": "O‘zbek tili (lotin yozuvida)",
+  "languageRussian": "Русский язык",
+  "accountSignIn": "Sign-in method",
+  "accountCreated": "Account created",
+  "subscriptionTrial": "Free trial",
+  "subscriptionTrialEnds": "Until {date}",
+  "@subscriptionTrialEnds": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "subscriptionTrialBody": "During the trial every MaxCare feature works without limits.",
+  "subscriptionSoon": "Paying for a subscription is coming in an upcoming version. Until then MaxCare keeps working.",
+  "subscriptionSubscribe": "Subscribe",
+
+  "homeStatusCalm": "All calm",
+  "homeStatusAttention": "Needs attention",
+  "homeStatusOffline": "No connection",
+  "homeStatusNotPaired": "Not connected yet",
+  "homeMetricScreen": "Screen",
+  "homeMetricBlocked": "Blocked",
+  "homeMetricDistance": "Travelled",
+  "homeDistanceKm": "{km} km",
+  "@homeDistanceKm": {
+    "placeholders": { "km": { "type": "String" } }
+  },
+  "dailyTimeline": "Day timeline",
+  "dailyFilterAll": "Whole day",
+  "dailyFilterImportant": "Important",
+  "dailyTimelineEmpty": "No events on this day.",
+  "dailyImportantEmpty": "Nothing important: a calm day.",
+  "dailySummary": "Day summary",
+  "dailyAllCalm": "Protection worked all day",
+  "dailyAttentionCount": "{count, plural, one{{count} event needs attention} other{{count} events need attention}}",
+  "@dailyAttentionCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "dailyRingOther": "Other",
+
+  "navFamily": "Family",
+  "navMap": "Map",
+  "navEvents": "Events",
+  "childTabSummary": "Summary",
+  "childTabTime": "Time",
+  "familyAttention": "Need attention: {names}",
+  "@familyAttention": {
+    "placeholders": { "names": { "type": "String" } }
+  },
+  "childAttentionReason": "Today protection was bypassed or turned off",
+  "mapNoLocation": "No location yet",
+  "mapPointAt": "Seen at {time}",
+  "@mapPointAt": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "mapEmpty": "The children’s phones have not sent a location yet.",
+  "filterAll": "All",
+  "eventsImportantOnly": "Important only",
+  "reconnectTitle": "Reconnect the phone",
+  "reconnectSubtitle": "New phone or MaxCare Kids reinstalled. History is kept.",
+  "reconnectBody": "Enter this code in MaxCare Kids on the new phone within 10 minutes. History, route and limits stay, and the old phone is disconnected.",
+  "deleteChildTitle": "Delete child",
+  "deleteChildSubtitle": "Deletes the child and everything collected about their phone",
+  "deleteChildConfirmTitle": "Delete “{name}”?",
+  "@deleteChildConfirmTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "deleteChildConfirmBody": "Events, route, app time and limits will be deleted. This cannot be undone. MaxCare Kids on the child’s phone will stop working with your account.",
+  "deleteChildConfirm": "Delete",
+  "childOfflineHint": "New phone or app reinstalled? Settings → “Reconnect the phone”.",
+  "eventPhoneReconnected": "A new phone was connected",
+  "childGone": "This child is no longer in the list.",
+  "planActiveUntil": "Paid until {date}",
+  "@planActiveUntil": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "planGrace": "Not paid: MaxCare stops on {date}",
+  "@planGrace": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "planStopped": "MaxCare is stopped: not paid",
+  "subscriptionActiveTitle": "Subscription is active",
+  "subscriptionGraceTitle": "Subscription is not paid",
+  "subscriptionGraceBody": "Everything still works. On {date} MaxCare stops: filters and limits on the child’s phone, the map and reports. Subscribe so this does not happen.",
+  "@subscriptionGraceBody": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "subscriptionExpiredTitle": "MaxCare is stopped",
+  "subscriptionExpiredBody": "Filters and limits on the child’s phone, the map and reports do not work until you pay. After payment everything turns back on.",
+  "subscriptionMonthly": "Month",
+  "subscriptionYearly": "Year",
+  "subscriptionPerMonth": "{price} a month",
+  "@subscriptionPerMonth": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "subscriptionPerYear": "{price} a year",
+  "@subscriptionPerYear": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "subscriptionRestore": "Restore purchases",
+  "subscriptionRestoreNone": "No purchases found",
+  "subscriptionManageHint": "You can cancel the subscription in Google Play → Payments & subscriptions.",
+  "subscriptionUnavailable": "Payment is not available in this version of the app.",
+  "subscriptionPlansError": "Could not load the plans. Check the internet and try again.",
+  "subscriptionThanks": "Thank you! The subscription is active.",
+  "bannerTrialEnds": "The free trial ends on {date}",
+  "@bannerTrialEnds": {
+    "placeholders": { "date": { "type": "String" } }
+  }
 }

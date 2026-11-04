@@ -13,6 +13,8 @@ import java.time.ZoneOffset
 import javax.sql.DataSource
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.postgresql.PostgreSQLContainer
+import uz.maxcare.backend.billing.BillingService
+import uz.maxcare.backend.billing.StoreEntitlement
 import uz.maxcare.backend.db.Db
 import uz.maxcare.backend.devices.DeviceService
 import uz.maxcare.backend.events.EventService
@@ -53,6 +55,10 @@ object TestInfra {
     /** Ключ, которым тесты подписывают «токены Google»: вместо настоящих ключей Google. */
     val googleKey: RSAKey = RSAKeyGenerator(2048).keyID("test-google").generate()
     const val GOOGLE_CLIENT_ID = "test-client.apps.googleusercontent.com"
+    const val REVENUECAT_WEBHOOK_AUTH = "Bearer test-webhook-secret"
+
+    /** Что «оплачено в RevenueCat» по ID семьи; тесты заполняют сами. */
+    val entitlements = java.util.concurrent.ConcurrentHashMap<String, StoreEntitlement>()
 
     /** Быстрые параметры Argon2: в тестах проверяется логика, а не стойкость. */
     fun services(clock: Clock): Services {
@@ -74,7 +80,10 @@ object TestInfra {
                     setOf("https://accounts.google.com", "accounts.google.com"),
                     setOf(GOOGLE_CLIENT_ID)
                 )
-            )
+            ),
+            billing = BillingService(db, { entitlements[it] }, clock),
+            revenueCatWebhookAuth = REVENUECAT_WEBHOOK_AUTH,
+            clock = clock
         )
     }
 

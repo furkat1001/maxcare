@@ -93,19 +93,47 @@ fun Route.deviceRoutes(devices: DeviceService, rateLimiter: RateLimiter) {
 
         post("/v1/pairing-codes") { createPairingCode(call, devices, rateLimiter) }
 
+        childRoutes(devices, rateLimiter)
+
         post("/v1/devices/{deviceId}/recovery-code") {
             val parent = call.parent()
             rateLimiter.check("recovery-code:${parent.parentId}", limit = 10, window = 1.hours)
-            val deviceId = call.parameters["deviceId"]?.let {
-                runCatching { UUID.fromString(it) }.getOrNull()
-            }
-            val code = deviceId?.let { devices.recoveryCode(parent.familyId, it) }
+            val code = call.deviceIdParam()?.let { devices.recoveryCode(parent.familyId, it) }
             if (code == null) {
                 // Чужое и несуществующее устройство неотличимы: не раскрываем, какие ID существуют.
                 call.respondError(HttpStatusCode.NotFound, ErrorCodes.NOT_FOUND)
             } else {
                 call.respond(RecoveryCodeResponse(code.code, code.validUntil.toString()))
             }
+        }
+    }
+}
+
+/** Ребёнок, телефон которого уже не отвязать: новый телефон на его место или удаление. */
+private fun Route.childRoutes(devices: DeviceService, rateLimiter: RateLimiter) {
+    // Новый телефон для уже существующего ребёнка: история и ограничения сохраняются.
+    post("/v1/devices/{deviceId}/pairing-code") {
+        val parent = call.parent()
+        rateLimiter.check("pairing-code:${parent.parentId}", limit = 20, window = 1.hours)
+        val code = call.deviceIdParam()?.let { devices.createReconnectCode(parent.familyId, it) }
+        if (code == null) {
+            call.respondError(HttpStatusCode.NotFound, ErrorCodes.NOT_FOUND)
+        } else {
+            call.respond(
+                HttpStatusCode.Created,
+                PairingCodeResponse(code.code, code.expiresAt.toString())
+            )
+        }
+    }
+
+    // Удаление ребёнка родителем, когда отвязать с телефона уже нельзя.
+    delete("/v1/devices/{deviceId}") {
+        val parent = call.parent()
+        val deleted = call.deviceIdParam()?.let { devices.delete(parent.familyId, it) } ?: false
+        if (deleted) {
+            call.respond(HttpStatusCode.NoContent)
+        } else {
+            call.respondError(HttpStatusCode.NotFound, ErrorCodes.NOT_FOUND)
         }
     }
 }
@@ -134,6 +162,10 @@ private suspend fun createPairingCode(
         )
     }
 }
+
+/** Чужое, несуществующее и неверно записанное устройство неотличимы: везде 404. */
+private fun RoutingCall.deviceIdParam(): UUID? =
+    parameters["deviceId"]?.let { runCatching { UUID.fromString(it) }.getOrNull() }
 
 private fun RoutingCall.parent(): ParentPrincipal = requireNotNull(principal<ParentPrincipal>()) {
     "Route must be inside authenticate(PARENT_AUTH)"
