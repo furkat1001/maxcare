@@ -31,6 +31,7 @@ import uz.maxcare.backend.limits.appLimitsRoutes
 import uz.maxcare.backend.location.LocationService
 import uz.maxcare.backend.location.locationRoutes
 import uz.maxcare.backend.parents.ParentService
+import uz.maxcare.backend.parents.accountRoutes
 import uz.maxcare.backend.parents.parentRoutes
 import uz.maxcare.backend.ratelimit.RedisRateLimiter
 import uz.maxcare.backend.reports.DailyReportService
@@ -61,7 +62,8 @@ fun main() {
         rateLimiter = RedisRateLimiter(redis),
         idTokens = mapOf(
             IdentityProvider.GOOGLE to JwtIdTokenVerifier.google(config.googleClientIds)
-        )
+        ),
+        clock = clock
     )
 
     embeddedServer(Netty, port = config.port) {
@@ -94,6 +96,7 @@ fun Application.maxcareModule(services: Services, behindProxy: Boolean = false) 
     routing {
         get("/health") { call.respondText("ok") }
         parentRoutes(services.parents, services.idTokens, services.rateLimiter)
+        accountRoutes(services.parents, services.clock)
         deviceRoutes(services.devices, services.rateLimiter)
         eventRoutes(services.events, services.rateLimiter)
         locationRoutes(services.locations, services.rateLimiter)

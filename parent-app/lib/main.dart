@@ -17,12 +17,15 @@ class MaxCareParentApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final signedIn = ref.watch(sessionProvider);
+    final language = ref.watch(languageProvider);
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context).appName,
       theme: maxCareTheme(Brightness.light),
       darkTheme: maxCareTheme(Brightness.dark),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      // null — язык телефона через _resolveLocale.
+      locale: language.locale,
       localeListResolutionCallback: _resolveLocale,
       home: switch (signedIn) {
         null => const _Splash(),

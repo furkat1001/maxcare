@@ -9,6 +9,8 @@ import '../children/device_repository.dart';
 import '../children/filter_words_repository.dart';
 import '../children/location_repository.dart';
 import '../children/pairing_repository.dart';
+import '../settings/account_repository.dart';
+import '../settings/app_language.dart';
 import 'api_client.dart';
 import 'token_store.dart';
 
@@ -128,6 +130,22 @@ final appLimitsProvider = FutureProvider.autoDispose.family<AppLimits, String>(
 final recentAppsProvider = FutureProvider.autoDispose.family<Map<String, String>, String>(
   (ref, deviceId) =>
       ref.watch(appLimitsRepositoryProvider).recentApps(deviceId, days: trackDays),
+);
+
+final accountRepositoryProvider = Provider<AccountRepository>(
+  (ref) => AccountRepository(ref.watch(apiClientProvider)),
+);
+
+/// Аккаунт родителя и пробный период. Перечитывается при каждом открытии настроек.
+final accountProvider = FutureProvider.autoDispose<Account>(
+  (ref) => ref.watch(accountRepositoryProvider).get(),
+);
+
+final languageStoreProvider = Provider<LanguageStore>((ref) => LanguageStore());
+
+/// Язык интерфейса, выбранный в настройках.
+final languageProvider = StateNotifierProvider<LanguageController, AppLanguage>(
+  (ref) => LanguageController(ref.watch(languageStoreProvider)),
 );
 
 /// Состояние сессии: null — ещё проверяем, true/false — вошли/нет.

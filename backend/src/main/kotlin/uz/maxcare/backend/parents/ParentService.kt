@@ -3,18 +3,33 @@ package uz.maxcare.backend.parents
 import java.sql.Connection
 import java.sql.SQLException
 import java.time.Clock
+import java.time.Instant
 import java.util.UUID
 import kotlin.time.Duration.Companion.days
 import kotlin.time.toJavaDuration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import uz.maxcare.backend.db.Db
+import uz.maxcare.backend.db.instantOrNull
+import uz.maxcare.backend.db.queryList
 import uz.maxcare.backend.db.queryOne
 import uz.maxcare.backend.db.update
 import uz.maxcare.backend.db.uuid
 import uz.maxcare.backend.security.Argon2Hasher
 import uz.maxcare.backend.security.Tokens
 import uz.maxcare.backend.security.VerifiedIdentity
+
+/** Длина пробного периода новой семьи; совпадает с бэкфиллом в миграции V10. */
+const val TRIAL_DAYS = 14
+
+/** Аккаунт родителя. [providers] — связанные входы: `google`, `apple`. */
+data class Account(
+    val email: String,
+    val hasPassword: Boolean,
+    val createdAt: Instant,
+    val providers: List<String>,
+    val trialEndsAt: Instant
+)
 
 /** Родитель, вошедший по токену сессии. */
 data class ParentPrincipal(val parentId: UUID, val familyId: UUID)
@@ -56,8 +71,7 @@ class ParentService(
         val parentId = UUID.randomUUID()
         return try {
             db.tx { c ->
-                val familyId = UUID.randomUUID()
-                c.update("insert into families (id) values (?)", familyId)
+                val familyId = createFamily(c)
                 c.update(
                     "insert into parents (id, family_id, email, password_hash) values (?, ?, ?, ?)",
                     parentId,
@@ -131,8 +145,7 @@ class ParentService(
         val existing = c.queryOne("select id from parents where email = ?", email) { it.uuid("id") }
         if (existing != null && !identity.emailVerified) return IdentityOutcome.EmailTaken
         val parentId = existing ?: UUID.randomUUID().also { id ->
-            val familyId = UUID.randomUUID()
-            c.update("insert into families (id) values (?)", familyId)
+            val familyId = createFamily(c)
             c.update(
                 "insert into parents (id, family_id, email) values (?, ?, ?)",
                 id,
@@ -147,6 +160,45 @@ class ParentService(
             parentId
         )
         return IdentityOutcome.Parent(parentId)
+    }
+
+    // Пробный период отсчитывается по часам сервера (в тестах — по тестовым), а не по now() базы.
+    private fun createFamily(c: Connection): UUID {
+        val familyId = UUID.randomUUID()
+        c.update(
+            "insert into families (id, trial_ends_at) values (?, ?)",
+            familyId,
+            clock.instant().plus(TRIAL)
+        )
+        return familyId
+    }
+
+    /** Аккаунт для экрана настроек: адрес, способы входа и пробный период семьи. */
+    suspend fun account(principal: ParentPrincipal): Account = db.tx { c ->
+        val account = requireNotNull(
+            c.queryOne(
+                """
+                select p.email, p.password_hash is not null as has_password, p.created_at,
+                       f.trial_ends_at
+                from parents p join families f on f.id = p.family_id
+                where p.id = ?
+                """.trimIndent(),
+                principal.parentId
+            ) {
+                Account(
+                    email = it.getString("email"),
+                    hasPassword = it.getBoolean("has_password"),
+                    createdAt = requireNotNull(it.instantOrNull("created_at")),
+                    providers = emptyList(),
+                    trialEndsAt = requireNotNull(it.instantOrNull("trial_ends_at"))
+                )
+            }
+        ) { "Session belongs to a parent that no longer exists" }
+        val providers = c.queryList(
+            "select provider from parent_identities where parent_id = ? order by provider",
+            principal.parentId
+        ) { it.getString("provider") }
+        account.copy(providers = providers)
     }
 
     private suspend fun createSession(parentId: UUID): String {
@@ -185,6 +237,7 @@ class ParentService(
         val PASSWORD_LENGTH = 8..128
         val EMAIL_PATTERN = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
         val SESSION_TTL = 30.days.toJavaDuration()
+        val TRIAL = TRIAL_DAYS.days.toJavaDuration()
     }
 }
 

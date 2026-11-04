@@ -74,7 +74,8 @@ object TestInfra {
                     setOf("https://accounts.google.com", "accounts.google.com"),
                     setOf(GOOGLE_CLIENT_ID)
                 )
-            )
+            ),
+            clock = clock
         )
     }
 
