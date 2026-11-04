@@ -79,22 +79,35 @@ class EventService(private val db: Db, private val clock: Clock) {
         }
     }
 
-    /** @return null, если устройства нет или оно принадлежит другой семье. */
-    suspend fun activity(familyId: UUID, deviceId: UUID): DeviceActivity? = db.tx { c ->
+    /**
+     * @param window события, случившиеся в [EventWindow.from, EventWindow.to) — для ленты дня;
+     *   без окна — последние полученные сервером.
+     * @return null, если устройства нет или оно принадлежит другой семье.
+     */
+    suspend fun activity(
+        familyId: UUID,
+        deviceId: UUID,
+        window: EventWindow? = null
+    ): DeviceActivity? = db.tx { c ->
         val lastSeen = c.queryOne(
             "select last_seen_at from devices where id = ? and family_id = ?",
             deviceId,
             familyId
         ) { LastSeen(it.instantOrNull("last_seen_at")) } ?: return@tx null
 
-        val events = c.queryList(
+        val (sql, params) = if (window == null) {
             """
             select type, occurred_at, received_at, detail from device_events
             where device_id = ? order by received_at desc, occurred_at desc limit ?
-            """.trimIndent(),
-            deviceId,
-            MAX_EVENTS
-        ) { row ->
+            """.trimIndent() to arrayOf<Any?>(deviceId, MAX_EVENTS)
+        } else {
+            """
+            select type, occurred_at, received_at, detail from device_events
+            where device_id = ? and occurred_at >= ? and occurred_at < ?
+            order by occurred_at desc limit ?
+            """.trimIndent() to arrayOf<Any?>(deviceId, window.from, window.to, MAX_WINDOW_EVENTS)
+        }
+        val events = c.queryList(sql, *params) { row ->
             EventType.parse(row.getString("type"))?.let { type ->
                 StoredEvent(
                     type = type,
@@ -112,5 +125,11 @@ class EventService(private val db: Db, private val clock: Clock) {
 
     private companion object {
         const val MAX_EVENTS = 100
+
+        // День с сотнями блокировок — редкость; лента всё равно склеивает повторы.
+        const val MAX_WINDOW_EVENTS = 500
     }
 }
+
+/** Промежуток времени события на телефоне; [to] не включается. */
+data class EventWindow(val from: Instant, val to: Instant)

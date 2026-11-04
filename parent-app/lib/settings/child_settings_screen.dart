@@ -6,16 +6,24 @@ import '../l10n/app_localizations.dart';
 
 /// Настройки одного ребёнка: ограничения времени и код восстановления пароля.
 class ChildSettingsScreen extends StatelessWidget {
-  const ChildSettingsScreen({required this.deviceId, required this.title, super.key});
+  const ChildSettingsScreen({
+    required this.deviceId,
+    required this.title,
+    this.embedded = false,
+    super.key,
+  });
 
   final String deviceId;
   final String title;
+
+  /// Внутри вкладки экрана ребёнка: без своей шапки — её даёт экран ребёнка.
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: embedded ? null : AppBar(title: Text(title)),
       body: ListView(
         children: [
           ListTile(

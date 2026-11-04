@@ -11,10 +11,18 @@ import 'location_repository.dart';
 
 /// Карта «где был ребёнок»: маршрут по дням за последние [trackDays] суток.
 class ChildLocationScreen extends ConsumerStatefulWidget {
-  const ChildLocationScreen({required this.deviceId, required this.title, super.key});
+  const ChildLocationScreen({
+    required this.deviceId,
+    required this.title,
+    this.embedded = false,
+    super.key,
+  });
 
   final String deviceId;
   final String title;
+
+  /// Внутри вкладки экрана ребёнка: без своей шапки — её даёт экран ребёнка.
+  final bool embedded;
 
   @override
   ConsumerState<ChildLocationScreen> createState() => _ChildLocationScreenState();
@@ -40,7 +48,7 @@ class _ChildLocationScreenState extends ConsumerState<ChildLocationScreen> {
     final t = AppLocalizations.of(context);
     final track = ref.watch(deviceTrackProvider(widget.deviceId));
     return Scaffold(
-      appBar: AppBar(
+      appBar: widget.embedded ? null : AppBar(
         title: Text(widget.title),
         actions: [
           IconButton(

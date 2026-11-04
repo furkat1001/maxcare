@@ -215,4 +215,43 @@ class EventApiTest : ApiTestBase() {
         val events = client.activity(device.deviceId, parent).body<DeviceActivityResponse>().events
         assertEquals(listOf(null, null), events.map { it.detail })
     }
+
+    @Test
+    fun `a day window returns only the events that happened in it`() = apiTest { client ->
+        val parent = client.registerAndLogin()
+        val device = client.pairedDevice(parent)
+        // Ташкент UTC+5: день 2026-10-09 — с 2026-10-08T19:00Z до 2026-10-09T19:00Z.
+        client.send(
+            device.deviceToken,
+            event("device_booted", "2026-10-08T18:59:59Z"),
+            event("vpn_off", "2026-10-08T19:00:00Z"),
+            event("search_blocked", "2026-10-09T12:00:00Z"),
+            event("device_shutdown", "2026-10-09T19:00:00Z")
+        )
+
+        val response = client.get(
+            "/v1/devices/${device.deviceId}/events" +
+                "?from=2026-10-08T19:00:00Z&to=2026-10-09T19:00:00Z"
+        ) { bearerAuth(parent) }
+
+        val events = response.body<DeviceActivityResponse>().events
+        assertEquals(listOf("search_blocked", "vpn_off"), events.map { it.type })
+    }
+
+    @Test
+    fun `a broken day window is rejected`() = apiTest { client ->
+        val parent = client.registerAndLogin()
+        val device = client.pairedDevice(parent)
+        val path = "/v1/devices/${device.deviceId}/events"
+
+        for (query in listOf(
+            "?from=2026-10-09T00:00:00Z",
+            "?from=yesterday&to=today",
+            "?from=2026-10-09T10:00:00Z&to=2026-10-09T09:00:00Z",
+            "?from=2026-10-01T00:00:00Z&to=2026-10-09T00:00:00Z"
+        )) {
+            val status = client.get(path + query) { bearerAuth(parent) }.status
+            assertEquals(HttpStatusCode.BadRequest, status, query)
+        }
+    }
 }

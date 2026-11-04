@@ -241,9 +241,6 @@
     "placeholders": { "count": { "type": "int" } }
   },
   "planExpired": "The free trial has ended",
-  "settingsChildren": "Children",
-  "settingsChildSubtitle": "Time limits and recovery code",
-  "settingsChildrenEmpty": "Add a child on the Home tab — their settings will appear here.",
   "settingsProtection": "Protection",
   "settingsApp": "App",
   "settingsLanguage": "Language",
@@ -260,5 +257,48 @@
   },
   "subscriptionTrialBody": "During the trial every MaxCare feature works without limits.",
   "subscriptionSoon": "Paying for a subscription is coming in an upcoming version. Until then MaxCare keeps working.",
-  "subscriptionSubscribe": "Subscribe"
+  "subscriptionSubscribe": "Subscribe",
+
+  "homeStatusCalm": "All calm",
+  "homeStatusAttention": "Needs attention",
+  "homeStatusOffline": "No connection",
+  "homeStatusNotPaired": "Not connected yet",
+  "homeMetricScreen": "Screen",
+  "homeMetricBlocked": "Blocked",
+  "homeMetricDistance": "Travelled",
+  "homeDistanceKm": "{km} km",
+  "@homeDistanceKm": {
+    "placeholders": { "km": { "type": "String" } }
+  },
+  "dailyTimeline": "Day timeline",
+  "dailyFilterAll": "Whole day",
+  "dailyFilterImportant": "Important",
+  "dailyTimelineEmpty": "No events on this day.",
+  "dailyImportantEmpty": "Nothing important: a calm day.",
+  "dailySummary": "Day summary",
+  "dailyAllCalm": "Protection worked all day",
+  "dailyAttentionCount": "{count, plural, one{{count} event needs attention} other{{count} events need attention}}",
+  "@dailyAttentionCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "dailyRingOther": "Other",
+
+  "navFamily": "Family",
+  "navMap": "Map",
+  "navEvents": "Events",
+  "childTabSummary": "Summary",
+  "childTabTime": "Time",
+  "familyAttention": "Need attention: {names}",
+  "@familyAttention": {
+    "placeholders": { "names": { "type": "String" } }
+  },
+  "childAttentionReason": "Today protection was bypassed or turned off",
+  "mapNoLocation": "No location yet",
+  "mapPointAt": "Seen at {time}",
+  "@mapPointAt": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "mapEmpty": "The children’s phones have not sent a location yet.",
+  "filterAll": "All",
+  "eventsImportantOnly": "Important only"
 }

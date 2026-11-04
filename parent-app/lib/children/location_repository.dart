@@ -36,6 +36,13 @@ class LocationRepository {
 
   final ApiClient _api;
 
+  /// Последняя известная позиция; null — телефон ещё не присылал её.
+  Future<DeviceLocation?> latest(String deviceId) async {
+    final json = await _api.get('/v1/devices/$deviceId/location');
+    // 204 без тела — позиции ещё нет.
+    return json.containsKey('latitude') ? DeviceLocation.fromJson(json) : null;
+  }
+
   /// Трек устройства за период (по умолчанию — последние сутки), по возрастанию времени.
   /// Пустой список — телефон ещё не слал позицию за это окно.
   Future<List<DeviceLocation>> history(String deviceId, {DateTime? since}) async {

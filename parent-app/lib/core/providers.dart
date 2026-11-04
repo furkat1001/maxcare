@@ -114,6 +114,27 @@ final dailyReportProvider =
       .day(request.deviceId, DateTime.parse(request.date)),
 );
 
+/// События одного дня по часовому поясу родителя — для ленты дня.
+final dayEventsProvider =
+    FutureProvider.autoDispose.family<List<DeviceEvent>, DailyReportRequest>((ref, request) {
+  final day = DateTime.parse(request.date);
+  final from = DateTime(day.year, day.month, day.day);
+  final to = DateTime(day.year, day.month, day.day + 1);
+  return ref.watch(deviceRepositoryProvider).events(request.deviceId, from, to);
+});
+
+/// Вкладка нижнего меню: 0 — семья, 1 — карта, 2 — события, 3 — настройки.
+final mainTabProvider = StateProvider<int>((ref) => 0);
+
+/// Последняя точка каждого ребёнка для общей карты: id устройства → позиция (null — ещё нет).
+final familyLocationsProvider =
+    FutureProvider.autoDispose<Map<String, DeviceLocation?>>((ref) async {
+  final devices = await ref.watch(devicesProvider.future);
+  final repo = ref.watch(locationRepositoryProvider);
+  final points = await Future.wait(devices.map((d) => repo.latest(d.id)));
+  return {for (var i = 0; i < devices.length; i++) devices[i].id: points[i]};
+});
+
 final appLimitsRepositoryProvider = Provider<AppLimitsRepository>(
   (ref) => AppLimitsRepository(
     ref.watch(apiClientProvider),

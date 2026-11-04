@@ -7,11 +7,10 @@ import '../l10n/app_localizations.dart';
 import 'account_repository.dart';
 import 'account_screen.dart';
 import 'app_language.dart';
-import 'child_settings_screen.dart';
 import 'language_screen.dart';
 import 'subscription_screen.dart';
 
-/// «Настройки»: то, что родитель меняет, а не смотрит. Отчёты — на своей вкладке.
+/// «Настройки»: то, что касается всей семьи. Настройки одного ребёнка — на его экране.
 class SettingsTab extends ConsumerWidget {
   const SettingsTab({super.key});
 
@@ -19,12 +18,10 @@ class SettingsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final account = ref.watch(accountProvider);
-    final devices = ref.watch(devicesProvider);
     final language = ref.watch(languageProvider);
     return RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(accountProvider);
-        ref.invalidate(devicesProvider);
       },
       child: ListView(
         children: [
@@ -49,29 +46,6 @@ class SettingsTab extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _push(context, const SubscriptionScreen()),
           ),
-          _Section(t.settingsChildren),
-          ...switch (devices.valueOrNull) {
-            null => const <Widget>[],
-            [] => [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                  child: Text(t.settingsChildrenEmpty),
-                ),
-              ],
-            final list => [
-                for (final device in list)
-                  ListTile(
-                    leading: const Icon(Icons.child_care_outlined),
-                    title: Text(device.title),
-                    subtitle: Text(t.settingsChildSubtitle),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _push(
-                      context,
-                      ChildSettingsScreen(deviceId: device.id, title: device.title),
-                    ),
-                  ),
-              ],
-          },
           _Section(t.settingsProtection),
           ListTile(
             leading: const Icon(Icons.shield_outlined),
