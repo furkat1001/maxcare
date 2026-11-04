@@ -9,6 +9,8 @@ ktlint = "1.8.0"
 
 androidxCore = "1.19.1"
 androidxActivity = "1.13.0"
+# Выбор языка в приложении на Android 8–12 (Apache 2.0); с Android 13 — системный LocaleManager.
+androidxAppcompat = "1.7.1"
 androidxLifecycle = "2.11.0"
 composeBom = "2026.09.00"
 coroutines = "1.11.0"
@@ -29,6 +31,7 @@ androidxTestRunner = "1.7.0"
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidxCore" }
 androidx-activity = { module = "androidx.activity:activity-ktx", version.ref = "androidxActivity" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivity" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidxAppcompat" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }

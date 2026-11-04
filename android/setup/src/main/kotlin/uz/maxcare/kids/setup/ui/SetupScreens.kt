@@ -58,6 +58,8 @@ internal fun ConnectScreen(
         body = "",
         state = state
     ) {
+        // Первым: родитель выбирает язык до того, как читать объяснение и вводить код.
+        LanguagePicker()
         DisclosureSummary(onDetails = { details = true })
         if (screen.paired) {
             Text(

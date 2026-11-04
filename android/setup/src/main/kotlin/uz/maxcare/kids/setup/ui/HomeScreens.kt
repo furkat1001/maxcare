@@ -20,6 +20,7 @@ internal fun HomeScreen(screen: KidsScreen.Home, state: KidsUiState, viewModel: 
         ProtectionMode.DEVICE_ADMIN, ProtectionMode.NONE -> stringResource(R.string.home_mode_admin)
     }
     ScreenLayout(title = stringResource(R.string.home_title), body = body, state = state) {
+        LanguagePicker()
         SecondaryButton(
             stringResource(R.string.home_disable),
             !state.busy,
