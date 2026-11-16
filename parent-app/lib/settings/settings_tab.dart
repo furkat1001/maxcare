@@ -7,6 +7,7 @@ import '../core/providers.dart';
 import '../l10n/app_localizations.dart';
 import 'account_repository.dart';
 import 'account_screen.dart';
+import 'delete_account_screen.dart';
 import 'app_language.dart';
 import 'language_screen.dart';
 import 'subscription_screen.dart';
@@ -61,6 +62,16 @@ class SettingsTab extends ConsumerWidget {
             subtitle: Text(languageName(t, language)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _push(context, const LanguageScreen()),
+          ),
+          const Divider(height: 32),
+          ListTile(
+            leading: Icon(Icons.delete_forever_outlined, color: Theme.of(context).colorScheme.error),
+            title: Text(
+              t.deleteAccountTitle,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+            subtitle: Text(t.deleteAccountSubtitle),
+            onTap: () => _push(context, const DeleteAccountScreen()),
           ),
           const SizedBox(height: 24),
         ],

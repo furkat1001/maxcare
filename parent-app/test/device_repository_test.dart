@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:parent/children/device_repository.dart';
 import 'package:parent/children/pairing_repository.dart';
+import 'package:parent/settings/account_repository.dart';
 import 'package:parent/core/api_client.dart';
 import 'package:parent/core/token_store.dart';
 
@@ -144,6 +145,15 @@ void main() {
 
     expect(code.code, '12345678');
     expect(_lastRequest(), 'POST /v1/devices/dev-1/pairing-code Bearer tok');
+  });
+
+  test('deleting the account sends only the chosen confirmation', () async {
+    await AccountRepository(_api(null)).delete(password: 'secret-1');
+    expect(_lastRequest(), 'POST /v1/account/delete Bearer tok');
+    expect(_adapter.requests.last.data, {'password': 'secret-1'});
+
+    await AccountRepository(_api(null)).delete(idToken: 'google-token');
+    expect(_adapter.requests.last.data, {'idToken': 'google-token'});
   });
 
   test('deleting a child sends the parent token', () async {

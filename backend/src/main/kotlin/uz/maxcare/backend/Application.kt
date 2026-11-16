@@ -107,7 +107,7 @@ fun Application.maxcareModule(services: Services, behindProxy: Boolean = false) 
     routing {
         get("/health") { call.respondText("ok") }
         parentRoutes(services.parents, services.idTokens, services.rateLimiter)
-        accountRoutes(services.parents, services.clock)
+        accountRoutes(services.parents, services.clock, services.idTokens, services.rateLimiter)
         deviceRoutes(services.devices, services.rateLimiter)
         eventRoutes(services.events, services.rateLimiter)
         locationRoutes(services.locations, services.rateLimiter)

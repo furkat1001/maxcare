@@ -351,5 +351,14 @@
   "bannerTrialEnds": "The free trial ends on {date}",
   "@bannerTrialEnds": {
     "placeholders": { "date": { "type": "String" } }
-  }
+  },
+  "deleteAccountTitle": "Delete account",
+  "deleteAccountSubtitle": "Your account, all children and their data",
+  "deleteAccountBody": "Your account and all children will be deleted together with everything collected about them: events, route, app time, limits and settings. This cannot be undone. MaxCare Kids on the children’s phones will stop sending data; to remove it, turn off protection on each phone with the parent password.",
+  "deleteAccountSubscription": "A Google Play subscription is not cancelled automatically: cancel it in Google Play → Payments & subscriptions.",
+  "deleteAccountGoogleHint": "Your account has no password. To confirm, choose the same Google account you sign in with.",
+  "deleteAccountConfirm": "Delete account permanently",
+  "deleteAccountConfirmGoogle": "Confirm with Google and delete",
+  "deleteAccountWrongPassword": "Wrong password. The account was not deleted.",
+  "deleteAccountWrongGoogle": "This Google account does not match yours. The account was not deleted."
 }

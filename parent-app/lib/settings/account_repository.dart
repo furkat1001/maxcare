@@ -75,6 +75,13 @@ class AccountRepository {
 
   Future<Account> get() async => Account.fromJson(await _api.get('/v1/account'));
 
+  /// Удаляет аккаунт со всей семьёй. Подтверждение — [password] или свежий [idToken] Google.
+  Future<void> delete({String? password, String? idToken}) => _api.post(
+        '/v1/account/delete',
+        authorized: true,
+        body: {'password': ?password, 'idToken': ?idToken},
+      );
+
   /// После покупки: сервер сам спрашивает RevenueCat, что оплачено.
   Future<void> syncBilling() =>
       _api.post('/v1/account/billing/sync', authorized: true, body: const {});
