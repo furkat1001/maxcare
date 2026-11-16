@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Политика конфиденциальности MaxCare</title>
-<meta name="description" content="Какие данные собирают MaxCare и MaxCare Kids, зачем, где хранят и как их удалить.">
+<title>MaxCare Privacy Policy</title>
+<meta name="description" content="What data MaxCare and MaxCare Kids collect, why, where it is stored and how to delete it.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -72,10 +72,10 @@ footer { margin-top: 40px; color: var(--muted); font-size: 14px; }
 <div class="wrap">
 <header>
   <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z"/><path fill="#fff" d="m10.5 15.2-3.2-3.2 1.4-1.4 1.8 1.8 4.8-4.8 1.4 1.4z"/></svg>MaxCare</div>
-  <nav class="langs" aria-label="Язык / Til / Language">
-    <a href="#ru" data-lang="ru">Русский</a>
-    <a href="#uz" data-lang="uz">O‘zbekcha</a>
+  <nav class="langs" aria-label="Language / Til / Язык">
     <a href="#en" data-lang="en">English</a>
+    <a href="#uz" data-lang="uz">O‘zbekcha</a>
+    <a href="#ru" data-lang="ru">Русский</a>
   </nav>
 </header>
 
@@ -371,10 +371,10 @@ footer { margin-top: 40px; color: var(--muted); font-size: 14px; }
 </div>
 <script>
 (() => {
-  const langs = ["ru", "uz", "en"];
+  const langs = ["en", "uz", "ru"];
   function show() {
     const hash = location.hash.slice(1);
-    const lang = langs.includes(hash) ? hash : "ru";
+    const lang = langs.includes(hash) ? hash : "en";
     document.documentElement.lang = lang;
     document.querySelectorAll("section[lang]").forEach(s => s.classList.toggle("on", s.id === lang));
     document.querySelectorAll(".langs a").forEach(a => a.setAttribute("aria-current", String(a.dataset.lang === lang)));
