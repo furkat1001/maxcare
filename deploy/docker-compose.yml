@@ -16,6 +16,7 @@ services:
       API_DOMAIN: ${API_DOMAIN}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./site:/srv/site:ro       # статические страницы: политика конфиденциальности
       - caddy-data:/data        # сертификаты и ключи — переживают перезапуск
       - caddy-config:/config
     depends_on:

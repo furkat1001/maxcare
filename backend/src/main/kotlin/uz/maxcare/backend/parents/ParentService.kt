@@ -53,6 +53,8 @@ sealed interface IdentityLoginResult {
     data object NoEmail : IdentityLoginResult
 }
 
+// Весь жизненный цикл аккаунта родителя в одном месте: регистрация, входы, сессии, удаление.
+@Suppress("TooManyFunctions")
 class ParentService(
     private val db: Db,
     private val hasher: Argon2Hasher,
@@ -174,6 +176,48 @@ class ParentService(
             clock.instant().plus(TRIAL)
         )
         return familyId
+    }
+
+    /**
+     * Удаление аккаунта родителя вместе со всей семьёй: дети, события, маршрут, время в
+     * приложениях, ограничения, сессии — каскадом в БД. Нужно подтверждение: пароль, а если
+     * пароля нет (вход только через Google) — свежий вход тем же аккаунтом Google.
+     * Неверный пароль и чужой Google-аккаунт неотличимы.
+     */
+    suspend fun deleteAccount(
+        principal: ParentPrincipal,
+        password: String?,
+        identity: VerifiedIdentity?
+    ): Boolean {
+        val confirmed = when {
+            password != null -> passwordMatches(principal.parentId, password)
+
+            identity != null -> db.tx { c ->
+                c.queryOne(
+                    "select 1 as found from parent_identities where provider = ? and subject = ? and parent_id = ?",
+                    identity.provider.wire,
+                    identity.subject,
+                    principal.parentId
+                ) { true } ?: false
+            }
+
+            else -> false
+        }
+        if (!confirmed) return false
+        db.tx { c -> c.update("delete from families where id = ?", principal.familyId) }
+        return true
+    }
+
+    // Argon2 считается и для аккаунта без пароля: время ответа не выдаёт, есть ли пароль.
+    private suspend fun passwordMatches(parentId: UUID, password: String): Boolean {
+        val hash = db.tx { c ->
+            c.queryOne("select password_hash from parents where id = ?", parentId) {
+                it.getString("password_hash")
+            }
+        }
+        val matches =
+            withContext(Dispatchers.Default) { hasher.verify(password, hash ?: dummyHash) }
+        return hash != null && matches
     }
 
     /** Аккаунт для экрана настроек: адрес, способы входа и пробный период семьи. */

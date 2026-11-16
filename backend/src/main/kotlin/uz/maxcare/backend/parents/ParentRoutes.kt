@@ -38,6 +38,10 @@ data class SessionResponse(val token: String)
 @Serializable
 data class IdTokenRequest(val idToken: String)
 
+/** Подтверждение удаления аккаунта: пароль или, если пароля нет, свежий ID-токен Google. */
+@Serializable
+data class DeleteAccountRequest(val password: String? = null, val idToken: String? = null)
+
 /**
  * `status`: `trial`, `active` (оплачено), `grace` (закончилось, но ещё работает до
  * [graceEndsAt]), `expired` (MaxCare остановлен до оплаты). Смотри `billing/Plan.kt`.
@@ -70,8 +74,30 @@ internal fun trialDaysLeft(now: Instant, endsAt: Instant): Int {
 
 private const val SECONDS_PER_DAY = 86_400L
 
-fun Route.accountRoutes(parents: ParentService, clock: Clock) {
+fun Route.accountRoutes(
+    parents: ParentService,
+    clock: Clock,
+    idTokens: Map<IdentityProvider, IdTokenVerifier> = emptyMap(),
+    rateLimiter: RateLimiter? = null
+) {
     authenticate(PARENT_AUTH) {
+        // Удаление аккаунта со всей семьёй. Лимит — против перебора пароля с украденной сессией.
+        post("/v1/account/delete") {
+            val parent = requireNotNull(call.principal<ParentPrincipal>())
+            rateLimiter?.check("account-delete:${parent.parentId}", limit = 5, window = 15.minutes)
+            val request = call.receive<DeleteAccountRequest>()
+            val identity = request.idToken?.let { token ->
+                idTokens[IdentityProvider.GOOGLE]?.let { verifier ->
+                    withContext(Dispatchers.IO) { verifier.verify(token) }
+                }
+            }
+            if (parents.deleteAccount(parent, request.password, identity)) {
+                call.respond(HttpStatusCode.NoContent)
+            } else {
+                call.respondError(HttpStatusCode.Unauthorized, ErrorCodes.INVALID_CREDENTIALS)
+            }
+        }
+
         get("/v1/account") {
             val parent = requireNotNull(call.principal<ParentPrincipal>())
             val account = parents.account(parent)

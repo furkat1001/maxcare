@@ -251,5 +251,14 @@
   "subscriptionUnavailable": "Ilovaning bu versiyasida to‘lov mavjud emas.",
   "subscriptionPlansError": "Tariflarni yuklab bo‘lmadi. Internetni tekshirib, qaytadan urinib ko‘ring.",
   "subscriptionThanks": "Rahmat! Obuna rasmiylashtirildi.",
-  "bannerTrialEnds": "Sinov muddati {date} da tugaydi"
+  "bannerTrialEnds": "Sinov muddati {date} da tugaydi",
+  "deleteAccountTitle": "Hisobni o‘chirish",
+  "deleteAccountSubtitle": "Hisobingiz, barcha bolalar va ularning ma’lumotlari",
+  "deleteAccountBody": "Hisobingiz va barcha bolalar ular haqida to‘plangan hamma narsa bilan birga o‘chiriladi: hodisalar, marshrut, ilovalardagi vaqt, cheklovlar va sozlamalar. Buni bekor qilib bo‘lmaydi. Bolalarning telefonlaridagi MaxCare Kids ma’lumot yuborishni to‘xtatadi; uni o‘chirish uchun har bir telefonda ota-ona paroli bilan himoyani o‘chiring.",
+  "deleteAccountSubscription": "Google Play obunasi o‘zi bekor qilinmaydi: uni Google Play → To‘lovlar va obunalar bo‘limida bekor qiling.",
+  "deleteAccountGoogleHint": "Hisobingizda parol yo‘q. Tasdiqlash uchun kirishda foydalanadigan Google hisobingizni tanlang.",
+  "deleteAccountConfirm": "Hisobni butunlay o‘chirish",
+  "deleteAccountConfirmGoogle": "Google orqali tasdiqlash va o‘chirish",
+  "deleteAccountWrongPassword": "Parol noto‘g‘ri. Hisob o‘chirilmadi.",
+  "deleteAccountWrongGoogle": "Bu Google hisobi sizniki bilan mos emas. Hisob o‘chirilmadi."
 }
