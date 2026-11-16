@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Политика конфиденциальности MaxCare</title>
+<meta name="description" content="Какие данные собирают MaxCare и MaxCare Kids, зачем, где хранят и как их удалить.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Юридический текст для родителей и Google Play: одна колонка, оглавление сверху, три языка. */
+:root {
+  --bg: #f6f8fb;
+  --surface: #ffffff;
+  --ink: #18212d;
+  --muted: #586577;
+  --line: #dbe2ec;
+  --brand: #1e6fd9;
+  --brand-soft: #e6effc;
+  --note: #8a5a00;
+  --note-soft: #fdf3df;
+  --font: "Golos Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151c; --surface: #171f29; --ink: #e7ecf3; --muted: #9ba8b8; --line: #2b3646;
+    --brand: #9cc4ff; --brand-soft: #1c2b40; --note: #f2c372; --note-soft: #33280f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151c; --surface: #171f29; --ink: #e7ecf3; --muted: #9ba8b8; --line: #2b3646;
+  --brand: #9cc4ff; --brand-soft: #1c2b40; --note: #f2c372; --note-soft: #33280f;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--font); }
+.wrap { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+header { display: grid; gap: 12px; margin-bottom: 24px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--brand); }
+.brand svg { width: 28px; height: 28px; }
+h1 { font-size: 30px; line-height: 1.2; margin: 0; text-wrap: balance; }
+h2 { font-size: 20px; margin: 36px 0 8px; text-wrap: balance; scroll-margin-top: 16px; }
+h3 { font-size: 16px; margin: 20px 0 6px; }
+p, li { max-width: 68ch; }
+ul { padding-left: 22px; margin: 6px 0; }
+li { margin: 3px 0; }
+.meta { color: var(--muted); font-size: 14px; margin: 0; }
+.langs { display: flex; flex-wrap: wrap; gap: 8px; }
+.langs a { border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none;
+  padding: 6px 14px; border-radius: 999px; font-size: 15px; }
+.langs a[aria-current="true"] { background: var(--brand); border-color: var(--brand); color: var(--surface); }
+.langs a:focus-visible, a:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+.summary { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 20px; }
+.summary h2 { margin-top: 0; }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+.table { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font-weight: 600; background: var(--brand-soft); }
+.fill { background: var(--note-soft); color: var(--note); border-radius: 4px; padding: 0 4px; font-weight: 600; }
+a { color: var(--brand); }
+section[lang] { display: none; }
+section[lang].on { display: block; }
+footer { margin-top: 40px; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z"/><path fill="#fff" d="m10.5 15.2-3.2-3.2 1.4-1.4 1.8 1.8 4.8-4.8 1.4 1.4z"/></svg>MaxCare</div>
+  <nav class="langs" aria-label="Язык / Til / Language">
+    <a href="#ru" data-lang="ru">Русский</a>
+    <a href="#uz" data-lang="uz">O‘zbekcha</a>
+    <a href="#en" data-lang="en">English</a>
+  </nav>
+</header>
+
+<!-- ============================ RU ============================ -->
+<section lang="ru" id="ru">
+<h1>Политика конфиденциальности MaxCare</h1>
+<p class="meta">Действует с 17 ноября 2026 г. · Приложения: MaxCare (для родителя) и MaxCare Kids (для телефона ребёнка)</p>
+
+<div class="summary">
+<h2>Коротко</h2>
+<ul>
+  <li>MaxCare Kids устанавливает родитель или законный представитель на телефон своего ребёнка младше 16 лет. Приложение не скрывается: его иконка и постоянное уведомление всегда видны.</li>
+  <li>Экран, текст, фото и переписка на телефоне ребёнка проверяются <b>только на самом телефоне, в памяти</b>, и никуда не отправляются.</li>
+  <li>На сервер уходят только события (что произошло и когда), местоположение, время в приложениях и модель телефона.</li>
+  <li>Данные хранятся на сервере в Ташкенте (Узбекистан). Мы их не продаём, не показываем рекламу и не используем аналитику или трекинг.</li>
+  <li>Удалить данные ребёнка можно в любой момент в приложении родителя.</li>
+</ul>
+</div>
+
+<h2 id="ru-who">1. Кто обрабатывает данные</h2>
+<p>Оператор персональных данных: <span class="fill">[название компании или ФИО предпринимателя, адрес]</span>, Республика Узбекистан. По вопросам конфиденциальности и удаления данных: <span class="fill">[адрес электронной почты]</span>.</p>
+
+<h2 id="ru-data">2. Какие данные мы собираем</h2>
+<h3>Родитель (приложение MaxCare)</h3>
+<ul>
+  <li>Адрес электронной почты и пароль. Пароль хранится только в виде необратимого хеша (Argon2).</li>
+  <li>При входе через Google — адрес почты и идентификатор аккаунта Google.</li>
+  <li>Настройки: слова фильтра, ограничения времени для приложений, строгость фильтра.</li>
+  <li>Состояние подписки: пробный период, оплачено ли и до какой даты.</li>
+</ul>
+<h3>Телефон ребёнка (приложение MaxCare Kids)</h3>
+<div class="table"><table>
+  <thead><tr><th>Что</th><th>Подробно</th></tr></thead>
+  <tbody>
+    <tr><td>Устройство</td><td>Название и модель телефона, имя ребёнка, если его указал родитель.</td></tr>
+    <tr><td>События защиты</td><td>Тип и время события: отключение администратора, выключение уведомлений или геолокации, включение и выключение телефона, блокировка пароля, попытка удаления, сработавший лимит времени, найденная и скрытая опасная картинка или поисковый запрос. Для заблокированного сайта — его адрес, для сработавшего лимита — название приложения. Сами картинки, текст и снимки экрана не отправляются.</td></tr>
+    <tr><td>Местоположение</td><td>Координаты, точность и время — примерно раз в 15 минут, в том числе в фоне, когда приложение закрыто.</td></tr>
+    <tr><td>Время в приложениях</td><td>Название приложения и сколько минут за день оно было на экране. Что ребёнок делал внутри приложения, не собирается.</td></tr>
+  </tbody>
+</table></div>
+<h3>Чего мы не собираем</h3>
+<p>Снимки экрана, фото и видео, переписку, звонки и SMS, контакты, историю браузера (кроме адресов заблокированных сайтов), пароли и данные из других приложений.</p>
+
+<h2 id="ru-how">3. Как работает защита на телефоне ребёнка</h2>
+<ul>
+  <li><b>Служба специальных возможностей</b> читает текст и изображения на экране и в строке поиска, чтобы скрыть опасный контент, и узнаёт открытое приложение, чтобы соблюдать лимиты времени родителя. Анализ выполняется моделями на самом телефоне, только в памяти; на диск, в журналы и на сервер содержимое экрана не записывается.</li>
+  <li><b>Локальный VPN</b> фильтрует сайты. Он видит только имена сайтов, а не содержимое страниц. Имена сайтов в зашифрованном виде проверяет семейный DNS-сервис Cloudflare for Families, который блокирует сайты для взрослых и вредоносные сайты. Трафик через сторонние серверы не направляется.</li>
+  <li><b>Администратор устройства</b> не даёт удалить приложение без пароля родителя.</li>
+</ul>
+
+<h2 id="ru-why">4. Зачем мы используем данные</h2>
+<ul>
+  <li>Показать родителю, где ребёнок, что заблокировано и сколько времени он проводит в приложениях.</li>
+  <li>Применять настройки родителя: фильтр, лимиты времени.</li>
+  <li>Сообщать родителю, если защиту пытались отключить.</li>
+  <li>Обеспечить вход в аккаунт и работу подписки.</li>
+</ul>
+<p>Мы не используем данные для рекламы, не создаём профили для маркетинга и не продаём данные.</p>
+
+<h2 id="ru-basis">5. Основание обработки и дети</h2>
+<p>Данные обрабатываются с согласия родителя или законного представителя ребёнка, которое он даёт при установке и настройке приложения. MaxCare предназначен для детей младше 16 лет и устанавливается только взрослым. Ребёнок всегда видит, что защита работает. Если вы считаете, что приложение установлено без согласия законного представителя, напишите нам — мы удалим данные.</p>
+
+<h2 id="ru-where">6. Где хранятся данные</h2>
+<ul>
+  <li>Основная база данных — на сервере в Ташкенте (Республика Узбекистан), у хостинг-провайдера UzCloud.</li>
+  <li>Резервные копии базы шифруются на сервере и хранятся до 31 дня в облачном хранилище Backblaze (США). Ключ расшифровки есть только у оператора; ни Backblaze, ни взлом сервера не дают прочитать копии.</li>
+  <li>На телефонах данные хранятся в зашифрованном виде (Android Keystore).</li>
+  <li>Соединение с сервером — только зашифрованное (HTTPS/TLS).</li>
+</ul>
+
+<h2 id="ru-share">7. Кому передаются данные</h2>
+<div class="table"><table>
+  <thead><tr><th>Кто</th><th>Что получает</th><th>Зачем</th></tr></thead>
+  <tbody>
+    <tr><td>UzCloud (Узбекистан)</td><td>Все данные сервера</td><td>Хостинг</td></tr>
+    <tr><td>Backblaze (США)</td><td>Только зашифрованные резервные копии</td><td>Восстановление после сбоя</td></tr>
+    <tr><td>Google</td><td>Почта и ID аккаунта при входе через Google; данные покупки в Google Play</td><td>Вход, оплата подписки</td></tr>
+    <tr><td>RevenueCat</td><td>Идентификатор семьи и данные покупки подписки</td><td>Проверка подписки</td></tr>
+    <tr><td>Cloudflare for Families</td><td>Имена сайтов, которые открывает телефон ребёнка (зашифровано)</td><td>Блокировка опасных сайтов</td></tr>
+    <tr><td>OpenStreetMap</td><td>IP-адрес телефона родителя и область карты, которую он смотрит</td><td>Показ карты</td></tr>
+  </tbody>
+</table></div>
+<p>Иным лицам данные передаются только по требованию закона.</p>
+
+<h2 id="ru-keep">8. Сколько хранятся данные и как их удалить</h2>
+<ul>
+  <li>Данные телефона ребёнка хранятся, пока он привязан к семье.</li>
+  <li><b>Удаление ребёнка:</b> MaxCare → ребёнок → «Настройки» → «Удалить ребёнка». Или на телефоне ребёнка: «Отключить защиту» → пароль родителя → «Отвязать от родителя». Все события, маршрут, время в приложениях и ограничения удаляются с сервера сразу, из резервных копий — в течение 31 дня.</li>
+  <li><b>Удаление аккаунта родителя:</b> MaxCare → «Настройки» → «Удалить аккаунт», подтверждение паролем (или тем же аккаунтом Google, если пароля нет). Аккаунт, все дети и все их данные удаляются с сервера сразу, из резервных копий — в течение 31 дня. Если войти в приложение нельзя, напишите на <span class="fill">[адрес электронной почты]</span> с адреса аккаунта — мы удалим всё в течение 30 дней. Подписку Google Play отмените в Google Play: сама она не отменяется.</li>
+  <li>Коды привязки удаляются через сутки после окончания срока действия.</li>
+</ul>
+
+<h2 id="ru-rights">9. Ваши права</h2>
+<p>Вы можете узнать, какие данные о вас и вашем ребёнке мы храним, исправить их, удалить или отозвать согласие. Отзыв согласия означает удаление данных и прекращение работы защиты. Напишите на <span class="fill">[адрес электронной почты]</span>, мы ответим в течение 30 дней.</p>
+
+<h2 id="ru-changes">10. Изменения политики</h2>
+<p>Если мы изменим эту политику, новая версия появится на этой странице с новой датой, а о существенных изменениях мы сообщим в приложении.</p>
+</section>
+
+<!-- ============================ UZ ============================ -->
+<section lang="uz" id="uz">
+<h1>MaxCare maxfiylik siyosati</h1>
+<p class="meta">2026-yil 17-noyabrdan amal qiladi · Ilovalar: MaxCare (ota-ona uchun) va MaxCare Kids (bolaning telefoni uchun)</p>
+
+<div class="summary">
+<h2>Qisqacha</h2>
+<ul>
+  <li>MaxCare Kids ilovasini ota-ona yoki qonuniy vakil 16 yoshgacha bo‘lgan bolasining telefoniga o‘rnatadi. Ilova yashirinmaydi: uning belgisi va doimiy bildirishnomasi doim ko‘rinib turadi.</li>
+  <li>Bolaning telefonidagi ekran, matn, rasmlar va yozishmalar <b>faqat telefonning o‘zida, xotirada</b> tekshiriladi va hech qayerga yuborilmaydi.</li>
+  <li>Serverga faqat hodisalar (nima va qachon bo‘lgani), joylashuv, ilovalardagi vaqt va telefon modeli yuboriladi.</li>
+  <li>Ma’lumotlar Toshkentdagi (O‘zbekiston) serverda saqlanadi. Biz ularni sotmaymiz, reklama ko‘rsatmaymiz, analitika yoki kuzatuvdan foydalanmaymiz.</li>
+  <li>Bolaning ma’lumotlarini istalgan vaqtda ota-ona ilovasida o‘chirish mumkin.</li>
+</ul>
+</div>
+
+<h2>1. Ma’lumotlarni kim qayta ishlaydi</h2>
+<p>Shaxsga doir ma’lumotlar operatori: <span class="fill">[kompaniya nomi yoki tadbirkorning F.I.Sh., manzil]</span>, O‘zbekiston Respublikasi. Maxfiylik va ma’lumotlarni o‘chirish bo‘yicha: <span class="fill">[elektron pochta manzili]</span>.</p>
+
+<h2>2. Qanday ma’lumotlarni yig‘amiz</h2>
+<h3>Ota-ona (MaxCare ilovasi)</h3>
+<ul>
+  <li>Elektron pochta manzili va parol. Parol faqat qaytarib bo‘lmaydigan xesh (Argon2) ko‘rinishida saqlanadi.</li>
+  <li>Google orqali kirishda — pochta manzili va Google hisobi identifikatori.</li>
+  <li>Sozlamalar: filtr so‘zlari, ilovalar uchun vaqt cheklovlari, filtr qat’iyligi.</li>
+  <li>Obuna holati: sinov muddati, to‘langanmi va qaysi sanagacha.</li>
+</ul>
+<h3>Bolaning telefoni (MaxCare Kids ilovasi)</h3>
+<div class="table"><table>
+  <thead><tr><th>Nima</th><th>Batafsil</th></tr></thead>
+  <tbody>
+    <tr><td>Qurilma</td><td>Telefon nomi va modeli, ota-ona ko‘rsatgan bo‘lsa — bolaning ismi.</td></tr>
+    <tr><td>Himoya hodisalari</td><td>Hodisa turi va vaqti: administratorni o‘chirish, bildirishnomalar yoki joylashuvni o‘chirish, telefonni yoqish va o‘chirish, parolning bloklanishi, o‘chirishga urinish, vaqt cheklovining ishga tushishi, topilgan va yashirilgan xavfli rasm yoki qidiruv so‘rovi. Bloklangan sayt uchun — uning manzili, cheklov uchun — ilova nomi. Rasmlar, matn va ekran suratlarining o‘zi yuborilmaydi.</td></tr>
+    <tr><td>Joylashuv</td><td>Koordinatalar, aniqlik va vaqt — taxminan har 15 daqiqada, ilova yopiq bo‘lganda ham fonda.</td></tr>
+    <tr><td>Ilovalardagi vaqt</td><td>Ilova nomi va u kun davomida ekranda necha daqiqa bo‘lgani. Bola ilova ichida nima qilgani yig‘ilmaydi.</td></tr>
+  </tbody>
+</table></div>
+<h3>Nimalarni yig‘maymiz</h3>
+<p>Ekran suratlari, foto va videolar, yozishmalar, qo‘ng‘iroqlar va SMS, kontaktlar, brauzer tarixi (bloklangan saytlar manzilidan tashqari), parollar va boshqa ilovalar ma’lumotlari.</p>
+
+<h2>3. Bolaning telefonida himoya qanday ishlaydi</h2>
+<ul>
+  <li><b>Maxsus imkoniyatlar xizmati</b> xavfli kontentni yashirish uchun ekrandagi va qidiruv satridagi matn va rasmlarni o‘qiydi hamda ota-ona vaqt cheklovlarini qo‘llash uchun ochiq ilovani aniqlaydi. Tahlil telefonning o‘zidagi modellar bilan, faqat xotirada bajariladi; ekran mazmuni diskka, jurnallarga va serverga yozilmaydi.</li>
+  <li><b>Mahalliy VPN</b> saytlarni filtrlaydi. U sahifalar mazmunini emas, faqat saytlar nomini ko‘radi. Sayt nomlarini shifrlangan holda kattalar uchun va zararli saytlarni bloklaydigan Cloudflare for Families oilaviy DNS xizmati tekshiradi. Trafik uchinchi tomon serverlari orqali yo‘naltirilmaydi.</li>
+  <li><b>Qurilma administratori</b> ilovani ota-ona parolisiz o‘chirishga yo‘l qo‘ymaydi.</li>
+</ul>
+
+<h2>4. Ma’lumotlardan nima uchun foydalanamiz</h2>
+<ul>
+  <li>Ota-onaga bola qayerdaligini, nima bloklanganini va ilovalarda qancha vaqt o‘tkazayotganini ko‘rsatish.</li>
+  <li>Ota-ona sozlamalarini qo‘llash: filtr, vaqt cheklovlari.</li>
+  <li>Himoyani o‘chirishga urinilganda ota-onaga xabar berish.</li>
+  <li>Hisobga kirish va obunaning ishlashini ta’minlash.</li>
+</ul>
+<p>Biz ma’lumotlardan reklama uchun foydalanmaymiz, marketing uchun profillar yaratmaymiz va ma’lumotlarni sotmaymiz.</p>
+
+<h2>5. Qayta ishlash asosi va bolalar</h2>
+<p>Ma’lumotlar bolaning ota-onasi yoki qonuniy vakilining ilovani o‘rnatish va sozlashda beradigan roziligi asosida qayta ishlanadi. MaxCare 16 yoshgacha bo‘lgan bolalar uchun mo‘ljallangan va faqat kattalar tomonidan o‘rnatiladi. Bola himoya ishlayotganini doim ko‘radi. Agar ilova qonuniy vakilning roziligisiz o‘rnatilgan deb hisoblasangiz, bizga yozing — ma’lumotlarni o‘chiramiz.</p>
+
+<h2>6. Ma’lumotlar qayerda saqlanadi</h2>
+<ul>
+  <li>Asosiy ma’lumotlar bazasi — Toshkentdagi (O‘zbekiston Respublikasi) serverda, UzCloud xosting provayderida.</li>
+  <li>Baza zaxira nusxalari serverda shifrlanadi va 31 kungacha Backblaze (AQSh) bulutli xotirasida saqlanadi. Shifrni ochish kaliti faqat operatorda; na Backblaze, na serverning buzilishi nusxalarni o‘qish imkonini bermaydi.</li>
+  <li>Telefonlarda ma’lumotlar shifrlangan holda saqlanadi (Android Keystore).</li>
+  <li>Server bilan aloqa — faqat shifrlangan (HTTPS/TLS).</li>
+</ul>
+
+<h2>7. Ma’lumotlar kimga uzatiladi</h2>
+<div class="table"><table>
+  <thead><tr><th>Kim</th><th>Nimani oladi</th><th>Nima uchun</th></tr></thead>
+  <tbody>
+    <tr><td>UzCloud (O‘zbekiston)</td><td>Serverdagi barcha ma’lumotlar</td><td>Xosting</td></tr>
+    <tr><td>Backblaze (AQSh)</td><td>Faqat shifrlangan zaxira nusxalar</td><td>Nosozlikdan keyin tiklash</td></tr>
+    <tr><td>Google</td><td>Google orqali kirishda pochta va hisob ID; Google Play’dagi xarid ma’lumotlari</td><td>Kirish, obuna to‘lovi</td></tr>
+    <tr><td>RevenueCat</td><td>Oila identifikatori va obuna xaridi ma’lumotlari</td><td>Obunani tekshirish</td></tr>
+    <tr><td>Cloudflare for Families</td><td>Bolaning telefoni ochadigan saytlar nomi (shifrlangan)</td><td>Xavfli saytlarni bloklash</td></tr>
+    <tr><td>OpenStreetMap</td><td>Ota-ona telefonining IP manzili va ko‘rilayotgan xarita hududi</td><td>Xaritani ko‘rsatish</td></tr>
+  </tbody>
+</table></div>
+<p>Boshqa shaxslarga ma’lumotlar faqat qonun talabiga ko‘ra uzatiladi.</p>
+
+<h2>8. Ma’lumotlar qancha saqlanadi va qanday o‘chiriladi</h2>
+<ul>
+  <li>Bolaning telefoni ma’lumotlari u oilaga bog‘langan ekan, saqlanadi.</li>
+  <li><b>Bolani o‘chirish:</b> MaxCare → bola → «Sozlamalar» → «Bolani o‘chirish». Yoki bolaning telefonida: «Himoyani o‘chirish» → ota-ona paroli → «Ota-onadan uzish». Barcha hodisalar, marshrut, ilovalardagi vaqt va cheklovlar serverdan darhol, zaxira nusxalardan esa 31 kun ichida o‘chiriladi.</li>
+  <li><b>Ota-ona hisobini o‘chirish:</b> MaxCare → «Sozlamalar» → «Hisobni o‘chirish», parol bilan tasdiqlanadi (parol bo‘lmasa — o‘sha Google hisobi bilan). Hisob, barcha bolalar va ularning barcha ma’lumotlari serverdan darhol, zaxira nusxalardan esa 31 kun ichida o‘chiriladi. Ilovaga kira olmasangiz, hisob manzilidan <span class="fill">[elektron pochta manzili]</span> ga yozing — 30 kun ichida hammasini o‘chiramiz. Google Play obunasini Google Play’da bekor qiling: u o‘zi bekor qilinmaydi.</li>
+  <li>Bog‘lash kodlari amal qilish muddati tugaganidan bir kun o‘tib o‘chiriladi.</li>
+</ul>
+
+<h2>9. Sizning huquqlaringiz</h2>
+<p>Siz va bolangiz haqida qanday ma’lumotlarni saqlayotganimizni bilish, ularni tuzatish, o‘chirish yoki roziligingizni qaytarib olishingiz mumkin. Rozilikni qaytarib olish ma’lumotlarni o‘chirish va himoyaning to‘xtashini anglatadi. <span class="fill">[elektron pochta manzili]</span> ga yozing, 30 kun ichida javob beramiz.</p>
+
+<h2>10. Siyosatdagi o‘zgarishlar</h2>
+<p>Agar ushbu siyosatni o‘zgartirsak, yangi versiya yangi sana bilan shu sahifada paydo bo‘ladi, muhim o‘zgarishlar haqida esa ilovada xabar beramiz.</p>
+</section>
+
+<!-- ============================ EN ============================ -->
+<section lang="en" id="en">
+<h1>MaxCare Privacy Policy</h1>
+<p class="meta">Effective 17 November 2026 · Apps: MaxCare (for the parent) and MaxCare Kids (for the child’s phone)</p>
+
+<div class="summary">
+<h2>In short</h2>
+<ul>
+  <li>A parent or legal guardian installs MaxCare Kids on the phone of their child under 16. The app does not hide: its icon and a permanent notification are always visible.</li>
+  <li>The screen, text, photos and messages on the child’s phone are checked <b>only on the phone itself, in memory</b>, and are never sent anywhere.</li>
+  <li>Only events (what happened and when), location, app time and the phone model are sent to the server.</li>
+  <li>Data is stored on a server in Tashkent (Uzbekistan). We do not sell it, show ads, or use analytics or tracking.</li>
+  <li>A child’s data can be deleted at any time in the parent’s app.</li>
+</ul>
+</div>
+
+<h2>1. Who processes the data</h2>
+<p>Data controller: <span class="fill">[company name or sole trader’s full name, address]</span>, Republic of Uzbekistan. Privacy and deletion requests: <span class="fill">[email address]</span>.</p>
+
+<h2>2. What data we collect</h2>
+<h3>Parent (MaxCare app)</h3>
+<ul>
+  <li>Email address and password. The password is stored only as a one-way hash (Argon2).</li>
+  <li>With Google sign-in — the email address and Google account ID.</li>
+  <li>Settings: filter words, app time limits, filter strictness.</li>
+  <li>Subscription status: trial, whether it is paid and until when.</li>
+</ul>
+<h3>Child’s phone (MaxCare Kids app)</h3>
+<div class="table"><table>
+  <thead><tr><th>What</th><th>Details</th></tr></thead>
+  <tbody>
+    <tr><td>Device</td><td>Phone name and model, and the child’s name if the parent entered it.</td></tr>
+    <tr><td>Protection events</td><td>Event type and time: device admin turned off, notifications or location turned off, phone turned on and off, parent password locked, removal attempt, time limit reached, a harmful image or search found and hidden. For a blocked site — its address; for a time limit — the app name. Images, text and screenshots themselves are never sent.</td></tr>
+    <tr><td>Location</td><td>Coordinates, accuracy and time — about every 15 minutes, including in the background when the app is closed.</td></tr>
+    <tr><td>App time</td><td>App name and how many minutes a day it was on screen. What the child did inside the app is not collected.</td></tr>
+  </tbody>
+</table></div>
+<h3>What we do not collect</h3>
+<p>Screenshots, photos and videos, messages, calls and SMS, contacts, browser history (except addresses of blocked sites), passwords and data from other apps.</p>
+
+<h2>3. How protection works on the child’s phone</h2>
+<ul>
+  <li><b>The accessibility service</b> reads text and images on the screen and in search fields to hide harmful content, and sees which app is open to apply the parent’s time limits. The analysis runs with models on the phone itself, in memory only; screen content is never written to disk, logs or the server.</li>
+  <li><b>A local VPN</b> filters websites. It sees only site names, not page contents. Site names are checked, encrypted, by the family DNS service Cloudflare for Families, which blocks adult and malicious sites. Traffic is not routed through third-party servers.</li>
+  <li><b>Device admin</b> prevents the app from being removed without the parent’s password.</li>
+</ul>
+
+<h2>4. Why we use the data</h2>
+<ul>
+  <li>To show the parent where the child is, what was blocked and how much time is spent in apps.</li>
+  <li>To apply the parent’s settings: filter and time limits.</li>
+  <li>To tell the parent if someone tried to turn protection off.</li>
+  <li>To provide sign-in and the subscription.</li>
+</ul>
+<p>We do not use data for advertising, do not build marketing profiles and do not sell data.</p>
+
+<h2>5. Legal basis and children</h2>
+<p>Data is processed with the consent of the child’s parent or legal guardian, given when installing and setting up the app. MaxCare is meant for children under 16 and is installed only by an adult. The child always sees that protection is on. If you believe the app was installed without a legal guardian’s consent, write to us and we will delete the data.</p>
+
+<h2>6. Where data is stored</h2>
+<ul>
+  <li>The main database is on a server in Tashkent (Republic of Uzbekistan), hosted by UzCloud.</li>
+  <li>Database backups are encrypted on the server and kept for up to 31 days in Backblaze cloud storage (USA). Only the controller holds the decryption key; neither Backblaze nor a server breach can read the backups.</li>
+  <li>On phones, data is stored encrypted (Android Keystore).</li>
+  <li>Connections to the server are always encrypted (HTTPS/TLS).</li>
+</ul>
+
+<h2>7. Who receives the data</h2>
+<div class="table"><table>
+  <thead><tr><th>Who</th><th>What</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>UzCloud (Uzbekistan)</td><td>All server data</td><td>Hosting</td></tr>
+    <tr><td>Backblaze (USA)</td><td>Encrypted backups only</td><td>Recovery after a failure</td></tr>
+    <tr><td>Google</td><td>Email and account ID with Google sign-in; purchase data in Google Play</td><td>Sign-in, subscription payment</td></tr>
+    <tr><td>RevenueCat</td><td>Family ID and subscription purchase data</td><td>Subscription check</td></tr>
+    <tr><td>Cloudflare for Families</td><td>Names of sites the child’s phone opens (encrypted)</td><td>Blocking harmful sites</td></tr>
+    <tr><td>OpenStreetMap</td><td>The parent phone’s IP address and the map area being viewed</td><td>Showing the map</td></tr>
+  </tbody>
+</table></div>
+<p>Data is disclosed to anyone else only when required by law.</p>
+
+<h2>8. How long data is kept and how to delete it</h2>
+<ul>
+  <li>Data from a child’s phone is kept while it is paired with the family.</li>
+  <li><b>Deleting a child:</b> MaxCare → the child → “Settings” → “Delete child”. Or on the child’s phone: “Turn off protection” → parent password → “Unpair from parent”. All events, route, app time and limits are deleted from the server at once, and from backups within 31 days.</li>
+  <li><b>Deleting the parent account:</b> MaxCare → “Settings” → “Delete account”, confirmed with the password (or the same Google account if there is no password). The account, all children and all their data are deleted from the server at once, and from backups within 31 days. If you cannot sign in, write to <span class="fill">[email address]</span> from the account’s address and we will delete everything within 30 days. Cancel a Google Play subscription in Google Play: it is not cancelled automatically.</li>
+  <li>Pairing codes are deleted one day after they expire.</li>
+</ul>
+
+<h2>9. Your rights</h2>
+<p>You can ask what data we keep about you and your child, correct it, delete it or withdraw consent. Withdrawing consent means the data is deleted and protection stops. Write to <span class="fill">[email address]</span>; we reply within 30 days.</p>
+
+<h2>10. Changes to this policy</h2>
+<p>If we change this policy, the new version will appear on this page with a new date, and we will announce significant changes in the app.</p>
+</section>
+
+<footer>© 2026 MaxCare</footer>
+</div>
+<script>
+(() => {
+  const langs = ["ru", "uz", "en"];
+  function show() {
+    const hash = location.hash.slice(1);
+    const lang = langs.includes(hash) ? hash : "ru";
+    document.documentElement.lang = lang;
+    document.querySelectorAll("section[lang]").forEach(s => s.classList.toggle("on", s.id === lang));
+    document.querySelectorAll(".langs a").forEach(a => a.setAttribute("aria-current", String(a.dataset.lang === lang)));
+  }
+  window.addEventListener("hashchange", show);
+  show();
+})();
+</script>
+</body>
+</html>
