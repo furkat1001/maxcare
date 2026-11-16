@@ -27,3 +27,29 @@
 		output discard
 	}
 }
+
+# Сайт MaxCare: политика конфиденциальности и другие статические страницы (папка site/).
+# Только файлы, без проксирования на сервер.
+{$SITE_DOMAIN:maxcare.dexx.uz} {
+	tls {
+		issuer acme {
+			dir https://acme-v02.api.letsencrypt.org/directory
+		}
+	}
+
+	encode gzip
+	root * /srv/site
+	redir / /privacy/ 302
+	redir /privacy /privacy/ 301
+	file_server
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		-Server
+	}
+
+	log {
+		output discard
+	}
+}
